@@ -1,0 +1,6 @@
+# compiled object files
+*.o
+
+# temporary files
+*~
+#*#

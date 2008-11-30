@@ -1,0 +1,13 @@
+libmonome v0.2:
+
+	libmonome is a simple C library that wraps around the monome serial
+	protocol.  there is an included simple application to demonstrate
+	basic usage of libmonome.
+
+	there is also a monomeserial clone that wraps around the C library 
+	and provides OSC control of the monome (loosely) according to the 
+	monome OSC specification.
+
+	libmonome was written by will light (visinin on the monome forums).
+	you can contact him at <visinin@gmail.com>.
+	feedback of all sorts is welcomed!
