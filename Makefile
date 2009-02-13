@@ -1,7 +1,7 @@
 SHELL = /bin/sh
 
-export project = libmonome
-export version = 0.2
+export PROJECT = libmonome
+export VERSION = 0.2
 
 export CC = gcc
 export LD = gcc
@@ -24,9 +24,11 @@ export PLATFORM = $(shell uname -s)
 
 all:
 	cd src; $(MAKE)
+	cd examples; $(MAKE)
 
 clean:
 	cd src; $(MAKE) clean
+	cd examples; $(MAKE) clean
 
 install:
 	cd src; $(MAKE) install

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "monome.h"
+#include "monome_internal.h"
 
 int monome_device_open(monome_t *monome) {
 	struct termios nt;

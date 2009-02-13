@@ -13,7 +13,7 @@
 #ifndef _MONOME_PLATFORM_H
 #define _MONOME_PLATFORM_H
 
-#include "monome.h"
+#include "monome_internal.h"
 
 int monome_device_open(monome_t *monome);
 

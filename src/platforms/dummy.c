@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-#include "monome.h"
+#include "monome_internal.h"
 
 int monome_device_open(monome_t *monome) {
 	printf("libmonome was compiled with the dummy platform and, hence, effectively does nothing.\n"

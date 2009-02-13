@@ -16,7 +16,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "monome.h"
+#include "monome_internal.h"
 #include "monome_platform.h"
 
 /**

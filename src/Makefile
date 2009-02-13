@@ -1,17 +1,15 @@
-CFLAGS  += -I. -I../include
+CFLAGS  += -I./include -I../include
 LDFLAGS += -L. -lmonome -llo
-objs = libmonome.o monomeserial.o simple.o test.o linux_usbfs.o platform.o
+OBJS = libmonome.o monomeserial.o linux_usbfs.o platform.o
 
 ifeq ($(PLATFORM),Darwin)
-	targets = libmonome.dylib
+	TARGETS = libmonome.dylib
 else
-	targets = libmonome.so.$(version) 
+	TARGETS = libmonome.so.$(VERSION)
 endif
-targets += monomeserial linux_usbfs simple test
+TARGETS += monomeserial linux_usbfs
 
-all: $(objs) $(targets)
-
-examples: simple test
+all: $(OBJS) $(TARGETS)
 
 clean:
 	echo "  CLEAN   src"
@@ -19,14 +17,14 @@ clean:
 
 install: all
 	echo "  INSTALL $(LIBDIR)/libmonome.so"
-	$(INSTALL) libmonome.so.$(version) $(LIBDIR)
+	$(INSTALL) libmonome.so.$(VERSION) $(LIBDIR)
 	ldconfig -n $(LIBDIR)
 
 	echo "  INSTALL $(BINDIR)/monomeserial"
 	install monomeserial $(BINDIR)
 
 libmonome: libmonome.o
-libmonome.so.$(version): libmonome.o platform.o
+libmonome.so.$(VERSION): libmonome.o platform.o
 	echo "  LD      src/libmonome.so"
 	$(LD) -shared -Wl,-soname,libmonome.so -lc -o $@ $^
 	ln -sf $@ libmonome.so
