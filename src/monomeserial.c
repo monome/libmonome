@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 	monome_t *monome;
 	
 	if( argc == 2 )
-		lo_prefix = argv[1];
+		lo_prefix = strdup(argv[1]);
 	else {
 		lo_prefix = calloc(sizeof(char), strlen(DEFAULT_OSC_PREFIX) + 1);
 		strcpy(lo_prefix, DEFAULT_OSC_PREFIX);
@@ -159,7 +159,7 @@ int led_handler(const char *path, const char *types, lo_arg **argv, int argc, lo
 
 int led_col_row_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
-	uint8_t buf[2];
+	unsigned int buf[2];
 	
 	if( argv[0]->i > 15 || argv[0]->i < 0 )
 		return -1;
@@ -198,7 +198,7 @@ int led_col_row_handler(const char *path, const char *types, lo_arg **argv, int 
 
 int frame_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
-	uint8_t buf[8], i;
+	unsigned int buf[8], i;
 
 	for( i = 0; i < 8; i++ )
 		buf[i] = argv[i]->i;

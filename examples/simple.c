@@ -10,6 +10,7 @@
  *
  */
 
+#include <stdio.h>
 #include "monome.h"
 
 void handle_press(monome_event_t e, void *data) {

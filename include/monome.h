@@ -13,6 +13,10 @@
 #ifndef _MONOME_H
 #define _MONOME_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <termios.h>
 
@@ -56,59 +60,69 @@ typedef enum {
 	MONOME_MODE_SHUTDOWN       = 0x02
 } monome_mode_t;
 	
-/* devices and their dimensions (rows are the upper 4 bits, columns are the lower 4) */
+/* devices and their protocol versions and dimensions */
+
+typedef enum {
+	MONOME_PROTOCOL_SERIES     = 0x0200,
+	MONOME_PROTOCOL_40h        = 0x0100
+} monome_protocol_version_t;
 
 typedef enum {	
-	MONOME_DEVICE_256          = 0xFF,
-	MONOME_DEVICE_128          = 0x7F,
-	MONOME_DEVICE_64           = 0x77,
-	MONOME_DEVICE_40h          = 0x77
+	MONOME_DEVICE_256          = 0x00FF | MONOME_PROTOCOL_SERIES,
+	MONOME_DEVICE_128          = 0x007F | MONOME_PROTOCOL_SERIES,
+	MONOME_DEVICE_64           = 0x0077 | MONOME_PROTOCOL_SERIES,
+	MONOME_DEVICE_40h          = 0x0077 | MONOME_PROTOCOL_40h
 } monome_device_t;
 
+typedef struct monome_event monome_event_t;
+typedef struct monome_callback monome_callback_t;
+typedef struct monome monome_t;
 
-typedef struct monome_event {
-	struct monome *monome;
-	uint8_t event_type;
-	uint8_t x;
-	uint8_t y;
-} monome_event_t;
+typedef void (*monome_callback_function_t)(monome_event_t event, void *data);
 
-typedef struct monome_callback {
-	void (*cb)(struct monome_event, void*); /* we do this to avoid compiler warnings about imcomplete types */
+struct monome_event {
+	monome_t *monome;
+	unsigned int event_type;
+	unsigned int x;
+	unsigned int y;
+};
+
+struct monome_callback {
+	monome_callback_function_t cb;
 	void *data;
-	struct monome_callback *next;
-} monome_callback_t;
 
-typedef struct monome {
+	monome_callback_t *next;
+};
+
+struct monome {
 	char *dev;
 	monome_device_t model;
 	
 	struct termios ot;
 	int fd;
 	
-	struct monome_callback *handlers[2];
-} monome_t;
-
-typedef void (*monome_callback_function_t)(monome_event_t event, void *data);
-
+	monome_callback_t *handlers[2];
+};
 
 monome_t *monome_open(const char *monome_device);
-int monome_close(monome_t *monome);
+void monome_close(monome_t *monome);
 
 ssize_t monome_clear(monome_t *monome, monome_clear_status_t status);
-ssize_t monome_intensity(monome_t *monome, uint8_t brightness);
+ssize_t monome_intensity(monome_t *monome, unsigned int brightness);
 ssize_t monome_mode(monome_t *monome, monome_mode_t mode);
 
-void monome_register_handler(monome_t *monome, uint8_t event_type, monome_callback_function_t, void *user_data);
-void monome_unregister_handler(monome_t *monome, uint8_t event_type, monome_callback_function_t, void *user_data);
+void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t, void *user_data);
+void monome_unregister_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t, void *user_data);
 void monome_main_loop(monome_t *monome);
+ssize_t monome_led_on(monome_t *monome, unsigned int x, unsigned int y);
+ssize_t monome_led_off(monome_t *monome, unsigned int x, unsigned int y);
+ssize_t monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data);
+ssize_t monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data);
+ssize_t monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data);
+ssize_t monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data);
+ssize_t monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data);
 
-ssize_t monome_led_on(monome_t *monome, uint8_t x, uint8_t y);
-ssize_t monome_led_off(monome_t *monome, uint8_t x, uint8_t y);
-ssize_t monome_led_col_8(monome_t *monome, uint8_t col, uint8_t *col_data);
-ssize_t monome_led_row_8(monome_t *monome, uint8_t row, uint8_t *row_data);
-ssize_t monome_led_col_16(monome_t *monome, uint8_t col, uint8_t *col_data);
-ssize_t monome_led_row_16(monome_t *monome, uint8_t row, uint8_t *row_data);
-ssize_t monome_led_frame(monome_t *this, uint8_t quadrant, uint8_t *frame_data);
-
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
+#endif /* defined _MONOME_H */

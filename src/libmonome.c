@@ -31,7 +31,7 @@ static ssize_t monome_read(monome_t *monome, uint8_t *buf, ssize_t count) {
 	return monome_device_read(monome, buf, count);
 }
 
-static ssize_t monome_led_col_row(monome_t *monome, uint8_t mode, uint8_t address, uint8_t *data) {
+static ssize_t monome_led_col_row(monome_t *monome, unsigned int mode, unsigned int address, unsigned int *data) {
 	uint8_t buf[3];
 	
 	switch( mode ) {
@@ -54,7 +54,7 @@ static ssize_t monome_led_col_row(monome_t *monome, uint8_t mode, uint8_t addres
 	return -1;
 }
 
-static ssize_t monome_led(monome_t *monome, uint8_t status, uint8_t x, uint8_t y) {
+static ssize_t monome_led(monome_t *monome, unsigned int status, unsigned int x, unsigned int y) {
 	uint8_t buf[2];
 	
 	buf[0] = status;
@@ -92,21 +92,19 @@ monome_t *monome_open(const char *dev) {
 	return monome;
 }
 
-int monome_close(monome_t *monome) {
+void monome_close(monome_t *monome) {
 	if( tcsetattr(monome->fd, TCSANOW, &monome->ot) < 0) {
 		perror("libmonome: could not restore terminal attributes");
-		return 0;
+		return;
 	}
 	
 	close(monome->fd);
 	
 	free(monome->dev);
 	free(monome);
-	
-	return 1;
 }
 
-void monome_register_handler(monome_t *monome, uint8_t event_type, monome_callback_function_t cb, void *data) {
+void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t cb, void *data) {
 	monome_callback_t *handler, *handler_curs;
 	
 	if( (event_type >>= 4) > 1 || !cb )
@@ -128,7 +126,7 @@ void monome_register_handler(monome_t *monome, uint8_t event_type, monome_callba
  * FIXME: if a function is registered as a callback with NULL passed as the user_data argument, it can't be removed without getting rid of all of the other instances of the function.
  */
 
-void monome_unregister_handler(monome_t *monome, uint8_t event_type, monome_callback_function_t cb, void *data) {
+void monome_unregister_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t cb, void *data) {
 	monome_callback_t *handler_curs, *handler_next;
 	
 	if( (((event_type >>= 4) > 1 ) | !(handler_curs = monome->handlers[event_type])) || !cb )
@@ -154,8 +152,9 @@ void monome_unregister_handler(monome_t *monome, uint8_t event_type, monome_call
 
 void monome_main_loop(monome_t *monome) {
 	monome_callback_t *handler_curs;
+	unsigned int event_shifted;
 	monome_event_t e;
-	uint8_t buf[2], event_shifted;
+	uint8_t buf[2];
 	
 	e.monome = monome;
 	
@@ -183,7 +182,7 @@ ssize_t monome_clear(monome_t *monome, monome_clear_status_t status) {
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
-ssize_t monome_intensity(monome_t *monome, uint8_t brightness) {
+ssize_t monome_intensity(monome_t *monome, unsigned int brightness) {
 	uint8_t buf = MONOME_INTENSITY | ( brightness & 0x0F );
 	return monome_write(monome, &buf, sizeof(buf));
 }
@@ -193,31 +192,31 @@ ssize_t monome_mode(monome_t *monome, monome_mode_t mode) {
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
-ssize_t monome_led_on(monome_t *monome, uint8_t x, uint8_t y) {
+ssize_t monome_led_on(monome_t *monome, unsigned int x, unsigned int y) {
 	return monome_led(monome, MONOME_LED_ON, x, y);
 }
 
-ssize_t monome_led_off(monome_t *monome, uint8_t x, uint8_t y) {
+ssize_t monome_led_off(monome_t *monome, unsigned int x, unsigned int y) {
 	return monome_led(monome, MONOME_LED_OFF, x, y);
 }
 
-ssize_t monome_led_col_8(monome_t *monome, uint8_t col, uint8_t *col_data) {
+ssize_t monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
 	return monome_led_col_row(monome, MONOME_LED_COL_8, col, col_data);
 }
 
-ssize_t monome_led_row_8(monome_t *monome, uint8_t row, uint8_t *row_data) {
+ssize_t monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
 	return monome_led_col_row(monome, MONOME_LED_ROW_8, row, row_data);
 }
 
-ssize_t monome_led_col_16(monome_t *monome, uint8_t col, uint8_t *col_data) {
+ssize_t monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
 	return monome_led_col_row(monome, MONOME_LED_COL_16, col, col_data);
 }
 
-ssize_t monome_led_row_16(monome_t *monome, uint8_t row, uint8_t *row_data) {
+ssize_t monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
 	return monome_led_col_row(monome, MONOME_LED_ROW_16, row, row_data);
 }
 
-ssize_t monome_led_frame(monome_t *monome, uint8_t quadrant, uint8_t *frame_data) {
+ssize_t monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
 	uint8_t buf[9], i;
 	
 	buf[0] = MONOME_LED_FRAME | ( quadrant & 0x03 );
