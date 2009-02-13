@@ -23,26 +23,9 @@ extern "C" {
 #include <sys/types.h>
 
 typedef enum {
-	/* input (from device) */
-
 	MONOME_BUTTON_DOWN         = 0x00,
 	MONOME_BUTTON_UP           = 0x10,
-	MONOME_AUX_INPUT           = 0xE0,
-	
-	/* output (to device) */
-
-	MONOME_LED_ON              = 0x20,
-	MONOME_LED_OFF             = 0x30,
-	MONOME_LED_ROW_8           = 0x40,
-	MONOME_LED_COL_8           = 0x50,
-	MONOME_LED_ROW_16          = 0x60,
-	MONOME_LED_COL_16          = 0x70,
-	MONOME_LED_FRAME           = 0x80,
-	MONOME_CLEAR               = 0x90,
-	MONOME_INTENSITY           = 0xA0,
-	MONOME_MODE                = 0xB0,
-	MONOME_AUX_PORT_ACTIVATE   = 0xC0,
-	MONOME_AUX_PORT_DEACTIVATE = 0xD0
+	MONOME_AUX_INPUT           = 0x20,
 } monome_message_t;
 
 /* clearing statuses (argument to MONOME_CLEAR output command) */
@@ -75,8 +58,7 @@ typedef enum {
 } monome_device_t;
 
 typedef struct monome_event monome_event_t;
-typedef struct monome_callback monome_callback_t;
-typedef struct monome monome_t;
+typedef struct monome monome_t; /* opaque data type */
 
 typedef void (*monome_callback_function_t)(monome_event_t event, void *data);
 
@@ -85,23 +67,6 @@ struct monome_event {
 	unsigned int event_type;
 	unsigned int x;
 	unsigned int y;
-};
-
-struct monome_callback {
-	monome_callback_function_t cb;
-	void *data;
-
-	monome_callback_t *next;
-};
-
-struct monome {
-	char *dev;
-	monome_device_t model;
-	
-	struct termios ot;
-	int fd;
-	
-	monome_callback_t *handlers[2];
 };
 
 monome_t *monome_open(const char *monome_device);
