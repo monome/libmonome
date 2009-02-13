@@ -32,7 +32,6 @@ clean:
 
 install:
 	cd src; $(MAKE) install
-	cd include; $(MAKE) install
 
 	echo "  INSTALL $(PKGCONFIGDIR)/libmonome.pc"
 	$(INSTALL) libmonome.pc $(PKGCONFIGDIR)
