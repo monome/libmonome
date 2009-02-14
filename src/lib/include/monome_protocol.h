@@ -10,30 +10,8 @@
  *
  */
 
-#ifndef _MONOME_INTERNAL_H
-#define _MONOME_INTERNAL_H
-
 #include <stdint.h>
-#include <termios.h>
 
-#include <sys/types.h>
+#include "monome_internal.h"
 
-typedef struct monome_callback monome_callback_t;
-
-struct monome_callback {
-	monome_callback_function_t cb;
-	void *data;
-	struct monome_callback *next;
-};
-
-struct monome {
-	char *dev;
-	monome_device_t model;
-	
-	struct termios ot;
-	int fd;
-	
-	monome_callback_t *handlers[2];
-};
-
-#endif
+void monome_protocol_dispatch_event(monome_event_t *event, uint8_t *buf, ssize_t buf_size);

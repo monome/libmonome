@@ -16,51 +16,17 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "monome.h"
 #include "monome_internal.h"
 #include "monome_platform.h"
+#include "monome_protocol.h"
 
 /**
  * private
  */
 
-static ssize_t monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-	return monome_device_write(monome, buf, bufsize);
-}
-
 static ssize_t monome_read(monome_t *monome, uint8_t *buf, ssize_t count) {
-	return monome_device_read(monome, buf, count);
-}
-
-static ssize_t monome_led_col_row(monome_t *monome, unsigned int mode, unsigned int address, unsigned int *data) {
-	uint8_t buf[3];
-	
-	switch( mode ) {
-	case MONOME_LED_COL_8:
-	case MONOME_LED_ROW_8:
-		buf[0] = mode | (address & 0x0F );
-		buf[1] = data[0];
-		
-		return monome_write(monome, buf, sizeof(buf) - sizeof(char));
-		
-	case MONOME_LED_COL_16:
-	case MONOME_LED_ROW_16:
-		buf[0] = mode | (address & 0x0F );
-		buf[1] = data[0];
-		buf[2] = data[1];
-		
-		return monome_write(monome, buf, sizeof(buf));
-	}
-	
-	return -1;
-}
-
-static ssize_t monome_led(monome_t *monome, unsigned int status, unsigned int x, unsigned int y) {
-	uint8_t buf[2];
-	
-	buf[0] = status;
-	buf[1] = ( x << 4 ) | y;
-	
-	return monome_write(monome, buf, sizeof(buf));
+    return monome_device_read(monome, buf, count);
 }
 
 /**
@@ -151,15 +117,15 @@ void monome_unregister_handler(monome_t *monome, unsigned int event_type, monome
 }
 
 void monome_main_loop(monome_t *monome) {
-	monome_callback_t *handler_curs;
-	unsigned int event_shifted;
 	monome_event_t e;
-	uint8_t buf[2];
+	uint8_t buf[2] = {0, 0};
 	
 	e.monome = monome;
 	
 	while( monome_read(monome, buf, sizeof(buf)) > 0 ) {
-		switch( (e.event_type = buf[0]) ) {
+		monome_protocol_dispatch_event(&e, buf, sizeof(buf));
+
+		/* switch( (e.event_type = buf[0]) ) {
 		case MONOME_BUTTON_DOWN:
 		case MONOME_BUTTON_UP:
 			event_shifted = e.event_type >> 4;
@@ -171,59 +137,7 @@ void monome_main_loop(monome_t *monome) {
 					handler_curs->cb(e, handler_curs->data);
 			
 			break;
-		
-			/** leaving room here for ADC **/
-		}
+		} */
+		buf[0] = buf[1] = 0;
 	}
-}
-
-ssize_t monome_clear(monome_t *monome, monome_clear_status_t status) {
-	uint8_t buf = MONOME_CLEAR | ( status & MONOME_CLEAR_ON );
-	return monome_write(monome, &buf, sizeof(buf));
-}
-
-ssize_t monome_intensity(monome_t *monome, unsigned int brightness) {
-	uint8_t buf = MONOME_INTENSITY | ( brightness & 0x0F );
-	return monome_write(monome, &buf, sizeof(buf));
-}
-
-ssize_t monome_mode(monome_t *monome, monome_mode_t mode) {
-	uint8_t buf = MONOME_MODE | ( (mode & MONOME_MODE_TEST) | (mode & MONOME_MODE_SHUTDOWN) );
-	return monome_write(monome, &buf, sizeof(buf));
-}
-
-ssize_t monome_led_on(monome_t *monome, unsigned int x, unsigned int y) {
-	return monome_led(monome, MONOME_LED_ON, x, y);
-}
-
-ssize_t monome_led_off(monome_t *monome, unsigned int x, unsigned int y) {
-	return monome_led(monome, MONOME_LED_OFF, x, y);
-}
-
-ssize_t monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return monome_led_col_row(monome, MONOME_LED_COL_8, col, col_data);
-}
-
-ssize_t monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return monome_led_col_row(monome, MONOME_LED_ROW_8, row, row_data);
-}
-
-ssize_t monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return monome_led_col_row(monome, MONOME_LED_COL_16, col, col_data);
-}
-
-ssize_t monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return monome_led_col_row(monome, MONOME_LED_ROW_16, row, row_data);
-}
-
-ssize_t monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
-	uint8_t buf[9], i;
-	
-	buf[0] = MONOME_LED_FRAME | ( quadrant & 0x03 );
-	
-	for( i = 1; i < 9; i++ )
-		if( !(buf[i] = *(frame_data++)) )
-			return 0;
-	
-	return monome_write(monome, buf, sizeof(buf));
 }

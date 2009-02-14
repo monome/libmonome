@@ -1,6 +1,8 @@
-CFLAGS  += -I./include
+CFLAGS  += -I./include -I../include
 LDFLAGS += 
-OBJS = libmonome.o platform.o
+OBJS = libmonome.o platform.o protocol.o
+
+PROTO = series
 
 ifeq ($(PLATFORM),Darwin)
 	TARGETS = libmonome.dylib
@@ -22,7 +24,7 @@ ifneq ($(PLATFORM),Darwin)
 endif
 
 libmonome: libmonome.o
-libmonome.so.$(VERSION): libmonome.o platform.o
+libmonome.so.$(VERSION): libmonome.o platform.o protocol.o
 	echo "  LD      src/lib/libmonome.so"
 	$(LD) -shared -Wl,-soname,libmonome.so -lc -o $@ $^
 	ln -sf $@ libmonome.so
@@ -38,6 +40,10 @@ ifeq ($(PLATFORM),Darwin)
 else
 	$(CC) $(CFLAGS) -c platform/linux.c -o $@
 endif
+
+protocol.o: protocol/$(PROTO)/protocol_$(PROTO).c
+	echo "  CC      src/lib/$@"
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %: %.o
 	echo "  LD      src/lib/$@"

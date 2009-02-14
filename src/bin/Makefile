@@ -1,4 +1,4 @@
-CFLAGS  += -I../includee
+CFLAGS  += -I../include
 LDFLAGS += -L../lib -lmonome -llo
 OBJS = monomeserial.o linux_usbfs.o
 TARGETS = monomeserial linux_usbfs

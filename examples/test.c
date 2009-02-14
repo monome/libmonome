@@ -11,12 +11,13 @@
  */
 
 #include <time.h>
+#include <stdio.h>
 
 #include "monome.h"
 
 #define DEFAULT_MONOME_DEVICE 	"/dev/ttyUSB0"
 
-#define BPM 133
+#define BPM 60
 
 static void chill(int speed) {
 	struct timespec rem, req = {0, ((60000 / (BPM * speed)) * 1000000)};
@@ -104,7 +105,7 @@ int main(int argc, char **argv) {
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);
 	
-	for( i = 0; i < 4; i++ ) {
+	for( i = 0; i < 2; i++ ) {
 		test_led_row(monome);
 		test_led_col(monome);
 	}

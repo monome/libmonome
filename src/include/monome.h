@@ -26,16 +26,16 @@ typedef enum {
 	MONOME_BUTTON_DOWN         = 0x00,
 	MONOME_BUTTON_UP           = 0x10,
 	MONOME_AUX_INPUT           = 0x20,
-} monome_message_t;
+} monome_event_type_t;
 
-/* clearing statuses (argument to MONOME_CLEAR output command) */
+/* clearing statuses (argument to monome_clear) */
 
 typedef enum {
 	MONOME_CLEAR_OFF           = 0x00,
 	MONOME_CLEAR_ON            = 0x01
 } monome_clear_status_t;
 
-/* modes (argument to the MONOME_MODE output command) */
+/* modes (argument to monome_mode) */
 
 typedef enum {
 	MONOME_MODE_NORMAL         = 0x00,
@@ -43,7 +43,7 @@ typedef enum {
 	MONOME_MODE_SHUTDOWN       = 0x02
 } monome_mode_t;
 	
-/* devices and their protocol versions and dimensions */
+/* devices, their protocol versions, and their dimensions */
 
 typedef enum {
 	MONOME_PROTOCOL_SERIES     = 0x0200,
@@ -64,7 +64,7 @@ typedef void (*monome_callback_function_t)(monome_event_t event, void *data);
 
 struct monome_event {
 	monome_t *monome;
-	unsigned int event_type;
+	monome_event_type_t event_type;
 	unsigned int x;
 	unsigned int y;
 };

@@ -1,5 +1,5 @@
-CFLAGS  += -I../include
-LDFLAGS += -L. -lmonome
+CFLAGS  += -I../src/include
+LDFLAGS += -L../src/lib -lmonome
 OBJS     = simple.o test.o
 TARGETS  = simple test
 
