@@ -16,8 +16,8 @@
 typedef enum {
 	/* input (from device) */
 
-	PROTO_40h_BUTTON_DOWN         = 0x00,
-	PROTO_40h_BUTTON_UP           = 0x01,
+	PROTO_40h_BUTTON_DOWN         = 0x01,
+	PROTO_40h_BUTTON_UP           = 0x00,
 	PROTO_40h_AUX_INPUT           = 0x10,
 	
 	/* output (to device) */
