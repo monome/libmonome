@@ -58,9 +58,11 @@ void monome_protocol_dispatch_event(monome_event_t *e, uint8_t *buf, ssize_t buf
 	switch( (event_shifted = buf[0]) ) {
 	case PROTO_40h_BUTTON_DOWN:
 	case PROTO_40h_BUTTON_UP:
-		e->event_type = (event_shifted == PROTO_40h_BUTTON_DOWN) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
+		e->event_type = event_shifted =
+			(event_shifted == PROTO_40h_BUTTON_DOWN) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
+		
 		e->x = buf[1] >> 4;
-		e->y = buf[1] & 0x0F;
+		e->y = buf[1] & 0xF;
 		
 		for( handler_curs = monome->handlers[event_shifted] ; handler_curs ; handler_curs = handler_curs->next )
 			if( handler_curs->cb )
