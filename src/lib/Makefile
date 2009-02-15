@@ -17,9 +17,10 @@ clean:
 	rm -f linux_usbfs simple monomeserial test *.o *.so*
 
 install: all
-	echo "  INSTALL src/lib/libmonome.so.$(VERSION) -> $(LIBDIR)/libmonome.so$(VERSION)"
+	echo "  INSTALL src/lib/libmonome.so.$(VERSION) -> $(LIBDIR)/libmonome.so.$(VERSION)"
 	$(INSTALL) libmonome.so.$(VERSION) $(LIBDIR)
 ifneq ($(PLATFORM),Darwin)
+	echo "  LDCONFIG"
 	ldconfig -n $(LIBDIR)
 endif
 
