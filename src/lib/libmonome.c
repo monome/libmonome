@@ -73,7 +73,7 @@ void monome_close(monome_t *monome) {
 void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t cb, void *data) {
 	monome_callback_t *handler, *handler_curs;
 	
-	if( (event_type >>= 4) > 1 || !cb )
+	if( event_type > 1 || !cb )
 		return;
 	
 	handler = malloc(sizeof(monome_callback_t));
@@ -95,7 +95,7 @@ void monome_register_handler(monome_t *monome, unsigned int event_type, monome_c
 void monome_unregister_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t cb, void *data) {
 	monome_callback_t *handler_curs, *handler_next;
 	
-	if( (((event_type >>= 4) > 1 ) | !(handler_curs = monome->handlers[event_type])) || !cb )
+	if( ((event_type > 1 ) | !(handler_curs = monome->handlers[event_type])) || !cb )
 		return;
 	
 	do {
@@ -117,27 +117,19 @@ void monome_unregister_handler(monome_t *monome, unsigned int event_type, monome
 }
 
 void monome_main_loop(monome_t *monome) {
+	monome_callback_t *handler_curs;
 	monome_event_t e;
 	uint8_t buf[2] = {0, 0};
 	
 	e.monome = monome;
 	
 	while( monome_read(monome, buf, sizeof(buf)) > 0 ) {
-		monome_protocol_dispatch_event(&e, buf, sizeof(buf));
-
-		/* switch( (e.event_type = buf[0]) ) {
-		case MONOME_BUTTON_DOWN:
-		case MONOME_BUTTON_UP:
-			event_shifted = e.event_type >> 4;
-			e.x = buf[1] >> 4;
-			e.y = buf[1] & 0x0F;
+		monome_protocol_populate_event(&e, buf, sizeof(buf));
+		
+		for( handler_curs = monome->handlers[e.event_type] ; handler_curs ; handler_curs = handler_curs->next )
+			if( handler_curs->cb )
+				handler_curs->cb(e, handler_curs->data);
 			
-			for( handler_curs = monome->handlers[event_shifted] ; handler_curs ; handler_curs = handler_curs->next )
-				if( handler_curs->cb )
-					handler_curs->cb(e, handler_curs->data);
-			
-			break;
-		} */
 		buf[0] = buf[1] = 0;
 	}
 }

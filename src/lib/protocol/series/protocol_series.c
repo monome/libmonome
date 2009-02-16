@@ -64,24 +64,13 @@ static ssize_t monome_led(monome_t *monome, unsigned int status, unsigned int x,
  * public
  */
 
-void monome_protocol_dispatch_event(monome_event_t *e, uint8_t *buf, ssize_t buf_size) {
-	monome_callback_t *handler_curs;
-	monome_t *monome = e->monome;
-	unsigned int event_shifted;
-	
+void monome_protocol_populate_event(monome_event_t *e, const uint8_t *buf, const ssize_t buf_size) {
 	switch( buf[0] ) {
 	case PROTO_SERIES_BUTTON_DOWN:
 	case PROTO_SERIES_BUTTON_UP:
-		event_shifted = e->event_type >> 4;
-		
-		e->event_type = buf[0];
+		e->event_type = (buf[0] == PROTO_SERIES_BUTTON_DOWN) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
 		e->x = buf[1] >> 4;
 		e->y = buf[1] & 0x0F;
-		
-		for( handler_curs = monome->handlers[event_shifted] ; handler_curs ; handler_curs = handler_curs->next )
-			if( handler_curs->cb )
-				handler_curs->cb(*e, handler_curs->data);
-		
 		break;
 		
 	case PROTO_SERIES_AUX_INPUT:

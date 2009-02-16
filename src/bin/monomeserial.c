@@ -230,6 +230,6 @@ void handle_press(monome_event_t e, void *data) {
 	char *prefix = data;
 
 	asprintf(&cmd, "/%s/press", prefix);
-	lo_send_from(outgoing, lo_server_thread_get_server(st), LO_TT_IMMEDIATE, cmd, "iii", e.x, e.y, !(e.event_type >> 4));
+	lo_send_from(outgoing, lo_server_thread_get_server(st), LO_TT_IMMEDIATE, cmd, "iii", e.x, e.y, e.event_type);
 	free(cmd);
 }
