@@ -124,12 +124,11 @@ void monome_main_loop(monome_t *monome) {
 	e.monome = monome;
 	
 	while( monome_read(monome, buf, sizeof(buf)) > 0 ) {
-		monome_protocol_populate_event(&e, buf, sizeof(buf));
-		
+		if( monome_protocol_populate_event(&e, buf, sizeof(buf)) )
+			continue;
+			
 		for( handler_curs = monome->handlers[e.event_type] ; handler_curs ; handler_curs = handler_curs->next )
 			if( handler_curs->cb )
 				handler_curs->cb(e, handler_curs->data);
-			
-		buf[0] = buf[1] = 0;
 	}
 }
