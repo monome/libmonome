@@ -18,7 +18,7 @@
 #include "monome.h"
 #include "monome_internal.h"
 
-int monome_device_open(monome_t *monome) {
+int monome_platform_open(monome_t *monome) {
 	struct termios nt;
 	
 	if( (monome->fd = open(monome->dev, O_RDWR | O_NOCTTY)) < 0 ) {
@@ -45,10 +45,10 @@ int monome_device_open(monome_t *monome) {
 	return 0;
 }
 
-ssize_t monome_device_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
+ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	return write(monome->fd, buf, bufsize);
 }
 
-ssize_t monome_device_read(monome_t *monome, uint8_t *buf, ssize_t count) {
+ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
 	return read(monome->fd, buf, count);
 }

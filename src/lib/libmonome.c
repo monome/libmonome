@@ -26,7 +26,7 @@
  */
 
 static ssize_t monome_read(monome_t *monome, uint8_t *buf, ssize_t count) {
-    return monome_device_read(monome, buf, count);
+    return monome_platform_read(monome, buf, count);
 }
 
 /**
@@ -53,7 +53,7 @@ monome_t *monome_open(const char *dev) {
 	monome_t *monome = monome_init();
 	monome->dev = strdup(dev);
 	
-	if( monome_device_open(monome) )
+	if( monome_platform_open(monome) )
 		return NULL;
 	return monome;
 }

@@ -15,9 +15,9 @@
 
 #include "monome_internal.h"
 
-int monome_device_open(monome_t *monome);
+int monome_platform_open(monome_t *monome);
 
-ssize_t monome_device_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize);
-ssize_t monome_device_read(monome_t *monome, uint8_t *buf, ssize_t bufsize);
+ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize);
+ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t bufsize);
 	
 #endif

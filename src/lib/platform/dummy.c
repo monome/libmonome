@@ -14,17 +14,17 @@
 
 #include "monome_internal.h"
 
-int monome_device_open(monome_t *monome) {
+int monome_platform_open(monome_t *monome) {
 	printf("libmonome was compiled with the dummy platform and, hence, effectively does nothing.\n"
 		   "please recompile for any functionality!\n");
 	
 	return 1;
 }
 
-ssize_t monome_device_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
+ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	return 0;
 }
 
-ssize_t monome_device_read(monome_t *monome, uint8_t *buf, ssize_t count) {
+ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
 	return 0;
 }

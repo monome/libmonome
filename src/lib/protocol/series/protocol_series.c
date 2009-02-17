@@ -22,7 +22,7 @@
  */
 
 static ssize_t monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-    return monome_device_write(monome, buf, bufsize);
+    return monome_platform_write(monome, buf, bufsize);
 }
 
 static ssize_t monome_led_col_row(monome_t *monome, proto_series_message_t mode, unsigned int address, unsigned int *data) {
