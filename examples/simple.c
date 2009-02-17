@@ -10,33 +10,52 @@
  *
  */
 
-#include <stdio.h>
-#include "monome.h"
+/**
+ * simple.c
+ * press a button to toggle it!
+ *
+ * this uses the raw libmonome API, not the OSC one.
+ * it does not require (and does not work with) monomeserial.
+ */
 
+#include <stdlib.h>
+#include <monome.h>
+
+unsigned int grid[16][16];
+
+/**
+ * this function gets registered with monome_register_handler
+ * it gets called whenever a button is pressed
+ */
 void handle_press(monome_event_t e, void *data) {
-	uint8_t (*grid)[16] = data;
-	
-	if ( !(grid[e.x][e.y] = !grid[e.x][e.y]) )
+	if( grid[e.x][e.y] )
 		monome_led_off(e.monome, e.x, e.y);
 	else
 		monome_led_on(e.monome, e.x, e.y);
+	
+	/* toggle the button */
+	grid[e.x][e.y] = !grid[e.x][e.y];
 }
 
 int main(int argc, char *argv[]) {
 	monome_t *monome;
-	uint8_t x, y, grid[16][16];
+	unsigned int x, y;
 
-	if( !(monome= monome_open("/dev/ttyUSB0")) )
+	/* open the monome device */
+	if( !(monome = monome_open("/dev/ttyUSB0")) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);
 	
+	/* initialize the grid (all off) */
 	for( x = 0; x < 16; x++ )
 		for( y = 0; y < 16; y++ )
 			grid[x][y] = 0;
 	
-	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, grid);
+	/* register our button press callback */
+	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
 	
+	/* wait for presses! */
 	monome_main_loop(monome);
 	
 	monome_close(monome);

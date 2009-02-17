@@ -10,14 +10,17 @@
  *
  */
 
-#include <time.h>
-#include <stdio.h>
+/**
+ * test.c
+ * basic program to test all of the output commands to the monome.
+ */
 
-#include "monome.h"
+#include <time.h>
+#include <monome.h>
 
 #define DEFAULT_MONOME_DEVICE 	"/dev/ttyUSB0"
 
-#define BPM 60
+#define BPM 75
 
 static void chill(int speed) {
 	struct timespec rem, req = {0, ((60000 / (BPM * speed)) * 1000000)};
