@@ -1,4 +1,4 @@
-CFLAGS  += -I./include -I../include
+CFLAGS  += -I../include
 LDFLAGS += 
 OBJS = libmonome.o platform.o protocol.o
 
