@@ -1,16 +1,18 @@
 ifeq ($(PLATFORM),Darwin)
 	LIBSUFFIX = dylib
-	TARGETS = libmonome.$(LIBSUFFIX)
+	LIBMONOME = libmonome.$(LIBSUFFIX)
 else
 	LIBSUFFIX = so
-	TARGETS = libmonome.$(LIBSUFFIX).$(VERSION)
+	LIBMONOME = libmonome.$(LIBSUFFIX).$(VERSION)
 endif
+
 CFLAGS  += -I../include -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
 LDFLAGS += 
 
 PROTOCOLS = $(foreach protocol,$(notdir $(wildcard protocol/*)),protocol/$(protocol)/protocol_$(protocol))
 OBJS := libmonome.o platform.o $(addsuffix .o,$(PROTOCOLS))
 PROTOCOL_LIBS = $(addsuffix .$(LIBSUFFIX),$(PROTOCOLS))
+TARGETS = $(LIBMONOME)
 
 all: $(PROTOCOL_LIBS) $(OBJS) $(TARGETS)
 
@@ -22,12 +24,12 @@ install: all
 	$(INSTALL) -d $(LIBDIR)/monome
 
 	for PROTOCOL in $(PROTOCOL_LIBS); do \
-		echo "  INSTALL src/lib/$$PROTOCOL -> $(LIBDIR)/monome/$$PROTOCOL"; \
+		echo "  INSTALL src/lib/$$PROTOCOL -> $(LIBDIR)/monome/`basename $$PROTOCOL`"; \
 		$(INSTALL) $$PROTOCOL $(LIBDIR)/monome; \
 	done
 
-	echo "  INSTALL src/lib/libmonome.so.$(VERSION) -> $(LIBDIR)/libmonome.so.$(VERSION)"
-	$(INSTALL) libmonome.so.$(VERSION) $(LIBDIR)
+	echo "  INSTALL src/lib/$(LIBMONOME) -> $(LIBDIR)/$(LIBMONOME)"
+	$(INSTALL) $(LIBMONOME) $(LIBDIR)
 ifneq ($(PLATFORM),Darwin)
 	echo "  LDCONFIG"
 	ldconfig -n $(LIBDIR)
