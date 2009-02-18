@@ -10,6 +10,7 @@
  *
  */
 
+#include <stdlib.h>
 #include <stdint.h>
 
 #include "monome.h"
@@ -21,11 +22,14 @@
  * private
  */
 
-static ssize_t monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-	return monome_platform_write(monome, buf, bufsize);
+static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
+    if( monome_platform_write(monome, buf, bufsize) == bufsize )
+		return 0;
+	
+	return -1;
 }
 
-static ssize_t monome_led_col_row(monome_t *monome, proto_40h_message_t mode, unsigned int address, unsigned int *data) {
+static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, unsigned int address, unsigned int *data) {
 	uint8_t buf[2];
 	
 	buf[0] = mode | (address & 0x7 );
@@ -34,7 +38,7 @@ static ssize_t monome_led_col_row(monome_t *monome, proto_40h_message_t mode, un
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static ssize_t monome_led(monome_t *monome, unsigned int status, unsigned int x, unsigned int y) {
+static int proto_40h_led(monome_t *monome, unsigned int status, unsigned int x, unsigned int y) {
 	uint8_t buf[2];
 	
 	x &= 0x7;
@@ -50,7 +54,64 @@ static ssize_t monome_led(monome_t *monome, unsigned int status, unsigned int x,
  * public
  */
 
-int monome_protocol_populate_event(monome_event_t *e, const uint8_t *buf, const ssize_t buf_size) {
+int proto_40h_clear(monome_t *monome, monome_clear_status_t status) {
+	unsigned int i;
+	uint8_t buf[2] = {0, 0};
+	
+	for( i = 0; i < 8; i++ ) {
+		buf[0] = PROTO_40h_LED_ROW | i;
+		monome_write(monome, buf, sizeof(buf));
+	}
+	
+	return sizeof(buf) * i;
+}
+
+int proto_40h_intensity(monome_t *monome, unsigned int brightness) {
+	uint8_t buf[2] = {PROTO_40h_INTENSITY, brightness};
+	return monome_write(monome, buf, sizeof(buf));
+}
+
+int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
+	/* the 40h splits this into two commands and will need an extra variable
+	 * in the monome_t structure to keep track. */
+	
+	/* uint8_t buf[2] = PROTO_40h_MODE | ( (mode & PROTO_40h_MODE_TEST) | (mode & PROTO_40h_MODE_SHUTDOWN) );
+	   return monome_write(monome, buf, sizeof(buf)); */
+	
+	return 0;
+}
+
+int proto_40h_led_on(monome_t *monome, unsigned int x, unsigned int y) {
+	return proto_40h_led(monome, PROTO_40h_LED_ON, x, y);
+}
+
+int proto_40h_led_off(monome_t *monome, unsigned int x, unsigned int y) {
+	return proto_40h_led(monome, PROTO_40h_LED_OFF, x, y);
+}
+
+int proto_40h_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
+	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, col_data);
+}
+
+int proto_40h_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
+	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, row_data);
+}
+
+int proto_40h_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
+	unsigned int i;
+	unsigned int buf;
+	
+	for( i = 0; i < 8; i++ ) {
+		if( !(buf = *(frame_data++)) )
+			return -1;
+		
+		proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, &buf);
+	}
+	
+	return sizeof(buf) * i;
+}
+
+int proto_40h_populate_event(monome_event_t *e, const uint8_t *buf, const ssize_t buf_size) {
 	switch( buf[0] ) {
 	case PROTO_40h_BUTTON_DOWN:
 	case PROTO_40h_BUTTON_UP:
@@ -67,67 +128,25 @@ int monome_protocol_populate_event(monome_event_t *e, const uint8_t *buf, const 
 	return -1;
 }
 
-ssize_t monome_clear(monome_t *monome, monome_clear_status_t status) {
-	unsigned int i;
-	uint8_t buf[2] = {0, 0};
+monome_t *monome_protocol_new() {
+	monome_t *monome = calloc(1, sizeof(monome_40h_t));
 	
-	for( i = 0; i < 8; i++ ) {
-		buf[0] = PROTO_40h_LED_ROW | i;
-		monome_write(monome, buf, sizeof(buf));
-	}
+	if( !monome )
+		return NULL;
 	
-	return sizeof(buf) * i;
-}
+	monome->populate_event = proto_40h_populate_event;
 
-ssize_t monome_intensity(monome_t *monome, unsigned int brightness) {
-	uint8_t buf[2] = {PROTO_40h_INTENSITY, brightness};
-	return monome_write(monome, buf, sizeof(buf));
-}
-
-ssize_t monome_mode(monome_t *monome, monome_mode_t mode) {
-	/* the 40h splits this into two commands and will need an extra variable
-	 * in the monome_t structure to keep track. */
+	monome->clear      = proto_40h_clear;
+	monome->intensity  = proto_40h_intensity;
+	monome->mode       = proto_40h_mode;
 	
-	/* uint8_t buf[2] = PROTO_40h_MODE | ( (mode & PROTO_40h_MODE_TEST) | (mode & PROTO_40h_MODE_SHUTDOWN) );
-	   return monome_write(monome, buf, sizeof(buf)); */
-	
-	return 0;
-}
+	monome->led_on     = proto_40h_led_on;
+	monome->led_off    = proto_40h_led_off;
+	monome->led_col_8  = proto_40h_led_col_8;
+	monome->led_row_8  = proto_40h_led_row_8;
+	monome->led_col_16 = proto_40h_led_col_8;
+	monome->led_row_16 = proto_40h_led_row_8;
+	monome->led_frame  = proto_40h_led_frame;
 
-ssize_t monome_led_on(monome_t *monome, unsigned int x, unsigned int y) {
-	return monome_led(monome, PROTO_40h_LED_ON, x, y);
-}
-
-ssize_t monome_led_off(monome_t *monome, unsigned int x, unsigned int y) {
-	return monome_led(monome, PROTO_40h_LED_OFF, x, y);
-}
-
-ssize_t monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return monome_led_col_row(monome, PROTO_40h_LED_COL, col, col_data);
-}
-
-ssize_t monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return monome_led_col_row(monome, PROTO_40h_LED_ROW, row, row_data);
-}
-
-ssize_t monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return monome_led_col_row(monome, PROTO_40h_LED_COL, col, col_data);
-}
-
-ssize_t monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return monome_led_col_row(monome, PROTO_40h_LED_ROW, row, row_data);
-}
-
-ssize_t monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
-	unsigned int i;
-	unsigned int buf;
-	
-	for( i = 0; i < 8; i++ ) {
-		if( !(buf = *(frame_data++)) )
-			return -1;
-		
-		monome_led_col_row(monome, PROTO_40h_LED_ROW, i, &buf);
-	}
-	
-	return sizeof(buf) * i;
+	return monome;
 }

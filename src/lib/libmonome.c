@@ -10,6 +10,7 @@
  *
  */
 
+#include <dlfcn.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +20,18 @@
 #include "monome.h"
 #include "monome_internal.h"
 #include "monome_platform.h"
-#include "monome_protocol.h"
+
+#ifndef PROTO
+#define PROTO "40h"
+#endif
+
+#ifndef LIBSUFFIX
+#define LIBSUFFIX ".so"
+#endif
+
+#ifndef LIBDIR
+#define LIBDIR "/usr/lib"
+#endif
 
 /**
  * private
@@ -34,7 +46,31 @@ static ssize_t monome_read(monome_t *monome, uint8_t *buf, ssize_t count) {
  */
 
 monome_t *monome_init() {
-	monome_t *monome = malloc(sizeof(monome_t));
+	void *protocol_lib;
+	monome_t *(*monome_protocol_new)();
+	monome_t *monome;
+	
+	protocol_lib = dlopen(LIBDIR "/monome/protocol_" PROTO LIBSUFFIX, RTLD_NOW);
+	
+	if( !protocol_lib ) {
+		fprintf(stderr, "couldn't load monome protocol module.  dlopen said:\n\t%s\n\n"
+				"please make sure that libmonome is installed correctly!\n", dlerror());
+		return NULL;
+	}
+	
+	monome_protocol_new = dlsym(protocol_lib, "monome_protocol_new");
+	
+	if( !monome_protocol_new ) {
+		fprintf(stderr, "couldn't initialize monome protocol module. dlopen said:\n\t%s\n\n"
+				"please make sure you're using a valid protocol library!\n"
+				"if this is a protocol library you wrote, make sure you're providing a \e[1mmonome_protocol_new\e[0m function.\n", dlerror());
+		return NULL;
+	}
+	
+	monome = (*monome_protocol_new)();
+	
+	if( !monome )
+		return NULL;
 
 	monome->handlers[0]       = malloc(sizeof(monome_callback_t));
 	monome->handlers[0]->cb   = NULL;
@@ -51,10 +87,15 @@ monome_t *monome_init() {
 
 monome_t *monome_open(const char *dev) {
 	monome_t *monome = monome_init();
+	
+	if( !monome )
+		return NULL;
+	
 	monome->dev = strdup(dev);
 	
 	if( monome_platform_open(monome) )
 		return NULL;
+	
 	return monome;
 }
 
@@ -124,11 +165,51 @@ void monome_main_loop(monome_t *monome) {
 	e.monome = monome;
 	
 	while( monome_read(monome, buf, sizeof(buf)) > 0 ) {
-		if( monome_protocol_populate_event(&e, buf, sizeof(buf)) )
+		if( monome->populate_event(&e, buf, sizeof(buf)) )
 			continue;
 			
 		for( handler_curs = monome->handlers[e.event_type] ; handler_curs ; handler_curs = handler_curs->next )
 			if( handler_curs->cb )
 				handler_curs->cb(&e, handler_curs->data);
 	}
+}
+
+int monome_clear(monome_t *monome, monome_clear_status_t status) {
+	return monome->clear(monome, status);
+}
+
+int monome_intensity(monome_t *monome, unsigned int brightness) {
+	return monome->intensity(monome, brightness);
+}
+
+int monome_mode(monome_t *monome, monome_mode_t mode) {
+	return monome->mode(monome, mode);
+}
+
+int monome_led_on(monome_t *monome, unsigned int x, unsigned int y) {
+	return monome->led_on(monome, x, y);
+}
+
+int monome_led_off(monome_t *monome, unsigned int x, unsigned int y) {
+	return monome->led_off(monome, x, y);
+}
+
+int monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
+	return monome->led_col_8(monome, col, col_data);
+}
+
+int monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
+	return monome->led_row_8(monome, row, row_data);
+}
+
+int monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
+	return monome->led_col_16(monome, col, col_data);
+}
+
+int monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
+	return monome->led_row_16(monome, row, row_data);
+}
+
+int monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
+	return monome->led_frame(monome, quadrant, frame_data);
 }

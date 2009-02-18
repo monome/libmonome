@@ -14,4 +14,4 @@
 
 #include "monome_internal.h"
 
-int monome_protocol_populate_event(monome_event_t *event, const uint8_t *buf, const ssize_t buf_size);
+monome_t *monome_protocol_new();

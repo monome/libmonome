@@ -1,22 +1,31 @@
-CFLAGS  += -I../include
-LDFLAGS += 
-OBJS = libmonome.o platform.o protocol.o
-
-PROTO = series
-
 ifeq ($(PLATFORM),Darwin)
-	TARGETS = libmonome.dylib
+	LIBSUFFIX = dylib
+	TARGETS = libmonome.$(LIBSUFFIX)
 else
-	TARGETS = libmonome.so.$(VERSION)
+	LIBSUFFIX = so
+	TARGETS = libmonome.$(LIBSUFFIX).$(VERSION)
 endif
+CFLAGS  += -I../include -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
+LDFLAGS += 
 
-all: $(OBJS) $(TARGETS)
+PROTOCOLS = $(foreach protocol,$(notdir $(wildcard protocol/*)),protocol/$(protocol)/protocol_$(protocol))
+OBJS := libmonome.o platform.o $(addsuffix .o,$(PROTOCOLS))
+PROTOCOL_LIBS = $(addsuffix .$(LIBSUFFIX),$(PROTOCOLS))
+
+all: $(PROTOCOL_LIBS) $(OBJS) $(TARGETS)
 
 clean:
 	echo "  CLEAN   src/lib"
-	rm -f linux_usbfs simple monomeserial test *.o *.so*
+	rm -f $(TARGETS) $(OBJS) $(PROTOCOL_LIBS) libmonome.so
 
 install: all
+	$(INSTALL) -d $(LIBDIR)/monome
+
+	for PROTOCOL in $(PROTOCOL_LIBS); do \
+		echo "  INSTALL src/lib/$$PROTOCOL -> $(LIBDIR)/monome/$$PROTOCOL"; \
+		$(INSTALL) $$PROTOCOL $(LIBDIR)/monome; \
+	done
+
 	echo "  INSTALL src/lib/libmonome.so.$(VERSION) -> $(LIBDIR)/libmonome.so.$(VERSION)"
 	$(INSTALL) libmonome.so.$(VERSION) $(LIBDIR)
 ifneq ($(PLATFORM),Darwin)
@@ -24,15 +33,14 @@ ifneq ($(PLATFORM),Darwin)
 	ldconfig -n $(LIBDIR)
 endif
 
-libmonome: libmonome.o
-libmonome.so.$(VERSION): libmonome.o platform.o protocol.o
+libmonome.so.$(VERSION): libmonome.o platform.o
 	echo "  LD      src/lib/libmonome.so"
-	$(LD) -shared -Wl,-soname,libmonome.so -lc -o $@ $^
+	$(LD) -shared -Wl,-soname,libmonome.so -lc -ldl -o $@ $^
 	ln -sf $@ libmonome.so
 
 libmonome.dylib: libmonome.o platform.o
 	echo "  LD      src/lib/libmonome.so"
-	$(LD) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib -lc -o $@ $^
+	$(LD) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib -lc -ldl -o $@ $^
 
 platform.o:
 	echo "  CC      src/lib/$@"
@@ -42,9 +50,13 @@ else
 	$(CC) $(CFLAGS) -c platform/linux.c -o $@
 endif
 
-protocol.o: protocol/$(PROTO)/protocol_$(PROTO).c
-	echo "  CC      src/lib/$@"
-	$(CC) $(CFLAGS) -c $< -o $@
+%.so: %.o
+	echo "  LD      src/lib/$@"
+	$(LD) -shared -Wl,-soname,$@ -lc -o $@ $<
+
+%.dylib: %.o
+	echo "  LD      src/lib/$@"
+	$(LD) -dynamiclib -Wl,-dylib_install_name,$@ -lc -o $@ $^
 
 %: %.o
 	echo "  LD      src/lib/$@"
