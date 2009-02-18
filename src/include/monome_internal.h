@@ -37,7 +37,6 @@ struct monome {
 	
 	monome_callback_t *handlers[2];
 	
-	/* int monome_protocol_populate_event(monome_event_t *event, const uint8_t *buf, const ssize_t buf_size); */
 	int (*populate_event)(monome_event_t *event, const uint8_t *buf, const ssize_t buf_size);
 
 	int (*clear)(monome_t *monome, monome_clear_status_t status);
