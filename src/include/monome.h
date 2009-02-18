@@ -60,7 +60,7 @@ typedef enum {
 typedef struct monome_event monome_event_t;
 typedef struct monome monome_t; /* opaque data type */
 
-typedef void (*monome_callback_function_t)(monome_event_t event, void *data);
+typedef void (*monome_callback_function_t)(const monome_event_t *event, void *data);
 
 struct monome_event {
 	monome_t *monome;

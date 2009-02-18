@@ -129,6 +129,6 @@ void monome_main_loop(monome_t *monome) {
 			
 		for( handler_curs = monome->handlers[e.event_type] ; handler_curs ; handler_curs = handler_curs->next )
 			if( handler_curs->cb )
-				handler_curs->cb(e, handler_curs->data);
+				handler_curs->cb(&e, handler_curs->data);
 	}
 }

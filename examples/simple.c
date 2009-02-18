@@ -27,14 +27,19 @@ unsigned int grid[16][16];
  * this function gets registered with monome_register_handler
  * it gets called whenever a button is pressed
  */
-void handle_press(monome_event_t e, void *data) {
-	if( grid[e.x][e.y] )
-		monome_led_off(e.monome, e.x, e.y);
+void handle_press(const monome_event_t *e, void *data) {
+	unsigned int x, y;
+	
+	x = e->x;
+	y = e->y;
+	
+	if( grid[x][y] )
+		monome_led_off(e->monome, x, y);
 	else
-		monome_led_on(e.monome, e.x, e.y);
+		monome_led_on(e->monome, x, y);
 	
 	/* toggle the button */
-	grid[e.x][e.y] = !grid[e.x][e.y];
+	grid[x][y] = !grid[x][y];
 }
 
 int main(int argc, char *argv[]) {

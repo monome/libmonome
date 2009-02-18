@@ -27,13 +27,13 @@ char *lo_prefix;
 lo_address *outgoing;
 lo_server_thread *st;
 
-void add_osc_methods(char*, monome_t*);
-void lo_error(int, const char*, const char*);
-void handle_press(monome_event_t, void*);
-int clear_handler(const char*, const char*, lo_arg**, int, lo_message, void*);
-int led_handler(const char*, const char*, lo_arg**, int, lo_message, void*);
-int led_col_row_handler(const char*, const char*, lo_arg**, int, lo_message, void*);
-int frame_handler(const char*, const char*, lo_arg**, int, lo_message, void*);
+void add_osc_methods(char *, monome_t *);
+void lo_error(int, const char*, const char *);
+void handle_press(const monome_event_t *, void *);
+int clear_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
+int led_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
+int led_col_row_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
+int frame_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
 
 int main(int argc, char *argv[]) {
 	monome_t *monome;
@@ -225,11 +225,11 @@ int frame_handler(const char *path, const char *types, lo_arg **argv, int argc, 
 	return -1;
 }
 
-void handle_press(monome_event_t e, void *data) {
+void handle_press(const monome_event_t *e, void *data) {
 	char *cmd;
 	char *prefix = data;
 
 	asprintf(&cmd, "/%s/press", prefix);
-	lo_send_from(outgoing, lo_server_thread_get_server(st), LO_TT_IMMEDIATE, cmd, "iii", e.x, e.y, e.event_type);
+	lo_send_from(outgoing, lo_server_thread_get_server(st), LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
 	free(cmd);
 }
