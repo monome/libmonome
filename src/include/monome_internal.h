@@ -25,7 +25,6 @@ typedef struct monome_callback monome_callback_t;
 struct monome_callback {
 	monome_callback_function_t cb;
 	void *data;
-	struct monome_callback *next;
 };
 
 struct monome {
@@ -35,7 +34,7 @@ struct monome {
 	struct termios ot;
 	int fd;
 	
-	monome_callback_t *handlers[2];
+	monome_callback_t handlers[3];
 	
 	int (*populate_event)(monome_event_t *event, const uint8_t *buf, const ssize_t buf_size);
 
