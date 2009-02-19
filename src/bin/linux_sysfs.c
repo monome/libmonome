@@ -22,7 +22,7 @@
 
 #include <monome.h>
 
-#define MAX_LENGTH 1024
+#define MAX_LENGTH 128
 #define is_numeric(c) ((48 <= c) && (c <= 57))
 
 typedef struct monome_device_mapping monome_device_mapping_t;
@@ -70,7 +70,7 @@ static char *get_tty(const char *usb_device) {
 }
 
 static char *get_serial(const char *usb_device) {
-	char *filestr, buf[32], *serial;
+	char *filestr, buf[MAX_LENGTH], *serial;
 	int len, serial_fd;
 	
 	len = strstr(usb_device, ":") - usb_device;
