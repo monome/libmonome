@@ -1,13 +1,13 @@
 CFLAGS  += -I../include
 LDFLAGS += -L../lib -lmonome -llo
-OBJS = monomeserial.o linux_usbfs.o
-TARGETS = monomeserial linux_usbfs
+OBJS = monomeserial.o linux_sysfs.o
+TARGETS = monomeserial linux_sysfs
 
 all: $(OBJS) $(TARGETS)
 
 clean:
 	echo "  CLEAN   src/bin"
-	rm -f linux_usbfs monomeserial *.o
+	rm -f $(OBJS) $(TARGETS)
 
 install: all
 	echo "  INSTALL src/bin/monomeserial -> $(BINDIR)/monomeserial"
