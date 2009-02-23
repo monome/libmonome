@@ -133,10 +133,8 @@ static void scan_ftdi_driver_directory() {
 		if( !model )
 			goto not_monome;
 		
-		if( !(tty = get_tty(ftdi_ent->d_name)) ) {
-			free(serial);
+		if( !(tty = get_tty(ftdi_ent->d_name)) )
 			goto not_monome;
-		}
 		
 		printf("%s #%d => /dev/%s\n", model, serialnum, tty);
 		
