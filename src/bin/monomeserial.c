@@ -38,7 +38,7 @@ int frame_handler(const char *, const char *, lo_arg **, int, lo_message, void *
 int main(int argc, char *argv[]) {
 	monome_t *monome;
 	
-	if( argc == 2 )
+	if( argc > 1 )
 		lo_prefix = strdup(argv[1]);
 	else {
 		lo_prefix = calloc(sizeof(char), strlen(DEFAULT_OSC_PREFIX) + 1);
