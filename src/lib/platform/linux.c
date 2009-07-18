@@ -13,35 +13,57 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "monome.h"
 #include "monome_internal.h"
 
 int monome_platform_open(monome_t *monome) {
-	struct termios nt;
+	struct termios nt, ot;
+	int fd;
 	
-	if( (monome->fd = open(monome->dev, O_RDWR | O_NOCTTY)) < 0 ) {
+	if( (fd = open(monome->dev, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0 ) {
 		perror("libmonome: could not open monome device");
 		return 1;
 	}
+
+	tcgetattr(fd, &ot);
+	nt = ot;
 	
-	tcgetattr(monome->fd, &monome->ot);
-	nt = monome->ot;
-	
-	cfmakeraw(&nt);
+	/* baud rate (9600) */
 	cfsetispeed(&nt, B9600);
 	cfsetospeed(&nt, B9600);
-	nt.c_lflag    |=  (CLOCAL | CREAD);
-	nt.c_lflag    &= ~(ECHOCTL);
-	nt.c_cc[VMIN]  =  2;
-	nt.c_cc[VTIME] =  5;
-	
-	if( tcsetattr(monome->fd, TCSANOW, &nt) < 0 ) {
+
+	/* parity (8N1) */
+	nt.c_cflag &= ~(PARENB | CSTOPB | CSIZE);
+	nt.c_cflag |=  (CS8 | CLOCAL | CREAD);
+
+	/* no line processing */
+	nt.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG | IEXTEN);
+
+	/* raw input */
+	nt.c_iflag &= ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK |
+	                INPCK | ISTRIP | IXON);
+
+	/* raw output */
+	nt.c_oflag &= ~(OCRNL | ONLCR | ONLRET | ONOCR |
+	                OFILL | OLCUC | OPOST);
+
+	/* block until one character is read */
+	nt.c_cc[VMIN]  = 1;
+	nt.c_cc[VTIME] = 0;
+
+	if( tcsetattr(fd, TCSANOW, &nt) < 0 ) {
 		perror("libmonome: could not set terminal attributes");
 		return 1;
 	}
-	
+
+	tcflush(fd, TCIOFLUSH);
+
+	monome->fd = fd;
+	monome->ot = ot;
+
 	return 0;
 }
 
@@ -50,5 +72,13 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufs
 }
 
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
+	fd_set fds;
+
+	FD_ZERO(&fds);
+	FD_SET(monome->fd, &fds);
+
+	if( select(monome->fd + 1, &fds, NULL, NULL, NULL) < 0 )
+		perror("libmonome: error in select()");
+
 	return read(monome->fd, buf, count);
 }
