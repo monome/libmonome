@@ -145,10 +145,10 @@ int clear_handler(const char *path, const char *types, lo_arg **argv, int argc, 
 int led_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	
-	if( ( argc != 3  || strcmp("iii", types) ) ||
-		( argv[0]->i > 15 || argv[0]->i < 0 )  ||
-		( argv[1]->i > 15 || argv[1]->i < 0 )  ||
-		( argv[2]->i > 1  || argv[2]->i < 0 )  )
+	if( (argc != 3 || strcmp("iii", types)) ||
+		(argv[0]->i > 15 || argv[0]->i < 0) ||
+		(argv[1]->i > 15 || argv[1]->i < 0) ||
+		(argv[2]->i > 1  || argv[2]->i < 0) )
 		return -1;
 	
 	if( argv[2]->i )

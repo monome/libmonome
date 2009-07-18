@@ -34,14 +34,6 @@
 #endif
 
 /**
- * private
- */
-
-static ssize_t monome_read(monome_t *monome, uint8_t *buf, ssize_t count) {
-    return monome_platform_read(monome, buf, count);
-}
-
-/**
  * public
  */
 
@@ -123,7 +115,7 @@ void monome_main_loop(monome_t *monome) {
 	
 	e.monome = monome;
 	
-	while( monome_read(monome, buf, sizeof(buf)) > 0 ) {
+	while( monome_platform_read(monome, buf, sizeof(buf)) > 0 ) {
 		if( monome->populate_event(&e, buf, sizeof(buf)) )
 			continue;
 			

@@ -45,7 +45,7 @@ static int proto_40h_led(monome_t *monome, unsigned int status, unsigned int x, 
 	y &= 0x7;
 	
 	buf[0] = status;
-	buf[1] = ( x << 4 ) | y;
+	buf[1] = (x << 4) | y;
 	
 	return monome_write(monome, buf, sizeof(buf));
 }

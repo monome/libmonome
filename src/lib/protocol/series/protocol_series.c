@@ -59,7 +59,7 @@ static int proto_series_led(monome_t *monome, unsigned int status, unsigned int 
 	uint8_t buf[2];
 	
 	buf[0] = status;
-	buf[1] = ( x << 4 ) | y;
+	buf[1] = (x << 4) | y;
 	
 	return monome_write(monome, buf, sizeof(buf));
 }
@@ -69,17 +69,17 @@ static int proto_series_led(monome_t *monome, unsigned int status, unsigned int 
  */
 
 int proto_series_clear(monome_t *monome, monome_clear_status_t status) {
-	uint8_t buf = PROTO_SERIES_CLEAR | ( status & PROTO_SERIES_CLEAR_ON );
+	uint8_t buf = PROTO_SERIES_CLEAR | (status & PROTO_SERIES_CLEAR_ON);
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
 int proto_series_intensity(monome_t *monome, unsigned int brightness) {
-	uint8_t buf = PROTO_SERIES_INTENSITY | ( brightness & 0x0F );
+	uint8_t buf = PROTO_SERIES_INTENSITY | (brightness & 0x0F );
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
 int proto_series_mode(monome_t *monome, monome_mode_t mode) {
-	uint8_t buf = PROTO_SERIES_MODE | ( (mode & PROTO_SERIES_MODE_TEST) | (mode & PROTO_SERIES_MODE_SHUTDOWN) );
+	uint8_t buf = PROTO_SERIES_MODE | ((mode & PROTO_SERIES_MODE_TEST) | (mode & PROTO_SERIES_MODE_SHUTDOWN));
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
@@ -111,7 +111,7 @@ int proto_series_led_frame(monome_t *monome, unsigned int quadrant, unsigned int
 	unsigned int i;
 	uint8_t buf[9];
 	
-	buf[0] = PROTO_SERIES_LED_FRAME | ( quadrant & 0x03 );
+	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
 	
 	for( i = 1; i < 9; i++ )
 		if( !(buf[i] = *(frame_data++)) )
