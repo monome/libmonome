@@ -137,13 +137,27 @@ int proto_series_populate_event(monome_event_t *e, const uint8_t *buf, const ssi
 	return -1;
 }
 
+int proto_series_open(monome_t *monome, const char *dev) {
+	return monome_platform_open(monome, dev);
+}
+
+int proto_series_close(monome_t *monome) {
+	return monome_platform_close(monome);
+}
+
+void proto_series_free(monome_t *monome) {
+	free(monome);
+}
+
 monome_t *monome_protocol_new() {
 	monome_t *monome = calloc(1, sizeof(monome_t));
 	
 	if( !monome )
 		return NULL;
 	
-	monome->populate_event = proto_series_populate_event;
+	monome->open       = proto_series_open;
+	monome->close      = proto_series_close;
+	monome->free       = proto_series_free;
 
 	monome->clear      = proto_series_clear;
 	monome->intensity  = proto_series_intensity;
@@ -156,6 +170,8 @@ monome_t *monome_protocol_new() {
 	monome->led_col_16 = proto_series_led_col_16;
 	monome->led_row_16 = proto_series_led_row_16;
 	monome->led_frame  = proto_series_led_frame;
+
+	monome->populate_event = proto_series_populate_event;
 
 	return monome;
 }

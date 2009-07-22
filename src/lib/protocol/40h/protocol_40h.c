@@ -128,13 +128,28 @@ int proto_40h_populate_event(monome_event_t *e, const uint8_t *buf, const ssize_
 	return -1;
 }
 
+int proto_40h_open(monome_t *monome, const char *dev) {
+	return monome_platform_open(monome, dev);
+}
+
+int proto_40h_close(monome_t *monome) {
+	return monome_platform_close(monome);
+}
+
+void proto_40h_free(monome_t *monome) {
+	monome_40h_t *m40h = (monome_40h_t *) monome;
+	free(m40h);
+}
+
 monome_t *monome_protocol_new() {
 	monome_t *monome = calloc(1, sizeof(monome_40h_t));
 	
 	if( !monome )
 		return NULL;
 	
-	monome->populate_event = proto_40h_populate_event;
+	monome->open       = proto_40h_open;
+	monome->close      = proto_40h_close;
+	monome->free       = proto_40h_free;
 
 	monome->clear      = proto_40h_clear;
 	monome->intensity  = proto_40h_intensity;
@@ -147,6 +162,8 @@ monome_t *monome_protocol_new() {
 	monome->led_col_16 = proto_40h_led_col_8;
 	monome->led_row_16 = proto_40h_led_row_8;
 	monome->led_frame  = proto_40h_led_frame;
+
+	monome->populate_event = proto_40h_populate_event;
 
 	return monome;
 }

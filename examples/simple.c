@@ -23,6 +23,9 @@
 
 unsigned int grid[16][16];
 
+#define MONOME_DEVICE "/dev/ttyUSB0"
+#define PROTOCOL "series"
+
 /**
  * this function gets registered with monome_register_handler
  * it gets called whenever a button is pressed
@@ -47,7 +50,7 @@ int main(int argc, char *argv[]) {
 	unsigned int x, y;
 
 	/* open the monome device */
-	if( !(monome = monome_open("/dev/ttyUSB0")) )
+	if( !(monome = monome_open(MONOME_DEVICE, PROTOCOL)) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);

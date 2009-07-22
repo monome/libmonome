@@ -18,7 +18,8 @@
 #include <time.h>
 #include <monome.h>
 
-#define DEFAULT_MONOME_DEVICE 	"/dev/ttyUSB0"
+#define DEFAULT_MONOME_DEVICE "/dev/ttyUSB0"
+#define PROTOCOL "series"
 
 #define BPM 75
 
@@ -103,7 +104,7 @@ int main(int argc, char **argv) {
 	monome_t *monome;
 	int i;
 	
-	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE)) )
+	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, PROTOCOL)) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);

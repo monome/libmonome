@@ -21,6 +21,10 @@ int monome_platform_open(monome_t *monome) {
 	return 1;
 }
 
+int monome_platform_close(monome_t *monome) {
+	return 0;
+}
+
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	return 0;
 }

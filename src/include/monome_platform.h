@@ -15,7 +15,8 @@
 
 #include "monome_internal.h"
 
-int monome_platform_open(monome_t *monome);
+int monome_platform_open(monome_t *monome, const char *dev);
+int monome_platform_close(monome_t *monome);
 
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize);
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t bufsize);

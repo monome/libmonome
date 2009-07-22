@@ -19,11 +19,11 @@
 #include "monome.h"
 #include "monome_internal.h"
 
-int monome_platform_open(monome_t *monome) {
+int monome_platform_open(monome_t *monome, const char *dev) {
 	struct termios nt, ot;
 	int fd;
 	
-	if( (fd = open(monome->dev, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0 ) {
+	if( (fd = open(dev, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0 ) {
 		perror("libmonome: could not open monome device");
 		return 1;
 	}
@@ -65,6 +65,13 @@ int monome_platform_open(monome_t *monome) {
 	monome->ot = ot;
 
 	return 0;
+}
+
+int monome_platform_close(monome_t *monome) {
+	if( tcsetattr(monome->fd, TCSANOW, &monome->ot) < 0 )
+		perror("libmonome: could not restore terminal attributes");
+
+	return close(monome->fd);
 }
 
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {

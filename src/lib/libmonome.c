@@ -37,12 +37,17 @@
  * public
  */
 
-monome_t *monome_init() {
+monome_t *monome_init(const char *proto) {
 	void *protocol_lib;
 	monome_t *(*monome_protocol_new)();
 	monome_t *monome;
+	char *buf;
 	
-	protocol_lib = dlopen(LIBDIR "/monome/protocol_" PROTO LIBSUFFIX, RTLD_NOW);
+	if( asprintf(&buf, "%s/monome/protocol_%s%s", LIBDIR, proto, LIBSUFFIX) < 0 )
+		return NULL;
+
+	protocol_lib = dlopen(buf, RTLD_NOW);
+	free(buf);
 	
 	if( !protocol_lib ) {
 		fprintf(stderr, "couldn't load monome protocol module.  dlopen said:\n\t%s\n\n"
@@ -67,30 +72,23 @@ monome_t *monome_init() {
 	return monome;
 }
 
-monome_t *monome_open(const char *dev) {
-	monome_t *monome = monome_init();
+monome_t *monome_open(const char *dev, const char *proto) {
+	monome_t *monome = monome_init(proto);
 	
 	if( !monome )
 		return NULL;
 	
-	monome->dev = strdup(dev);
-	
-	if( monome_platform_open(monome) )
+	if( monome->open(monome, dev) ) {
+		monome->free(monome);
 		return NULL;
+	}
 	
 	return monome;
 }
 
 void monome_close(monome_t *monome) {
-	if( tcsetattr(monome->fd, TCSANOW, &monome->ot) < 0) {
-		perror("libmonome: could not restore terminal attributes");
-		return;
-	}
-	
-	close(monome->fd);
-	
-	free(monome->dev);
-	free(monome);
+	monome->close(monome);
+	monome->free(monome);
 }
 
 void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t cb, void *data) {
