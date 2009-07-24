@@ -109,18 +109,26 @@ void monome_unregister_handler(monome_t *monome, unsigned int event_type) {
 void monome_main_loop(monome_t *monome) {
 	monome_callback_t *handler;
 	monome_event_t e;
-	uint8_t buf[2] = {0, 0};
-	
+	fd_set fds;
+
 	e.monome = monome;
-	
-	while( monome_platform_read(monome, buf, sizeof(buf)) > 0 ) {
-		if( monome->populate_event(&e, buf, sizeof(buf)) )
+
+	do {
+		FD_ZERO(&fds);
+		FD_SET(monome->fd, &fds);
+
+		if( select(monome->fd + 1, &fds, NULL, NULL, NULL) < 1 ) {
+			perror("libmonome: error in select()");
+			break;
+		}
+
+		if( monome->next_event(monome, &e) )
 			continue;
-			
+
 		handler = &monome->handlers[e.event_type];
 		if( handler->cb )
 			handler->cb(&e, handler->data);
-	}
+	} while( 1 );
 }
 
 int monome_clear(monome_t *monome, monome_clear_status_t status) {

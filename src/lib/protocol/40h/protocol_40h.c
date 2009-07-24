@@ -111,7 +111,12 @@ int proto_40h_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *f
 	return sizeof(buf) * i;
 }
 
-int proto_40h_populate_event(monome_event_t *e, const uint8_t *buf, const ssize_t buf_size) {
+int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
+	uint8_t buf[2] = {0, 0};
+
+	if( monome_platform_read(monome, buf, sizeof(buf)) < sizeof(buf) )
+		return -1;
+
 	switch( buf[0] ) {
 	case PROTO_40h_BUTTON_DOWN:
 	case PROTO_40h_BUTTON_UP:
@@ -151,6 +156,8 @@ monome_t *monome_protocol_new() {
 	monome->close      = proto_40h_close;
 	monome->free       = proto_40h_free;
 
+	monome->next_event = proto_40h_next_event;
+
 	monome->clear      = proto_40h_clear;
 	monome->intensity  = proto_40h_intensity;
 	monome->mode       = proto_40h_mode;
@@ -162,8 +169,6 @@ monome_t *monome_protocol_new() {
 	monome->led_col_16 = proto_40h_led_col_8;
 	monome->led_row_16 = proto_40h_led_row_8;
 	monome->led_frame  = proto_40h_led_frame;
-
-	monome->populate_event = proto_40h_populate_event;
 
 	return monome;
 }

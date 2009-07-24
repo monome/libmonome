@@ -79,13 +79,5 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufs
 }
 
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
-	fd_set fds;
-
-	FD_ZERO(&fds);
-	FD_SET(monome->fd, &fds);
-
-	if( select(monome->fd + 1, &fds, NULL, NULL, NULL) < 0 )
-		perror("libmonome: error in select()");
-
 	return read(monome->fd, buf, count);
 }
