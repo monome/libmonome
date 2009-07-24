@@ -117,7 +117,7 @@ void monome_main_loop(monome_t *monome) {
 		FD_ZERO(&fds);
 		FD_SET(monome->fd, &fds);
 
-		if( select(monome->fd + 1, &fds, NULL, NULL, NULL) < 1 ) {
+		if( select(monome->fd + 1, &fds, NULL, NULL, NULL) < 0 ) {
 			perror("libmonome: error in select()");
 			break;
 		}
