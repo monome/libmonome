@@ -13,6 +13,7 @@
 #ifndef _MONOME_INTERNAL_H
 #define _MONOME_INTERNAL_H
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <termios.h>
 
@@ -35,7 +36,7 @@ struct monome {
 	
 	monome_callback_t handlers[3];
 	
-	int  (*open)(monome_t *monome, const char *dev);
+	int  (*open)(monome_t *monome, const char *dev, va_list args);
 	int  (*close)(monome_t *monome);
 	void (*free)(monome_t *monome);
 

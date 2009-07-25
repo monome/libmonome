@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 		strcpy(lo_prefix, DEFAULT_OSC_PREFIX);
 	}
 	
-	if( !(monome = monome_open((argc == 3 ) ? argv[2] : DEFAULT_MONOME_DEVICE, "series")) )
+	if( !(monome = monome_open("series", (argc == 3 ) ? argv[2] : DEFAULT_MONOME_DEVICE)) )
 		return -1;
 	
 	if( !(st = lo_server_thread_new(DEFAULT_OSC_LISTEN_PORT, lo_error)) )

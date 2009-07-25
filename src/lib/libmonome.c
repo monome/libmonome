@@ -13,6 +13,7 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -72,13 +73,19 @@ monome_t *monome_init(const char *proto) {
 	return monome;
 }
 
-monome_t *monome_open(const char *dev, const char *proto) {
+monome_t *monome_open(const char *proto, const char *dev, ...) {
 	monome_t *monome = monome_init(proto);
+	va_list arguments;
+	int error;
 	
 	if( !monome )
 		return NULL;
 	
-	if( monome->open(monome, dev) ) {
+	va_start(arguments, dev);
+	error = monome->open(monome, dev, arguments);
+	va_end(arguments);
+
+	if( error ) {
 		monome->free(monome);
 		return NULL;
 	}

@@ -142,7 +142,7 @@ int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 	return -1;
 }
 
-int proto_series_open(monome_t *monome, const char *dev) {
+int proto_series_open(monome_t *monome, const char *dev, va_list args) {
 	return monome_platform_open(monome, dev);
 }
 
