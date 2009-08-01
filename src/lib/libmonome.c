@@ -22,10 +22,6 @@
 #include "monome_internal.h"
 #include "monome_platform.h"
 
-#ifndef PROTO
-#define PROTO "40h"
-#endif
-
 #ifndef LIBSUFFIX
 #define LIBSUFFIX ".so"
 #endif
