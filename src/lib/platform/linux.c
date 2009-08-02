@@ -50,8 +50,8 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	nt.c_oflag &= ~(OCRNL | ONLCR | ONLRET | ONOCR |
 	                OFILL | OLCUC | OPOST);
 
-	/* block until one character is read */
-	nt.c_cc[VMIN]  = 1;
+	/* block until two characters are read */
+	nt.c_cc[VMIN]  = 2;
 	nt.c_cc[VTIME] = 0;
 
 	if( tcsetattr(fd, TCSANOW, &nt) < 0 ) {
