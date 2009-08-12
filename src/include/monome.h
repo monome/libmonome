@@ -73,7 +73,7 @@ void monome_register_handler(monome_t *monome, unsigned int event_type, monome_c
 void monome_unregister_handler(monome_t *monome, unsigned int event_type);
 void monome_main_loop(monome_t *monome);
 
-monome_t *monome_open(const char *protocol, const char *monome_device, ...);
+monome_t *monome_open(const char *monome_device, const char *protocol, ...);
 void monome_close(monome_t *monome);
 
 int monome_clear(monome_t *monome, monome_clear_status_t status);

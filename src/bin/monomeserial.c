@@ -282,7 +282,7 @@ int main(int argc, char *argv[]) {
 	} else
 		lo_prefix = strdup(argv[optind]);
 
-	if( !(monome = monome_open(proto, device)) )
+	if( !(monome = monome_open(device, proto)) )
 		return 1;
 
 	if( !(st = lo_server_thread_new(sport, lo_error)) )

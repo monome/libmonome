@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 	unsigned int x, y;
 
 	/* open the monome device */
-	if( !(monome = monome_open(PROTOCOL, MONOME_DEVICE)) )
+	if( !(monome = monome_open(MONOME_DEVICE, PROTOCOL)) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);

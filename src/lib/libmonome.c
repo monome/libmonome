@@ -69,7 +69,7 @@ monome_t *monome_init(const char *proto) {
 	return monome;
 }
 
-monome_t *monome_open(const char *proto, const char *dev, ...) {
+monome_t *monome_open(const char *dev, const char *proto, ...) {
 	monome_t *monome = monome_init(proto);
 	va_list arguments;
 	int error;
@@ -77,7 +77,7 @@ monome_t *monome_open(const char *proto, const char *dev, ...) {
 	if( !monome )
 		return NULL;
 	
-	va_start(arguments, dev);
+	va_start(arguments, proto);
 	error = monome->open(monome, dev, arguments);
 	va_end(arguments);
 
