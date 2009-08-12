@@ -14,118 +14,22 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <getopt.h>
 #include <lo/lo.h>
 
 #include "monome.h"
 
 #define DEFAULT_MONOME_DEVICE 	"/dev/ttyUSB0"
+#define DEFAULT_MONOME_PROTOCOL "series"
+
 #define DEFAULT_OSC_PREFIX		"monome"
-#define DEFAULT_OSC_HOST_PORT	"8000"
-#define DEFAULT_OSC_LISTEN_PORT	"8080"
+#define DEFAULT_OSC_SERVER_PORT	"8080"
+#define DEFAULT_OSC_APP_PORT	"8000"
+#define DEFAULT_OSC_APP_HOST    NULL	/* liblo takes this to mean 'localhost' */
 
 char *lo_prefix;
 lo_address *outgoing;
 lo_server_thread *st;
-
-void add_osc_methods(char *, monome_t *);
-void lo_error(int, const char*, const char *);
-void handle_press(const monome_event_t *, void *);
-int clear_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
-int led_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
-int led_col_row_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
-int frame_handler(const char *, const char *, lo_arg **, int, lo_message, void *);
-
-int main(int argc, char *argv[]) {
-	monome_t *monome;
-	
-	if( argc > 1 )
-		lo_prefix = strdup(argv[1]);
-	else {
-		lo_prefix = calloc(sizeof(char), strlen(DEFAULT_OSC_PREFIX) + 1);
-		strcpy(lo_prefix, DEFAULT_OSC_PREFIX);
-	}
-	
-	if( !(monome = monome_open("series", (argc == 3 ) ? argv[2] : DEFAULT_MONOME_DEVICE)) )
-		return -1;
-	
-	if( !(st = lo_server_thread_new(DEFAULT_OSC_LISTEN_PORT, lo_error)) )
-		return -1;
-	
-	outgoing = lo_address_new(NULL, DEFAULT_OSC_HOST_PORT);
-	
-	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, lo_prefix);
-	monome_register_handler(monome, MONOME_BUTTON_UP, handle_press, lo_prefix);
-	
-	add_osc_methods(lo_prefix, monome);
-	
-	monome_clear(monome, MONOME_CLEAR_OFF);
-	
-	lo_server_thread_start(st);
-	monome_main_loop(monome);
-	
-	monome_close(monome);
-	free(lo_prefix);
-	
-	return 0;
-}
-
-void add_osc_methods(char *prefix, monome_t *monome) {
-	char *cmd_buf;
-	
-	asprintf(&cmd_buf, "/%s/clear", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "", clear_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "i", clear_handler, monome);
-	free(cmd_buf);
-	
-	asprintf(&cmd_buf, "/%s/led", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "iii", led_handler, monome);
-	free(cmd_buf);
-	
-	asprintf(&cmd_buf, "/%s/led_row", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "ii", led_col_row_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iii", led_col_row_handler, monome);
-	free(cmd_buf);
-	
-	asprintf(&cmd_buf, "/%s/led_col", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "ii", led_col_row_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iii", led_col_row_handler, monome);
-	free(cmd_buf);
-	
-	asprintf(&cmd_buf, "/%s/frame", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiii", frame_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiii", frame_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiiii", frame_handler, monome);
-	free(cmd_buf);
-}
-
-void del_osc_methods(char *prefix) {
-	char *cmd_buf;
-	
-	asprintf(&cmd_buf, "/%s/clear", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "");
-	lo_server_thread_del_method(st, cmd_buf, "i");
-	free(cmd_buf);
-	
-	asprintf(&cmd_buf, "/%s/led", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "iii");
-	free(cmd_buf);
-	
-	asprintf(&cmd_buf, "/%s/led_row", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "ii");
-	lo_server_thread_del_method(st, cmd_buf, "iii");
-	free(cmd_buf);
-
-	asprintf(&cmd_buf, "/%s/led_col", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "ii");
-	lo_server_thread_del_method(st, cmd_buf, "iii");
-	free(cmd_buf);
-
-	asprintf(&cmd_buf, "/%s/frame", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "iiiiiiii");
-	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiii");
-	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiiii");
-	free(cmd_buf);
-}
 
 void lo_error(int num, const char *error_msg, const char *path) {
 	printf("monomeserial: lo server error %d in %s: %s\n", num, path, error_msg);
@@ -232,4 +136,172 @@ void handle_press(const monome_event_t *e, void *data) {
 	asprintf(&cmd, "/%s/press", prefix);
 	lo_send_from(outgoing, lo_server_thread_get_server(st), LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
 	free(cmd);
+}
+
+void add_osc_methods(char *prefix, monome_t *monome) {
+	char *cmd_buf;
+	
+	asprintf(&cmd_buf, "/%s/clear", prefix);
+	lo_server_thread_add_method(st, cmd_buf, "", clear_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "i", clear_handler, monome);
+	free(cmd_buf);
+	
+	asprintf(&cmd_buf, "/%s/led", prefix);
+	lo_server_thread_add_method(st, cmd_buf, "iii", led_handler, monome);
+	free(cmd_buf);
+	
+	asprintf(&cmd_buf, "/%s/led_row", prefix);
+	lo_server_thread_add_method(st, cmd_buf, "ii", led_col_row_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iii", led_col_row_handler, monome);
+	free(cmd_buf);
+	
+	asprintf(&cmd_buf, "/%s/led_col", prefix);
+	lo_server_thread_add_method(st, cmd_buf, "ii", led_col_row_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iii", led_col_row_handler, monome);
+	free(cmd_buf);
+	
+	asprintf(&cmd_buf, "/%s/frame", prefix);
+	lo_server_thread_add_method(st, cmd_buf, "iiiiiiii", frame_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiii", frame_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiiii", frame_handler, monome);
+	free(cmd_buf);
+}
+
+void del_osc_methods(char *prefix) {
+	char *cmd_buf;
+	
+	asprintf(&cmd_buf, "/%s/clear", prefix);
+	lo_server_thread_del_method(st, cmd_buf, "");
+	lo_server_thread_del_method(st, cmd_buf, "i");
+	free(cmd_buf);
+	
+	asprintf(&cmd_buf, "/%s/led", prefix);
+	lo_server_thread_del_method(st, cmd_buf, "iii");
+	free(cmd_buf);
+	
+	asprintf(&cmd_buf, "/%s/led_row", prefix);
+	lo_server_thread_del_method(st, cmd_buf, "ii");
+	lo_server_thread_del_method(st, cmd_buf, "iii");
+	free(cmd_buf);
+
+	asprintf(&cmd_buf, "/%s/led_col", prefix);
+	lo_server_thread_del_method(st, cmd_buf, "ii");
+	lo_server_thread_del_method(st, cmd_buf, "iii");
+	free(cmd_buf);
+
+	asprintf(&cmd_buf, "/%s/frame", prefix);
+	lo_server_thread_del_method(st, cmd_buf, "iiiiiiii");
+	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiii");
+	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiiii");
+	free(cmd_buf);
+}
+
+void usage(const char *app) {
+	printf("usage: %s [options...] [prefix]\n"
+		   "\n"
+		   "  -h, --help			display this information\n"
+		   "\n"
+		   "  -d, --device <device>		the monome serial device\n"
+		   "  -p, --protocol <protocol>	which protocol to use (\"40h\" or \"series\")\n"
+		   "\n"
+		   "  -s, --server-port <port>	what port to listen on\n"
+		   "  -a, --application-port <port>	what port to talk to\n"
+		   "  -o, --application-host <host> the host your application is on\n"
+		   "\n", app);
+}
+
+int is_numstr(const char *s) {
+	while((48 <= *s) && (*s++ <= 57)); /* 48 is ASCII '0', 57 is '9' */
+
+	if( *--s ) /* if the character we stopped on isn't a null, we didn't make it through the string */
+		return 0; /* oh well :( */
+	return 1;
+}
+
+int main(int argc, char *argv[]) {
+	monome_t *monome;
+	char c, *device, *sport, *aport, *ahost, *proto;
+	int i;
+
+	struct option arguments[] = {
+		{"help",             no_argument,       0, 'h'},
+
+		{"device",           required_argument, 0, 'd'},
+		{"protocol",         required_argument, 0, 'p'},
+
+		{"server-port",      required_argument, 0, 's'},
+		{"application-port", required_argument, 0, 'a'},
+		{"application-host", required_argument, 0, 'o'}
+	};
+
+	device = DEFAULT_MONOME_DEVICE;
+	proto  = DEFAULT_MONOME_PROTOCOL;
+	sport  = DEFAULT_OSC_SERVER_PORT;
+	aport  = DEFAULT_OSC_APP_PORT;
+	ahost  = DEFAULT_OSC_APP_HOST;
+
+	while( (c = getopt_long(argc, argv, "hd:p:s:a:o:", arguments, &i)) > 0 ) {
+		switch( c ) {
+		case 'h':
+			usage(argv[0]);
+			return 1;
+			
+		case 'd':
+			device = optarg;
+			break;
+
+		case 'p':
+			proto = optarg;
+			break;
+
+		case 's':
+			if( is_numstr(optarg) )
+				sport = optarg;
+			else
+				printf("warning: \"%s\" is not a valid server port.\n", optarg);
+
+			break;
+
+		case 'a':
+			if( is_numstr(optarg) )
+				aport = optarg;
+			else
+				printf("warning: \"%s\" is not a valid application port.\n", optarg);
+
+			break;
+
+		case 'o':
+			ahost = optarg;
+			break;
+		}
+	}
+
+	if( optind == argc ) {
+		lo_prefix = calloc(sizeof(char), strlen(DEFAULT_OSC_PREFIX) + 1);
+		strcpy(lo_prefix, DEFAULT_OSC_PREFIX);
+	} else
+		lo_prefix = strdup(argv[optind]);
+
+	if( !(monome = monome_open(proto, device)) )
+		return 1;
+
+	if( !(st = lo_server_thread_new(sport, lo_error)) )
+		return -1;
+	
+	outgoing = lo_address_new(ahost, aport);
+	
+	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, lo_prefix);
+	monome_register_handler(monome, MONOME_BUTTON_UP, handle_press, lo_prefix);
+	
+	add_osc_methods(lo_prefix, monome);
+	
+	monome_clear(monome, MONOME_CLEAR_OFF);
+	
+	lo_server_thread_start(st);
+	monome_main_loop(monome);
+	
+	monome_close(monome);
+	free(lo_prefix);
+	
+	return 0;
 }
