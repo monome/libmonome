@@ -10,6 +10,8 @@
  *
  */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,7 +19,7 @@
 #include <getopt.h>
 #include <lo/lo.h>
 
-#include "monome.h"
+#include <monome.h>
 
 #define DEFAULT_MONOME_DEVICE 	"/dev/ttyUSB0"
 #define DEFAULT_MONOME_PROTOCOL "series"
