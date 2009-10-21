@@ -10,6 +10,8 @@
  *
  */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,7 +19,7 @@
 #include <getopt.h>
 #include <lo/lo.h>
 
-#include "monome.h"
+#include <monome.h>
 
 #define DEFAULT_MONOME_DEVICE 	"/dev/ttyUSB0"
 #define DEFAULT_MONOME_PROTOCOL "series"
@@ -288,6 +290,10 @@ int main(int argc, char *argv[]) {
 	if( !(st = lo_server_thread_new(sport, lo_error)) )
 		return -1;
 	
+	printf("monomeserial version %s, yay!\n\n", VERSION);
+	printf("initialized device %s\n", device);
+	printf("running with prefix /%s\n", lo_prefix);
+
 	outgoing = lo_address_new(ahost, aport);
 	
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, lo_prefix);

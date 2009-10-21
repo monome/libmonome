@@ -10,6 +10,8 @@
  *
  */
 
+#define _GNU_SOURCE
+
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <stdio.h>
