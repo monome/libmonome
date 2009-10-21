@@ -114,8 +114,8 @@ void proto_osc_free(monome_t *monome) {
 }
 
 monome_t *monome_protocol_new() {
-	monome_osc_t *mosc = calloc(1, sizeof(monome_osc_t));
-	monome_t *monome = (monome_t *) mosc;
+	monome_osc_t *self = calloc(1, sizeof(monome_osc_t));
+	monome_t *monome = (monome_t *) self;
 	
 	if( !monome )
 		return NULL;
