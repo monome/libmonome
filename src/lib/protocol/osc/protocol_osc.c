@@ -81,14 +81,14 @@ int proto_osc_next_event(monome_t *monome, monome_event_t *e) {
 }
 
 int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
-	monome_osc_t *mosc = (monome_osc_t *) monome;
+	monome_osc_t *self = (monome_osc_t *) monome;
 	char *port = va_arg(args, char *);
 
-	mosc->prefix   = lo_url_get_path(dev);
-	mosc->server   = lo_server_new(port, proto_osc_lo_error);
-	mosc->outgoing = lo_address_new_from_url(dev);
+	self->prefix   = lo_url_get_path(dev);
+	self->server   = lo_server_new(port, proto_osc_lo_error);
+	self->outgoing = lo_address_new_from_url(dev);
 
-	if( (monome->fd = lo_server_get_socket_fd(mosc->server)) < 0 ) {
+	if( (monome->fd = lo_server_get_socket_fd(self->server)) < 0 ) {
 		proto_osc_close(monome);
 		proto_osc_free(monome);
 		return 1;
@@ -102,15 +102,15 @@ int proto_osc_close(monome_t *monome) {
 }
 
 void proto_osc_free(monome_t *monome) {
-	monome_osc_t *mosc = (monome_osc_t *) monome;
+	monome_osc_t *self = (monome_osc_t *) monome;
 
-	free(mosc->prefix);
-	lo_server_free(mosc->server);
-	lo_address_free(mosc->outgoing);
+	free(self->prefix);
+	lo_server_free(self->server);
+	lo_address_free(self->outgoing);
 
-	mosc->prefix   = NULL;
-	mosc->server   = NULL;
-	mosc->outgoing = NULL;
+	self->prefix   = NULL;
+	self->server   = NULL;
+	self->outgoing = NULL;
 }
 
 monome_t *monome_protocol_new() {
