@@ -5,7 +5,7 @@ export VERSION = 0.2
 
 export CC = gcc
 export LD = gcc
-export CFLAGS  += -ggdb -Wall -Werror -fPIC
+export CFLAGS  += -ggdb -Wall -Werror -fPIC -DVERSION=\"$(VERSION)\"
 export LDFLAGS += -ggdb
 export INSTALL = install
 
