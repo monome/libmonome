@@ -22,7 +22,7 @@
 #include "protocol_osc.h"
 
 #define SELF_FROM(what_okay) monome_osc_t *self = (monome_osc_t *) what_okay;
-#define LO_SEND(type, ...) lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, self->type##_str, __VA_ARGS__)
+#define MSG_SEND(type, ...) lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, self->type##_str, __VA_ARGS__)
 
 int proto_osc_close(monome_t *monome);
 void proto_osc_free(monome_t *monome);
@@ -68,13 +68,13 @@ int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 
 int proto_osc_led_on(monome_t *monome, unsigned int x, unsigned int y) {
 	SELF_FROM(monome);
-	LO_SEND(led, "iii", x, y, 1);
+	MSG_SEND(led, "iii", x, y, 1);
 	return 0;
 }
 
 int proto_osc_led_off(monome_t *monome, unsigned int x, unsigned int y) {
 	SELF_FROM(monome);
-	LO_SEND(led, "iii", x, y, 0);
+	MSG_SEND(led, "iii", x, y, 0);
 	return 0;
 }
 
