@@ -1,7 +1,7 @@
 CFLAGS  += -I../src/include
 LDFLAGS += -L../src/lib -lmonome
-OBJS     = simple.o test.o
-TARGETS  = simple test
+OBJS     = simple.o test.o life.o
+TARGETS  = simple test life
 
 all: $(OBJS) $(TARGETS)
 
