@@ -75,7 +75,10 @@ int monome_platform_close(monome_t *monome) {
 }
 
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-	return write(monome->fd, buf, bufsize);
+	int ret = write(monome->fd, buf, bufsize);
+	tcdrain(monome->fd);
+
+	return ret;
 }
 
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
