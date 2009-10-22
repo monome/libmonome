@@ -67,13 +67,8 @@ int main(int argc, char **argv) {
 	
 	cell_t *c;
 	
-#if 1
-	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/monome", "osc", "8000")) )
+	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "osc", "8000")) )
 		return -1;
-#else
-	if( !(monome = monome_open("/dev/ttyUSB0", "series", "8000")) )
-		return -1;
-#endif
 
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
 	
@@ -149,6 +144,6 @@ int main(int argc, char **argv) {
 			}
 		}
 			
-		chill(250);
+		chill(50);
 	}
 }
