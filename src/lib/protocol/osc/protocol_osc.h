@@ -33,5 +33,5 @@ struct monome_osc {
 	char *led_str;
 	char *led_row_str;
 	char *led_col_str;
-	char *led_frame_str;
+	char *frame_str;
 };

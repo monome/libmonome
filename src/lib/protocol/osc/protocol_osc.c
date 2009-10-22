@@ -55,47 +55,55 @@ static int proto_osc_press_handler(const char *path, const char *types, lo_arg *
  */
 
 int proto_osc_clear(monome_t *monome, monome_clear_status_t status) {
-	return 0;
+	SELF_FROM(monome);
+	return MSG_SEND(clear, "i", status);
 }
 
 int proto_osc_intensity(monome_t *monome, unsigned int brightness) {
-	return 0;
+	SELF_FROM(monome);
+	return MSG_SEND(intensity, "i", brightness);
 }
 
 int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
-	return 0;
+	SELF_FROM(monome);
+	return MSG_SEND(mode, "i", mode);
 }
 
 int proto_osc_led_on(monome_t *monome, unsigned int x, unsigned int y) {
 	SELF_FROM(monome);
-	MSG_SEND(led, "iii", x, y, 1);
-	return 0;
+	return MSG_SEND(led, "iii", x, y, 1);
 }
 
 int proto_osc_led_off(monome_t *monome, unsigned int x, unsigned int y) {
 	SELF_FROM(monome);
-	MSG_SEND(led, "iii", x, y, 0);
-	return 0;
+	return MSG_SEND(led, "iii", x, y, 0);
 }
 
 int proto_osc_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return 0;
+	SELF_FROM(monome);
+	return MSG_SEND(led_col, "ii", col, col_data[0]);
 }
 
 int proto_osc_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return 0;
+	SELF_FROM(monome);
+	return MSG_SEND(led_row, "ii", row, row_data[0]);
 }
 
 int proto_osc_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return 0;
+	SELF_FROM(monome);
+	return MSG_SEND(led_col, "iii", col, col_data[0], col_data[1]);
 }
 
 int proto_osc_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return 0;
+	SELF_FROM(monome);
+	return MSG_SEND(led_row, "iii", row, row_data[0], row_data[1]);
 }
 
-int proto_osc_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
-	return 0;
+int proto_osc_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *f) {
+	SELF_FROM(monome);
+
+	/* there has to be a cleaner way to do this */
+	return MSG_SEND(frame, "iiiiiiiii", f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], quadrant);
 }
 
 int proto_osc_next_event(monome_t *monome, monome_event_t *e) {
@@ -135,7 +143,7 @@ int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
 	cache_osc_path(led);
 	cache_osc_path(led_row);
 	cache_osc_path(led_col);
-	cache_osc_path(led_frame);
+	cache_osc_path(frame);
 #undef cache_osc_path
 
 	return 0;

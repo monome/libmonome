@@ -48,6 +48,16 @@ int clear_handler(const char *path, const char *types, lo_arg **argv, int argc, 
 	return monome_clear(monome, mode);
 }
 
+int intensity_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+	monome_t *monome = user_data;
+	int intensity = 0xF;
+
+	if( argc > 0 )
+		intensity = argv[0]->i & 0xF;
+
+	return monome_intensity(monome, intensity);
+}
+
 int led_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	
@@ -108,7 +118,7 @@ int frame_handler(const char *path, const char *types, lo_arg **argv, int argc, 
 
 	for( i = 0; i < 8; i++ )
 		buf[i] = argv[i]->i;
-	
+
 	switch( argc ) {
 	case 8:
 		return monome_led_frame(monome, 0, buf);
@@ -148,6 +158,11 @@ void add_osc_methods(char *prefix, monome_t *monome) {
 	lo_server_thread_add_method(st, cmd_buf, "i", clear_handler, monome);
 	free(cmd_buf);
 	
+	asprintf(&cmd_buf, "/%s/intensity", prefix);
+	lo_server_thread_add_method(st, cmd_buf, "", intensity_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "i", intensity_handler, monome);
+	free(cmd_buf);
+	
 	asprintf(&cmd_buf, "/%s/led", prefix);
 	lo_server_thread_add_method(st, cmd_buf, "iii", led_handler, monome);
 	free(cmd_buf);
@@ -173,6 +188,11 @@ void del_osc_methods(char *prefix) {
 	char *cmd_buf;
 	
 	asprintf(&cmd_buf, "/%s/clear", prefix);
+	lo_server_thread_del_method(st, cmd_buf, "");
+	lo_server_thread_del_method(st, cmd_buf, "i");
+	free(cmd_buf);
+	
+	asprintf(&cmd_buf, "/%s/intensity", prefix);
 	lo_server_thread_del_method(st, cmd_buf, "");
 	lo_server_thread_del_method(st, cmd_buf, "i");
 	free(cmd_buf);
