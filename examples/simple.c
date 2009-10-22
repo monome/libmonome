@@ -18,13 +18,14 @@
  * it does not require (and does not work with) monomeserial.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <monome.h>
 
 unsigned int grid[16][16];
 
-#define MONOME_DEVICE "/dev/ttyUSB0"
-#define PROTOCOL "series"
+#define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
+#define PROTOCOL "osc"
 
 /**
  * this function gets registered with monome_register_handler
@@ -35,7 +36,7 @@ void handle_press(const monome_event_t *e, void *data) {
 	
 	x = e->x;
 	y = e->y;
-	
+
 	if( grid[x][y] )
 		monome_led_off(e->monome, x, y);
 	else
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
 	unsigned int x, y;
 
 	/* open the monome device */
-	if( !(monome = monome_open(MONOME_DEVICE, PROTOCOL)) )
+	if( !(monome = monome_open(MONOME_DEVICE, PROTOCOL, "8000")) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);

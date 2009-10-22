@@ -18,10 +18,10 @@
 #include <time.h>
 #include <monome.h>
 
-#define DEFAULT_MONOME_DEVICE "/dev/ttyUSB0"
-#define PROTOCOL "series"
+#define DEFAULT_MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
+#define PROTOCOL "osc"
 
-#define BPM 75
+#define BPM 115
 
 static void chill(int speed) {
 	struct timespec rem, req = {0, ((60000 / (BPM * speed)) * 1000000)};
@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 	monome_t *monome;
 	int i;
 	
-	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, PROTOCOL)) )
+	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, PROTOCOL, "8000")) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);
