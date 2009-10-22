@@ -111,12 +111,24 @@ void monome_unregister_handler(monome_t *monome, unsigned int event_type) {
 	monome_register_handler(monome, event_type, NULL, NULL);
 }
 
-void monome_main_loop(monome_t *monome) {
+int monome_next_event(monome_t *monome) {
 	monome_callback_t *handler;
 	monome_event_t e;
-	fd_set fds;
 
 	e.monome = monome;
+
+	if( monome->next_event(monome, &e) )
+		return -1;
+
+	handler = &monome->handlers[e.event_type];
+	if( handler->cb )
+		handler->cb(&e, handler->data);
+
+	return 0;
+}
+
+void monome_main_loop(monome_t *monome) {
+	fd_set fds;
 
 	do {
 		FD_ZERO(&fds);
@@ -127,12 +139,7 @@ void monome_main_loop(monome_t *monome) {
 			break;
 		}
 
-		if( monome->next_event(monome, &e) )
-			continue;
-
-		handler = &monome->handlers[e.event_type];
-		if( handler->cb )
-			handler->cb(&e, handler->data);
+		monome_next_event(monome);
 	} while( 1 );
 }
 

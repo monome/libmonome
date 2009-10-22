@@ -72,6 +72,7 @@ struct monome_event {
 void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t, void *user_data);
 void monome_unregister_handler(monome_t *monome, unsigned int event_type);
 void monome_main_loop(monome_t *monome);
+int monome_next_event(monome_t *monome);
 
 monome_t *monome_open(const char *monome_device, const char *protocol, ...);
 void monome_close(monome_t *monome);
