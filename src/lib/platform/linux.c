@@ -75,7 +75,18 @@ int monome_platform_close(monome_t *monome) {
 }
 
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-	int ret = write(monome->fd, buf, bufsize);
+	int ret;
+	fd_set fds;
+
+	FD_ZERO(&fds);
+	FD_SET(monome->fd, &fds);
+
+	if( select(monome->fd + 1, NULL, &fds, NULL, NULL) < 0 ) {
+		perror("libmonome: error in select()");
+		return -1;
+	}
+
+	ret = write(monome->fd, buf, bufsize);
 	tcdrain(monome->fd);
 
 	return ret;
