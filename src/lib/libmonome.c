@@ -115,6 +115,22 @@ int monome_next_event(monome_t *monome) {
 	monome_callback_t *handler;
 	monome_event_t e;
 
+	struct timeval timeout = {0, 0};
+	int ret;
+
+	fd_set fds;
+
+	FD_ZERO(&fds);
+	FD_SET(monome->fd, &fds);
+
+	ret = select(monome->fd + 1, &fds, NULL, NULL, &timeout);
+
+	if( ret < 0 ) {
+		perror("libmonome: error in select()");
+		return -1;
+	} else if( !ret )
+		return -1;
+
 	e.monome = monome;
 
 	if( monome->next_event(monome, &e) )
@@ -128,7 +144,12 @@ int monome_next_event(monome_t *monome) {
 }
 
 void monome_main_loop(monome_t *monome) {
+	monome_callback_t *handler;
+	monome_event_t e;
+
 	fd_set fds;
+
+	e.monome = monome;
 
 	do {
 		FD_ZERO(&fds);
@@ -139,7 +160,12 @@ void monome_main_loop(monome_t *monome) {
 			break;
 		}
 
-		monome_next_event(monome);
+		if( monome->next_event(monome, &e) )
+			continue;
+
+		handler = &monome->handlers[e.event_type];
+		if( handler->cb )
+			handler->cb(&e, handler->data);
 	} while( 1 );
 }
 
