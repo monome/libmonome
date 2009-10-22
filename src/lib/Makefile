@@ -54,7 +54,7 @@ endif
 
 %.so: %.o
 	echo "  LD      src/lib/$@"
-	$(LD) -shared -Wl,-soname,$@ -lc -o $@ $<
+	$(LD) -shared -Wl,-soname,$@ -lc -llo -o $@ $<
 
 %.dylib: %.o
 	echo "  LD      src/lib/$@"

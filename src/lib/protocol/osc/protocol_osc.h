@@ -23,4 +23,15 @@ struct monome_osc {
 	lo_server server;
 	lo_address outgoing;
 	char *prefix;
+
+	monome_event_t *e_ptr;
+
+	char *clear_str;
+	char *intensity_str;
+	char *mode_str;
+
+	char *led_str;
+	char *led_row_str;
+	char *led_col_str;
+	char *led_frame_str;
 };
