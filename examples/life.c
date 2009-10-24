@@ -98,7 +98,8 @@ int main(int argc, char **argv) {
 	monome_clear(monome, MONOME_CLEAR_OFF);
 
 	while(1) {
-		if( !(tick = !tick) )
+		tick++;
+		if( !(tick %= 3) )
 			while( !monome_next_event(monome) );
 
 		for( x = 0; x < COLUMNS; x++ ) {
