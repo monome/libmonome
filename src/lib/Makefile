@@ -56,11 +56,11 @@ $(PROTOCOL_LIBS): $(LIBMONOME)
 
 %.so: %.o
 	echo "  LD      src/lib/$@"
-	$(LD) -shared -Wl,-soname,$@ -L. -lmonome -lc -L/usr/lib -L/usr/local/lib -llo -o $@ $<
+	$(LD) -shared -Wl,-soname,$@ -L. -lmonome -lc -L/usr/lib -llo -o $@ $<
 
 %.dylib: %.o
 	echo "  LD      src/lib/$@"
-	$(LD) -dynamiclib -Wl,-dylib_install_name,$@ -lc -o $@ $^
+	$(LD) -dynamiclib -Wl,-dylib_install_name,$(notdir $@) -lc -llo -o $@ $^
 
 %: %.o
 	echo "  LD      src/lib/$@"
