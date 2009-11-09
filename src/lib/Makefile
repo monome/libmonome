@@ -56,7 +56,7 @@ $(PROTOCOL_LIBS): $(LIBMONOME)
 
 %.so: %.o
 	echo "  LD      src/lib/$@"
-	$(LD) -shared -Wl,-soname,$@ -L. -lmonome -lc -llo -o $@ $<
+	$(LD) -shared -Wl,-soname,$@ -L. -lmonome -lc -L/usr/lib -L/usr/local/lib -llo -o $@ $<
 
 %.dylib: %.o
 	echo "  LD      src/lib/$@"
