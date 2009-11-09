@@ -48,7 +48,7 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 
 	/* raw output */
 	nt.c_oflag &= ~(OCRNL | ONLCR | ONLRET | ONOCR |
-	                OFILL | OLCUC | OPOST);
+	                OFILL | OPOST);
 
 	/* block until one character is read */
 	nt.c_cc[VMIN]  = 1;
