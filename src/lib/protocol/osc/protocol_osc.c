@@ -22,7 +22,7 @@
 #include "protocol_osc.h"
 
 #define SELF_FROM(what_okay) monome_osc_t *self = (monome_osc_t *) what_okay;
-#define MSG_SEND(type, ...) lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, self->type##_str, __VA_ARGS__)
+#define LO_SEND_MSG(type, ...) lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, self->type##_str, __VA_ARGS__)
 
 int proto_osc_close(monome_t *monome);
 void proto_osc_free(monome_t *monome);
@@ -56,54 +56,54 @@ static int proto_osc_press_handler(const char *path, const char *types, lo_arg *
 
 int proto_osc_clear(monome_t *monome, monome_clear_status_t status) {
 	SELF_FROM(monome);
-	return MSG_SEND(clear, "i", status);
+	return LO_SEND_MSG(clear, "i", status);
 }
 
 int proto_osc_intensity(monome_t *monome, unsigned int brightness) {
 	SELF_FROM(monome);
-	return MSG_SEND(intensity, "i", brightness);
+	return LO_SEND_MSG(intensity, "i", brightness);
 }
 
 int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 	SELF_FROM(monome);
-	return MSG_SEND(mode, "i", mode);
+	return LO_SEND_MSG(mode, "i", mode);
 }
 
 int proto_osc_led_on(monome_t *monome, unsigned int x, unsigned int y) {
 	SELF_FROM(monome);
-	return MSG_SEND(led, "iii", x, y, 1);
+	return LO_SEND_MSG(led, "iii", x, y, 1);
 }
 
 int proto_osc_led_off(monome_t *monome, unsigned int x, unsigned int y) {
 	SELF_FROM(monome);
-	return MSG_SEND(led, "iii", x, y, 0);
+	return LO_SEND_MSG(led, "iii", x, y, 0);
 }
 
 int proto_osc_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
 	SELF_FROM(monome);
-	return MSG_SEND(led_col, "ii", col, col_data[0]);
+	return LO_SEND_MSG(led_col, "ii", col, col_data[0]);
 }
 
 int proto_osc_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
 	SELF_FROM(monome);
-	return MSG_SEND(led_row, "ii", row, row_data[0]);
+	return LO_SEND_MSG(led_row, "ii", row, row_data[0]);
 }
 
 int proto_osc_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
 	SELF_FROM(monome);
-	return MSG_SEND(led_col, "iii", col, col_data[0], col_data[1]);
+	return LO_SEND_MSG(led_col, "iii", col, col_data[0], col_data[1]);
 }
 
 int proto_osc_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
 	SELF_FROM(monome);
-	return MSG_SEND(led_row, "iii", row, row_data[0], row_data[1]);
+	return LO_SEND_MSG(led_row, "iii", row, row_data[0], row_data[1]);
 }
 
 int proto_osc_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *f) {
 	SELF_FROM(monome);
 
 	/* there has to be a cleaner way to do this */
-	return MSG_SEND(frame, "iiiiiiiii", f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], quadrant);
+	return LO_SEND_MSG(frame, "iiiiiiiii", f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], quadrant);
 }
 
 int proto_osc_next_event(monome_t *monome, monome_event_t *e) {
