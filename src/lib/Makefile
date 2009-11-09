@@ -52,9 +52,11 @@ else
 	$(CC) $(CFLAGS) -c platform/linux.c -o $@
 endif
 
+$(PROTOCOL_LIBS): $(LIBMONOME)
+
 %.so: %.o
 	echo "  LD      src/lib/$@"
-	$(LD) -shared -Wl,-soname,$@ -lc -llo -o $@ $<
+	$(LD) -shared -Wl,-soname,$@ -L. -lmonome -lc -llo -o $@ $<
 
 %.dylib: %.o
 	echo "  LD      src/lib/$@"
