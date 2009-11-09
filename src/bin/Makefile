@@ -1,7 +1,7 @@
 CFLAGS  += -I../include
 LDFLAGS += -L../lib -lmonome -llo
-OBJS = monomeserial.o linux_sysfs.o
-TARGETS = monomeserial linux_sysfs
+OBJS = monomeserial.o
+TARGETS = monomeserial
 
 all: $(OBJS) $(TARGETS)
 
