@@ -41,7 +41,7 @@ libmonome.so.$(VERSION): libmonome.o platform.o
 	ln -sf $@ libmonome.so
 
 libmonome.dylib: libmonome.o platform.o
-	echo "  LD      src/lib/libmonome.so"
+	echo "  LD      src/lib/libmonome.dylib"
 	$(LD) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib -lc -ldl -o $@ $^
 
 platform.o:
