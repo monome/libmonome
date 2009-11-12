@@ -24,6 +24,7 @@ struct monome_osc {
 	lo_address outgoing;
 	char *prefix;
 
+	int have_event;
 	monome_event_t *e_ptr;
 
 	char *clear_str;

@@ -134,11 +134,14 @@ int monome_next_event(monome_t *monome) {
 	e.monome = monome;
 
 	if( monome->next_event(monome, &e) )
-		return -1;
+		return 1;
 
 	handler = &monome->handlers[e.event_type];
-	if( handler->cb )
-		handler->cb(&e, handler->data);
+
+	if( !handler->cb )
+		return 1;
+
+	handler->cb(&e, handler->data);
 
 	return 0;
 }

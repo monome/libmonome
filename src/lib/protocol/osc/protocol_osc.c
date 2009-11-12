@@ -47,6 +47,7 @@ static int proto_osc_press_handler(const char *path, const char *types, lo_arg *
 	e->y          = argv[1]->i;
 	e->event_type = argv[2]->i;
 
+	self->have_event = 1;
 	return 0;
 }
 
@@ -110,10 +111,11 @@ int proto_osc_next_event(monome_t *monome, monome_event_t *e) {
 	SELF_FROM(monome);
 
 	self->e_ptr = e;
-	if( lo_server_recv_noblock(self->server, 0) > 0 )
-		return 0;
+	self->have_event = 0;
 
-	return 1;
+	lo_server_recv_noblock(self->server, 0);
+
+	return !self->have_event;
 }
 
 int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
