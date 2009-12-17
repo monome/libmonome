@@ -18,6 +18,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include <monome.h>
 
@@ -38,6 +39,7 @@ struct cell {
 };
 
 cell_t world[ROWS][COLUMNS];
+monome_t *monome;
 
 static void chill(int msec) {
 	struct timespec rem, req;
@@ -60,15 +62,26 @@ static void mod_neighbors(cell_t *c, int delta) {
 		c->neighbors[i]->nnum += delta;
 }
 
+static void exit_on_signal(int s) {
+	exit(EXIT_SUCCESS);
+}
+
+static void close_monome() {
+	monome_clear(monome, MONOME_CLEAR_OFF);
+	monome_close(monome);
+}
+
 int main(int argc, char **argv) {
-	monome_t *monome;
 	unsigned int x, y;
 	int tick = 0;
 	
 	cell_t *c;
 	
-	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "osc", "8000")) )
+	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "osc", "4253")) )
 		return -1;
+
+	signal(SIGINT, exit_on_signal);
+	atexit(close_monome);
 
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
 	

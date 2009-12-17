@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include <getopt.h>
 #include <lo/lo.h>
@@ -27,18 +28,32 @@
 #define DEFAULT_OSC_PREFIX		"monome"
 #define DEFAULT_OSC_SERVER_PORT	"8080"
 #define DEFAULT_OSC_APP_PORT	"8000"
-#define DEFAULT_OSC_APP_HOST    NULL	/* liblo takes this to mean 'localhost' */
+#define DEFAULT_OSC_APP_HOST    "127.0.0.1"	/* liblo takes this to mean 'localhost' */
 
-char *lo_prefix;
-lo_address *outgoing;
-lo_server_thread *st;
+#ifdef DEBUG
+#define DPRINTF(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define DPRINTF(...) ((void) 0)
+#endif
 
-void lo_error(int num, const char *error_msg, const char *path) {
+typedef struct {
+	char *lo_prefix;
+	lo_address *outgoing;
+	lo_server_thread *st;
+
+	pthread_mutex_t lock;
+} ms_state;
+
+ms_state state = {
+	.lock = PTHREAD_MUTEX_INITIALIZER
+};
+
+static void lo_error(int num, const char *error_msg, const char *path) {
 	printf("monomeserial: lo server error %d in %s: %s\n", num, path, error_msg);
 	fflush(stdout);
 }
 
-int clear_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_clear_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	int mode = 0;
 
@@ -48,7 +63,7 @@ int clear_handler(const char *path, const char *types, lo_arg **argv, int argc, 
 	return monome_clear(monome, mode);
 }
 
-int intensity_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_intensity_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	int intensity = 0xF;
 
@@ -58,7 +73,7 @@ int intensity_handler(const char *path, const char *types, lo_arg **argv, int ar
 	return monome_intensity(monome, intensity);
 }
 
-int led_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_led_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	
 	if( (argc != 3 || strcmp("iii", types)) ||
@@ -73,7 +88,7 @@ int led_handler(const char *path, const char *types, lo_arg **argv, int argc, lo
 		return monome_led_off(monome, argv[0]->i, argv[1]->i);
 }
 
-int led_col_row_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_led_col_row_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	unsigned int buf[2];
 	
@@ -112,7 +127,7 @@ int led_col_row_handler(const char *path, const char *types, lo_arg **argv, int 
 	return 0;
 }
 
-int frame_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_frame_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	unsigned int buf[8], i;
 
@@ -141,50 +156,43 @@ int frame_handler(const char *path, const char *types, lo_arg **argv, int argc, 
 	return -1;
 }
 
-void handle_press(const monome_event_t *e, void *data) {
-	char *cmd;
-	char *prefix = data;
-
-	asprintf(&cmd, "/%s/press", prefix);
-	lo_send_from(outgoing, lo_server_thread_get_server(st), LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
-	free(cmd);
-}
-
-void add_osc_methods(char *prefix, monome_t *monome) {
+static void register_osc_methods(char *prefix, monome_t *monome) {
+	lo_server_thread st = state.st;
 	char *cmd_buf;
 	
 	asprintf(&cmd_buf, "/%s/clear", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "", clear_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "i", clear_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "", osc_clear_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "i", osc_clear_handler, monome);
 	free(cmd_buf);
 	
 	asprintf(&cmd_buf, "/%s/intensity", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "", intensity_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "i", intensity_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "", osc_intensity_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "i", osc_intensity_handler, monome);
 	free(cmd_buf);
 	
 	asprintf(&cmd_buf, "/%s/led", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "iii", led_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iii", osc_led_handler, monome);
 	free(cmd_buf);
 	
 	asprintf(&cmd_buf, "/%s/led_row", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "ii", led_col_row_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iii", led_col_row_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "ii", osc_led_col_row_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iii", osc_led_col_row_handler, monome);
 	free(cmd_buf);
 	
 	asprintf(&cmd_buf, "/%s/led_col", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "ii", led_col_row_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iii", led_col_row_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "ii", osc_led_col_row_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iii", osc_led_col_row_handler, monome);
 	free(cmd_buf);
 	
 	asprintf(&cmd_buf, "/%s/frame", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiii", frame_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiii", frame_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiiii", frame_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iiiiiiii", osc_frame_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiii", osc_frame_handler, monome);
+	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiiii", osc_frame_handler, monome);
 	free(cmd_buf);
 }
 
-void del_osc_methods(char *prefix) {
+static void unregister_osc_methods(char *prefix) {
+	lo_server_thread st = state.st;
 	char *cmd_buf;
 	
 	asprintf(&cmd_buf, "/%s/clear", prefix);
@@ -216,6 +224,92 @@ void del_osc_methods(char *prefix) {
 	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiii");
 	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiiii");
 	free(cmd_buf);
+}
+
+static int osc_hello_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+	lo_address src = lo_message_get_source(data);
+	const char *nprefix = &argv[0]->s;
+	const char *src_host, *src_port;
+	monome_t *monome = user_data;
+
+	int endpoint_changed, prefix_changed;
+
+	/* XXX: does not account for different representations of the same hostname
+	        maybe a function exists for this somewhere... */
+
+	prefix_changed   = strcmp(nprefix, state.lo_prefix);
+	endpoint_changed = strcmp(lo_address_get_url(state.outgoing),
+							  lo_address_get_url(src));
+
+	if( !endpoint_changed && !prefix_changed )
+		return 0;
+
+	src_host = lo_address_get_hostname(src);
+	src_port = lo_address_get_port(src);
+
+	if( *nprefix == '/' )
+		nprefix++;
+
+	pthread_mutex_lock(&state.lock);
+	
+	if( prefix_changed ) {
+		DPRINTF("\nunregistering /%s\n", state.lo_prefix);
+		unregister_osc_methods(state.lo_prefix);
+
+		free(state.lo_prefix);
+		state.lo_prefix = strdup(nprefix);
+
+		DPRINTF("registering /%s", nprefix);
+		register_osc_methods(state.lo_prefix, monome);
+	}
+
+	if( endpoint_changed ) {
+		DPRINTF("\nfreeing current endpoint\n");
+		lo_address_free(state.outgoing);
+
+		DPRINTF("allocating endpoint at %s:%s\n\n", src_host, src_port);
+		state.outgoing = lo_address_new(src_host, src_port);
+	}
+
+	pthread_mutex_unlock(&state.lock);
+
+	printf("now talking with %s at %s:%s\n",
+		   nprefix, src_host, src_port);
+
+	return 0;
+}
+static int osc_goodbye_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+	const char *oprefix = &argv[0]->s;
+
+	if( *oprefix == '/' )
+		oprefix++;
+
+	printf("goodbye, %s!\n", oprefix);
+
+	/* when we support multiple monomes and/or monome division,
+	   this will be a whole lot more useful */
+
+	return 0;
+}
+
+static void register_sys_methods(monome_t *monome) {
+	lo_server_thread st = state.st;
+
+	lo_server_thread_add_method(st, "/sys/hello", "s", osc_hello_handler, monome);
+	lo_server_thread_add_method(st, "/sys/goodbye", "s", osc_goodbye_handler, monome);
+}
+
+static void monome_handle_press(const monome_event_t *e, void *data) {
+	char *cmd;
+	char *prefix = data;
+
+	pthread_mutex_lock(&state.lock);
+
+	asprintf(&cmd, "/%s/press", prefix);
+	lo_send_from(state.outgoing, lo_server_thread_get_server(state.st), LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
+	free(cmd);
+
+	pthread_mutex_unlock(&state.lock);
 }
 
 void usage(const char *app) {
@@ -299,35 +393,36 @@ int main(int argc, char *argv[]) {
 	}
 
 	if( optind == argc ) {
-		lo_prefix = calloc(sizeof(char), strlen(DEFAULT_OSC_PREFIX) + 1);
-		strcpy(lo_prefix, DEFAULT_OSC_PREFIX);
+		state.lo_prefix = calloc(sizeof(char), strlen(DEFAULT_OSC_PREFIX) + 1);
+		strcpy(state.lo_prefix, DEFAULT_OSC_PREFIX);
 	} else
-		lo_prefix = strdup(argv[optind]);
+		state.lo_prefix = strdup(argv[optind]);
 
 	if( !(monome = monome_open(device, proto)) )
 		return 1;
 
-	if( !(st = lo_server_thread_new(sport, lo_error)) )
+	if( !(state.st = lo_server_thread_new(sport, lo_error)) )
 		return -1;
 	
 	printf("monomeserial version %s, yay!\n\n", VERSION);
 	printf("initialized device %s\n", device);
-	printf("running with prefix /%s\n", lo_prefix);
+	printf("running with prefix /%s\n\n", state.lo_prefix);
 
-	outgoing = lo_address_new(ahost, aport);
+	state.outgoing = lo_address_new(ahost, aport);
 	
-	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, lo_prefix);
-	monome_register_handler(monome, MONOME_BUTTON_UP, handle_press, lo_prefix);
+	monome_register_handler(monome, MONOME_BUTTON_DOWN, monome_handle_press, state.lo_prefix);
+	monome_register_handler(monome, MONOME_BUTTON_UP, monome_handle_press, state.lo_prefix);
 	
-	add_osc_methods(lo_prefix, monome);
+	register_sys_methods(monome);
+	register_osc_methods(state.lo_prefix, monome);
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);
 	
-	lo_server_thread_start(st);
+	lo_server_thread_start(state.st);
 	monome_main_loop(monome);
 	
 	monome_close(monome);
-	free(lo_prefix);
+	free(state.lo_prefix);
 	
 	return 0;
 }

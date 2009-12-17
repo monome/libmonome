@@ -148,10 +148,18 @@ int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
 	cache_osc_path(frame);
 #undef cache_osc_path
 
+	lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE,
+				 "/sys/hello", "s", self->prefix);
+
 	return 0;
 }
 
 int proto_osc_close(monome_t *monome) {
+	SELF_FROM(monome);
+
+	lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE,
+				 "/sys/goodbye", "s", self->prefix);
+
 	return 0;
 }
 
