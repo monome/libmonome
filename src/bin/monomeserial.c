@@ -22,13 +22,13 @@
 
 #include <monome.h>
 
-#define DEFAULT_MONOME_DEVICE 	"/dev/ttyUSB0"
+#define DEFAULT_MONOME_DEVICE   "/dev/ttyUSB0"
 #define DEFAULT_MONOME_PROTOCOL "series"
 
-#define DEFAULT_OSC_PREFIX		"monome"
-#define DEFAULT_OSC_SERVER_PORT	"8080"
-#define DEFAULT_OSC_APP_PORT	"8000"
-#define DEFAULT_OSC_APP_HOST    "127.0.0.1"	/* liblo takes this to mean 'localhost' */
+#define DEFAULT_OSC_PREFIX      "monome"
+#define DEFAULT_OSC_SERVER_PORT "8080"
+#define DEFAULT_OSC_APP_PORT    "8000"
+#define DEFAULT_OSC_APP_HOST    "127.0.0.1"
 
 #ifdef DEBUG
 #define DPRINTF(...) fprintf(stderr, __VA_ARGS__)
@@ -235,7 +235,9 @@ static int osc_hello_handler(const char *path, const char *types, lo_arg **argv,
 	int endpoint_changed, prefix_changed;
 
 	/* XXX: does not account for different representations of the same hostname
-	        maybe a function exists for this somewhere... */
+	        i.e. "localhost" and "127.0.0.1" are different
+
+	        perhaps we should resolve all hostnames to IP addresses? */
 
 	prefix_changed   = strcmp(nprefix, state.lo_prefix);
 	endpoint_changed = strcmp(lo_address_get_url(state.outgoing),
