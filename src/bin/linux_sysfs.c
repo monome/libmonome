@@ -44,7 +44,6 @@ static monome_device_mapping_t mapping[] = {
 	{0, 0, 0}
 };
 
-
 static char *get_tty(const char *usb_device) {
 	char *dirstr, *tty = NULL;
 	struct dirent *ent;
@@ -106,14 +105,13 @@ static char *get_serial(const char *usb_device) {
 
 static void scan_ftdi_driver_directory() {
 	struct dirent *ftdi_ent;
-	int i, max, serialnum;
+	int i, serialnum;
 	char *serial, *tty, *model;
 	DIR *ftdi_dir;
 	
 	if( !(ftdi_dir = opendir("/sys/bus/usb/drivers/ftdi_sio/")) )
 		return;
 	
-	max = sizeof(mapping) / sizeof(monome_device_mapping_t);
 	serialnum = 0;
 	model = NULL;
 

@@ -1,9 +1,13 @@
 CFLAGS  += -I../include
 LDFLAGS += -L../lib -lmonome -llo
-OBJS = monomeserial.o
-TARGETS = monomeserial
+OBJS = monomeserial.o linux_sysfs.o linux_libudev.o
+TARGETS = monomeserial linux_sysfs linux_libudev
 
 all: $(OBJS) $(TARGETS)
+
+linux_libudev: linux_libudev.o
+	echo "  LD      src/bin/$@"
+	$(LD) $(LDFLAGS) -ludev $< -o $@
 
 clean:
 	echo "  CLEAN   src/bin"
