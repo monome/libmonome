@@ -12,22 +12,21 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <glob.h>
-#include <errno.h>
 #include <assert.h>
 
-#include <monome.h>
+#include <libudev.h>
 
-#define DEV_PATH "/dev/serial/by-id/"
+#include <monome.h>
 
 typedef struct monome_device_mapping monome_device_mapping_t;
 
 struct monome_device_mapping {
 	char *serial;
-	monome_device_t type;
+	monome_device_t model;
 	char *friendly;
 };
+
+struct udev *udev;
 
 static monome_device_mapping_t mapping[] = {
 	{"m256-%d", MONOME_DEVICE_256, "monome 256"},
@@ -37,74 +36,118 @@ static monome_device_mapping_t mapping[] = {
 	{0, 0, 0}
 };
 
-void parse_device_information(char *path, char **subsystem, char **vendor, char **model, char **serial) {
-	char *dev;
+static int get_monome_information(struct udev_device *d) {
+	const char *serial, *tty;
+	int serialnum;
 
-	/* assuming a path of the following form:
-	   /dev/serial/by-id/<subsystem>-<vendor>_<model>_<serial>-<interface>-<port>
+	monome_device_t model = 0;
+	monome_device_mapping_t *c;
 
-	   will look something like:
-	   /dev/serial/by-id/usb-monome_monome256_m256-042-if00-port0 */
+	assert(d);
 
-	assert(path);
-	dev = path;
+	if( !(tty    = udev_device_get_devnode(d)) ||
+		!(serial = udev_device_get_property_value(d, "ID_SERIAL_SHORT")) )
+		return 1;
 
-	while( *++dev );						/* walk to end */
-	while( dev > path && *--dev != '-' );	/* disregard port */
-	while( dev > path && *--dev != '-' );	/* disregard interface */
-	*dev = '\0';							/* terminate string early */
-	while( dev > path && *--dev != '/' );	/* find last component of path */
-	dev++;
+	for( c = mapping; c->serial; c++ ) {
+		if( !sscanf(serial, c->serial, &serialnum) )
+			continue;
 
-	if( subsystem )
-		*subsystem = dev;
+		model = c->model;
+		break;
+	}
 
-	dev = strchr(dev, '-');
-	*dev++ = '\0';
+	if( !model )
+		return 1; /* unrecognized device, disregard */
 
-	if( vendor )
-		*vendor = dev;
+	printf("%s %s\n", tty, serial);
 
-	dev = strchr(dev, '_');
-	*dev++ = '\0';
+#if 0
+	tty    = strdup(tty);
+	serial = strdup(serial);
+#endif
 
-	if( model )
-		*model = dev;
-
-	dev = strchr(dev, '_');
-	*dev++ = '\0';
-
-	if( serial )
-		*serial = dev;
+	return 0;
 }
 
-int list_monome_devices() {
-	char *vendor, *model, *serial;
-	glob_t gb;
-	int i;
+static int get_monome_information_from_syspath(const char *syspath) {
+	struct udev_device *d = NULL;
+	int ret;
 
-	if( glob(DEV_PATH "usb-monome*", 0, NULL, &gb) ) {
-		if( errno != ENOENT )
-			perror("list_monome_devices");
+	assert(syspath);
+	if( !(d = udev_device_new_from_syspath(udev, syspath)) )
+		return 1;
 
-		return 0;
+	ret = get_monome_information(d);
+	udev_device_unref(d);
+
+	return ret;
+}
+
+static int list_monome_devices() {
+	struct udev_enumerate *ue;
+	struct udev_list_entry *c;
+	int found = 0;
+
+	ue = udev_enumerate_new(udev);
+	udev_enumerate_add_match_subsystem(ue, "tty");
+
+	if( udev_enumerate_scan_devices(ue) ) {
+		perror("udev_enumerate_scan_devices");
+		goto out;
 	}
 
-	for( i = 0; i < gb.gl_pathc; i++ ) {
-		parse_device_information(gb.gl_pathv[i], NULL, &vendor, &model, &serial);
-		printf("%s %s %s\n", vendor, model, serial);
+	c = udev_enumerate_get_list_entry(ue);
 
-		(void) mapping;
+	do {
+		if( !get_monome_information_from_syspath(udev_list_entry_get_name(c)) )
+			found++;
+	} while( (c = udev_list_entry_get_next(c)) );
+
+out:
+	udev_enumerate_unref(ue);
+	return found;
+}
+
+static void monitor_devs() {
+	struct udev_monitor *m;
+	struct udev_device *d;
+	const char *action;
+
+	m = udev_monitor_new_from_netlink(udev, "udev");
+	udev_monitor_filter_add_match_subsystem_devtype(m, "tty", NULL);
+	udev_monitor_enable_receiving(m);
+
+	while( 1 ) {
+		d = udev_monitor_receive_device(m);
+		action = udev_device_get_action(d);
+
+		switch( *action ) {
+		case 'a': /* add */
+			printf("=> ");
+			break;
+
+		case 'r': /* remove */
+			printf("<= ");
+			break;
+		}
+
+		get_monome_information(d);
 	}
 
-	globfree(&gb);
-
-	return gb.gl_pathc;
+	udev_monitor_unref(m);
 }
 
 int main(int argc, char **argv) {
+	udev = udev_new();
+
 	if( !list_monome_devices() )
 		printf("no monomes found :(\n");
+
+	printf("\nmonitoring...\n");
+	monitor_devs();
+
+	udev_unref(udev);
 
 	return 0;
 }

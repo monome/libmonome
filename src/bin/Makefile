@@ -1,5 +1,5 @@
 CFLAGS  += -I../include
-LDFLAGS += -L../lib -lmonome -llo
+LDFLAGS += -L../lib -lmonome -llo -ludev
 OBJS = monomeserial.o linux_sysfs.o linux_libudev.o
 TARGETS = monomeserial linux_sysfs linux_libudev
 
