@@ -30,6 +30,8 @@ struct monome_callback {
 
 struct monome {
 	monome_device_t model;
+	char *serial;
+	char *device;
 	
 	struct termios ot;
 	int fd;
