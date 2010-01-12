@@ -25,7 +25,7 @@ extern "C" {
 typedef enum {
 	MONOME_BUTTON_UP           = 0x00,
 	MONOME_BUTTON_DOWN         = 0x01,
-	MONOME_AUX_INPUT           = 0x02,
+	MONOME_AUX_INPUT           = 0x02
 } monome_event_type_t;
 
 /* clearing statuses (argument to monome_clear) */
