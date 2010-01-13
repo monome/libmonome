@@ -226,79 +226,10 @@ static void unregister_osc_methods(char *prefix) {
 	free(cmd_buf);
 }
 
-static int osc_hello_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
-	lo_address src = lo_message_get_source(data);
-	const char *nprefix = &argv[0]->s;
-	const char *src_host, *src_port;
-	monome_t *monome = user_data;
-
-	int endpoint_changed, prefix_changed;
-
-	/* XXX: does not account for different representations of the same hostname
-	        i.e. "localhost" and "127.0.0.1" are different
-
-	        perhaps we should resolve all hostnames to IP addresses? */
-
-	prefix_changed   = strcmp(nprefix, state.lo_prefix);
-	endpoint_changed = strcmp(lo_address_get_url(state.outgoing),
-							  lo_address_get_url(src));
-
-	if( !endpoint_changed && !prefix_changed )
-		return 0;
-
-	src_host = lo_address_get_hostname(src);
-	src_port = lo_address_get_port(src);
-
-	if( *nprefix == '/' )
-		nprefix++;
-
-	pthread_mutex_lock(&state.lock);
-	
-	if( prefix_changed ) {
-		DPRINTF("\nunregistering /%s\n", state.lo_prefix);
-		unregister_osc_methods(state.lo_prefix);
-
-		free(state.lo_prefix);
-		state.lo_prefix = strdup(nprefix);
-
-		DPRINTF("registering /%s", nprefix);
-		register_osc_methods(state.lo_prefix, monome);
-	}
-
-	if( endpoint_changed ) {
-		DPRINTF("\nfreeing current endpoint\n");
-		lo_address_free(state.outgoing);
-
-		DPRINTF("allocating endpoint at %s:%s\n\n", src_host, src_port);
-		state.outgoing = lo_address_new(src_host, src_port);
-	}
-
-	pthread_mutex_unlock(&state.lock);
-
-	printf("now talking with %s at %s:%s\n",
-		   nprefix, src_host, src_port);
-
-	return 0;
-}
-static int osc_goodbye_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
-	const char *oprefix = &argv[0]->s;
-
-	if( *oprefix == '/' )
-		oprefix++;
-
-	printf("goodbye, %s!\n", oprefix);
-
-	/* when we support multiple monomes and/or monome division,
-	   this will be a whole lot more useful */
-
-	return 0;
-}
-
 static void register_sys_methods(monome_t *monome) {
-	lo_server_thread st = state.st;
+	/* XXX: uh */
 
-	lo_server_thread_add_method(st, "/sys/hello", "s", osc_hello_handler, monome);
-	lo_server_thread_add_method(st, "/sys/goodbye", "s", osc_goodbye_handler, monome);
+	return;
 }
 
 static void monome_handle_press(const monome_event_t *e, void *data) {
@@ -423,6 +354,7 @@ int main(int argc, char *argv[]) {
 	lo_server_thread_start(state.st);
 	monome_main_loop(monome);
 	
+	unregister_osc_methods(state.lo_prefix);
 	monome_close(monome);
 	free(state.lo_prefix);
 	
