@@ -6,7 +6,7 @@ LMOBJS = libmonome.o platform.o
 MONOMESERIAL = monomeserial
 MSOBJS = monomeserial.o
 
-all: $(LIBMONOME) $(MONOMESERIAL)
+all: $(LIBMONOME) $(MS_BUILD)
 	cd proto; $(MAKE)
 
 clean:

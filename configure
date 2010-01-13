@@ -16,11 +16,13 @@ PLATFORM="";
 PREFIX="/usr";
 CFLAGS="";
 LDFLAGS="";
+PROTOCOLS="series 40h";
 
 CC="gcc";
 CC_VERSION=;
 PKGCONFIG_VERSION=;
 
+WANT_OSC=yeah;
 HAVE_LO=;
 LO_VERSION=;
 LO_CFLAGS="";
@@ -188,7 +190,7 @@ EOF
 
 	compile_and_run lo $LO_CFLAGS $LO_LIBS;
 	RET=$?;
-	
+
 	if [ $RET -ne 0 ]; then
 		return $RET;
 	fi
@@ -213,12 +215,32 @@ EOF
 # actual script part starts here
 #
 
+echo "";
 mkdir -p .conftests
 check_pkgconfig;
 
-# TODO: command-line parameters (prefix, etc)
+while [ -n "$1" ]; do
+	arg=`expr "$1" : "[^=]*=\(.*\)"`
 
-echo "";
+	case $1 in 
+		--prefix=*)
+			if [ ! -d $arg ]; then
+				echo_n "  "
+				style_error -n $arg
+				echo " is not a valid directory."
+				echo ""
+				exit 1
+			fi
+
+			PREFIX=$arg;;
+
+		--disable-osc)
+			WANT_OSC=;;
+	esac
+
+	shift;
+done;
+
 att bold;
 echo_n "  configuring "; style_package -n $PROJECT; att; att bold; echo " ${VERSION}:";
 att;
@@ -267,23 +289,41 @@ else
 	exit 1;
 fi
 
-echo_n "    checking for liblo:           ";
-if check_lo; then
-	style_success "found liblo $LO_VERSION";
-else
-	style_error "no liblo :(";
+if [ $WANT_OSC ]; then
+	echo_n "    checking for liblo:           ";
+	if check_lo; then
+		style_success "found liblo $LO_VERSION";
+		PROTOCOLS="$PROTOCOLS osc";
+		MS_BUILD=monomeserial;
+	else
+		style_error "no liblo :(";
 
-	echo   "";
-	echo   "  I couldn't find liblo on your system!  It is optional, but is necessary";
-	echo   "  to build ${PROJECT} with OSC support."
-	echo   "";
-	echo_n "  If you're on "; style_distro -n "Ubuntu"; echo_n ", make sure you have the "; style_package -n "liblo0-dev "; echo " package installed.";
-	echo_n "  Users of "; style_distro -n "other distros"; echo_n " and "; style_distro -n "Mac OS X"; echo_n " should look for a "; style_package -n "liblo"; echo " package, or";
-	echo_n "  get the source from the liblo homepage at "; style_link -n "http://liblo.sourceforge.net/"; echo ".";
-	echo   "";
-	
-	cleanup;
-	exit 1;
+		echo   "";
+		echo   "  I couldn't find liblo on your system!  It is optional, but probably";
+		echo   "  a good idea to build ${PROJECT} with OSC support."
+		echo   "";
+		echo_n "  If you're "; att bold; echo_n sure; att; echo " you want to build without OSC, rerun ./configure";
+		echo_n "  with the "; att bold cyan; echo_n "--disable-osc"; att; echo " option."
+		echo   "";
+		echo_n "  If you're on "; style_distro -n "Ubuntu"; echo_n ", make sure you have the "; style_package -n "liblo0-dev "; echo " package installed.";
+		echo_n "  Users of "; style_distro -n "other distros"; echo_n " and "; style_distro -n "Mac OS X"; echo_n " should look for a "; style_package -n "liblo"; echo " package, or";
+		echo_n "  get the source from the liblo homepage at "; style_link -n "http://liblo.sourceforge.net/"; echo ".";
+		echo   "";
+
+		cleanup;
+		exit 1;
+	fi
+fi
+
+echo "";
+att bold; echo "  options:"; att;
+echo_n "    installation prefix:          ";
+att bold; echo $PREFIX; att;
+echo_n "    building with OSC support:    ";
+if [ $WANT_OSC ]; then
+	att bold; echo yes; att;
+else
+	att bold; echo no; att;
 fi
 
 cat <<EOF > config.mk
@@ -292,6 +332,10 @@ export PREFIX    = $PREFIX
 export PLATFORM  = $PLATFORM
 export LIBSUFFIX = $LIBSUFFIX
 export LMSUFFIX  = $LMSUFFIX
+
+export PROTOCOLS = $PROTOCOLS
+
+export MS_BUILD  = $MS_BUILD
 
 export CC        = $CC
 export LD        = $CC

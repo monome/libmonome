@@ -13,8 +13,6 @@ export LIBDIR = $(PREFIX)/lib
 export INCDIR = $(PREFIX)/include
 export PKGCONFIGDIR = $(LIBDIR)/pkgconfig
 
-export PROTOCOLS = series 40h osc
-
 .SILENT:
 .SUFFIXES:
 .SUFFIXES: .c .o
