@@ -1,6 +1,6 @@
 /*
  * This file is part of libmonome.
- * libmonome is copyright 2007, 2008 will light <visinin@gmail.com>
+ * libmonome is copyright 2007-2010 will light <visinin@gmail.com>
  *
  * libmonome is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
