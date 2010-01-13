@@ -228,9 +228,11 @@ get_platform;
 
 case $PLATFORM in 
 	Linux)
-	LIBSUFFIX=so;;
+	LIBSUFFIX=so
+	LMSUFFIX=so.$VERSION;;
 	Darwin)
-	LIBSUFFIX=dylib;;
+	LIBSUFFIX=dylib
+	LMSUFFIX=dylib;;
 	*)
 	style_error $PLATFORM " :(";
 
@@ -246,8 +248,8 @@ case $PLATFORM in
 	;;
 esac
 
-style_success $PLATFORM
 PLATFORM=`echo $PLATFORM | tr A-Z a-z`
+style_success $PLATFORM
 
 echo_n "    checking for gcc:             ";
 if check_gcc; then
@@ -289,8 +291,10 @@ export VERSION   = $VERSION
 export PREFIX    = $PREFIX
 export PLATFORM  = $PLATFORM
 export LIBSUFFIX = $LIBSUFFIX
+export LMSUFFIX  = $LMSUFFIX
 
 export CC        = $CC
+export LD        = $CC
 export CFLAGS    = $CFLAGS
 export LDFLAGS   = $LDFLAGS
 

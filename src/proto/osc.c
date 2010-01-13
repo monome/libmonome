@@ -19,7 +19,8 @@
 
 #include "monome.h"
 #include "monome_internal.h"
-#include "protocol_osc.h"
+
+#include "osc.h"
 
 #define SELF_FROM(what_okay) monome_osc_t *self = (monome_osc_t *) what_okay;
 #define LO_SEND_MSG(type, ...) lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, self->type##_str, __VA_ARGS__)
