@@ -42,6 +42,15 @@ typedef enum {
 	MONOME_MODE_TEST           = 0x01,
 	MONOME_MODE_SHUTDOWN       = 0x02
 } monome_mode_t;
+
+/* cable orientation */
+
+typedef enum {
+	MONOME_CABLE_LEFT          = 0,
+	MONOME_CABLE_BOTTOM        = 1,
+	MONOME_CABLE_RIGHT         = 2,
+	MONOME_CABLE_TOP           = 3
+} monome_cable_t;
 	
 /* devices, their protocol versions, and their dimensions */
 
@@ -69,13 +78,14 @@ struct monome_event {
 	unsigned int y;
 };
 
+monome_t *monome_open(const char *monome_device, const char *protocol, ...);
+void monome_close(monome_t *monome);
+void monome_set_orientation(monome_t *monome, monome_cable_t cable);
+
 void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t, void *user_data);
 void monome_unregister_handler(monome_t *monome, unsigned int event_type);
 void monome_main_loop(monome_t *monome);
 int monome_next_event(monome_t *monome);
-
-monome_t *monome_open(const char *monome_device, const char *protocol, ...);
-void monome_close(monome_t *monome);
 
 int monome_clear(monome_t *monome, monome_clear_status_t status);
 int monome_intensity(monome_t *monome, unsigned int brightness);

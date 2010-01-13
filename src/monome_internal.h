@@ -22,14 +22,26 @@
 #include <monome.h>
 
 typedef struct monome_callback monome_callback_t;
+typedef struct monome_cable_impl monome_cable_impl_t;
 
 struct monome_callback {
 	monome_callback_function_t cb;
 	void *data;
 };
 
+struct monome_cable_impl {
+	int  (*led_on)(monome_t *monome, unsigned int x, unsigned int y);
+	int  (*led_off)(monome_t *monome, unsigned int x, unsigned int y);
+	int  (*led_col_8)(monome_t *monome, unsigned int col, unsigned int *col_data);
+	int  (*led_row_8)(monome_t *monome, unsigned int row, unsigned int *row_data);
+	int  (*led_col_16)(monome_t *monome, unsigned int col, unsigned int *col_data);
+	int  (*led_row_16)(monome_t *monome, unsigned int row, unsigned int *row_data);
+	int  (*led_frame)(monome_t *monome, unsigned int quadrant, unsigned int *frame_data);
+};
+
 struct monome {
 	monome_device_t model;
+	monome_cable_t cable;
 	
 	struct termios ot;
 	int fd;
