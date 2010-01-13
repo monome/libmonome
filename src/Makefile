@@ -28,7 +28,7 @@ install: all
 libmonome.so.$(VERSION): $(LMOBJS)
 	echo "  LD      src/libmonome.so"
 	$(LD) -shared -Wl,-soname,libmonome.so -lc -ldl -o $@ $(LMOBJS)
-	ln -s $@ libmonome.so
+	ln -sf $@ libmonome.so
 
 libmonome.dylib: $(LMOBJS)
 	echo "  LD      src/libmonome.dylib"
