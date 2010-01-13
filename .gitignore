@@ -1,3 +1,5 @@
+config.mk
+
 *.o
 *.so*
 *.swp
