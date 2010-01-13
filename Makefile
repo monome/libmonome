@@ -1,26 +1,22 @@
 SHELL = /bin/sh
 
-export PROJECT = libmonome
-export VERSION = 0.2
+include config.mk
 
-export CC = gcc
-export LD = gcc
-export CFLAGS  += -ggdb -Wall -Werror -fPIC -DVERSION=\"$(VERSION)\"
+export PROJECT = libmonome
+
+export CFLAGS  += -ggdb -Wall -Werror -fPIC -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
 export LDFLAGS += -ggdb
 export INSTALL = install
 
-export PREFIX = /usr
 export BINDIR = $(PREFIX)/bin
 export LIBDIR = $(PREFIX)/lib
 export INCDIR = $(PREFIX)/include
 export PKGCONFIGDIR = $(LIBDIR)/pkgconfig
 
-export PLATFORM = $(shell uname -s)
-
 .SILENT:
 .SUFFIXES:
 .SUFFIXES: .c .o
-.PHONY: all clean install
+.PHONY: all clean distclean install test config.mk
 
 all:
 	cd src; $(MAKE)
@@ -30,11 +26,28 @@ clean:
 	cd src; $(MAKE) clean
 	cd examples; $(MAKE) clean
 
+distclean: clean
+	rm config.mk
+
 install:
+	cd include; $(MAKE) install
 	cd src; $(MAKE) install
 
 	echo "  INSTALL $(PKGCONFIGDIR)/libmonome.pc"
 	$(INSTALL) libmonome.pc $(PKGCONFIGDIR)
+
+config.mk:
+	if [ ! -f config.mk ]; then \
+	echo ;\
+	echo "  _                " ;\
+	echo " | |__   ___ _   _ " ;\
+	echo " |  _ \ / _ \ | | |    you need to run " ;\
+	echo " | | | |  __/ |_| |  ./configure first!" ;\
+	echo " |_| |_|\___|\__, |" ;\
+	echo "             |___/ " ;\
+	echo ;\
+	fi
+
 
 test: all
 	./src/test

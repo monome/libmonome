@@ -1,0 +1,354 @@
+#!/bin/sh
+
+# This file is part of libmonome.
+# libmonome is copyright 2007-2009 william light <visinin@gmail.com>
+#
+# libmonome is free software. It comes without any warranty, to
+# the extent permitted by applicable law. You can redistribute it
+# and/or modify it under the terms of the Do What The Fuck You Want
+# To Public License, Version 2, as published by Sam Hocevar. See
+# http://sam.zoy.org/wtfpl/COPYING for more details.
+
+PROJECT="libmonome";
+VERSION="0.2";
+
+PLATFORM="";
+PREFIX="/usr";
+CFLAGS="";
+LDFLAGS="";
+PROTOCOLS="series 40h";
+
+CC="gcc";
+CC_VERSION=;
+PKGCONFIG_VERSION=;
+
+WANT_OSC=yeah;
+HAVE_LO=;
+LO_VERSION=;
+LO_CFLAGS="";
+LO_LIBS="-llo -lpthread";
+
+#
+# functions
+#
+
+# figure out the right things to pass to echo to supress a newline
+if [ "`echo -n`" = "-n" ]; then
+	n=""; c="\c";
+else
+	n="-n"; c="";
+fi
+
+_echo () {
+	# portable (sysv/bsd) echo -n
+	if [ $1 = "-n" ]; then
+		shift;
+		echo $n "$*" $c;
+	else
+		echo "$*";
+	fi
+}
+
+echo_n () {
+	_echo -n "$*";
+}
+
+# color and text styles
+
+att() {
+	if [ $# -eq 0 ]; then
+		echo -ne "\033[0m";
+		return 0;
+	fi
+
+	echo -ne "\033["
+	while [ $# -ge 1 ]; do
+		case $1 in
+			bold)      C=1;;
+			underline) C=4;;
+			hidden)    C=8;;
+			
+			black)     C=30;;
+			red)       C=31;;
+			green)     C=32;;
+			yellow)    C=33;;
+			blue)      C=34;;
+			magenta)   C=35;;
+			cyan)      C=36;;
+			white)     C=37;;
+			
+			reset)
+				echo -ne "0m";
+				return 0;
+		esac
+		
+		echo -ne "$C"
+		
+		if [ $# -ge 2 ]; then
+			echo -ne ";";
+		fi
+		
+		shift;
+	done;
+	echo -ne "m";
+}
+
+style_package () { att blue bold; _echo $*; att; }
+style_success () { att green; _echo $*; att; }
+style_distro  () { att cyan; _echo $*; att; }
+style_error   () { att red bold; _echo $*; att; }
+style_link    () { att blue bold underline; _echo $*; att; }
+
+cleanup () {
+	rmdir .conftests
+}
+
+# feature test commands
+
+try_command () {
+	if $* > /dev/null 2> /dev/null; then
+		return 0;
+	else
+		return 1;
+	fi
+}
+
+compile_and_run() {
+	FILE=$1
+	shift;
+	
+	CMD="$CC $* .conftests/$FILE.c -o .conftests/$FILE"
+	try_command $CMD;
+	
+	if [ $? -ne 0 ]; then
+		rm -f .conftests/$FILE.c;
+		rm -f .conftests/$FILE;
+	
+		return 1;
+	fi
+	
+	CMD="./.conftests/$1";
+	try_command $CMD;
+	
+	rm -f .conftests/$FILE.c;
+	rm -f .conftests/$FILE;
+	
+	if [ $? -ne 0 ]; then
+		return 2;
+	fi
+	
+	return 0;
+}
+
+check_pkgconfig () {
+	CMD="pkg-config --version";
+	
+	if try_command $CMD; then
+		PKGCONFIG_VERSION=`$CMD`;
+	fi
+}
+
+get_platform () {
+	try_command "uname";
+
+	if [ $? -ne 0 ]; then
+		PLATFORM="dummy";
+		return 1;
+	fi
+
+	PLATFORM=`uname`;
+	return 0;
+}
+
+check_gcc () {
+	CMD="$CC -dumpversion";
+	try_command $CMD;
+	
+	if [ $? -eq 0 ]; then
+		CC_VERSION=`$CMD`;
+		return 0;
+	fi
+
+	CC_VERSION=;
+	return 1;
+}
+
+check_lo () {
+	cat <<EOF > .conftests/lo.c
+#include <lo/lo.h>
+
+int main(int argc, char **argv) {
+	lo_address a = lo_address_new(NULL, NULL);
+	
+	if( !a )
+		return 1;
+	
+	lo_address_free(a);
+	return 0;
+}
+EOF
+
+	compile_and_run lo $LO_CFLAGS $LO_LIBS;
+	RET=$?;
+
+	if [ $RET -ne 0 ]; then
+		return $RET;
+	fi
+	
+	HAVE_LO=1;
+	
+	if [ $PKGCONFIG_VERSION ]; then
+		CMD="pkg-config --modversion liblo"
+		try_command $CMD;
+		
+		if [ $? -ne 0 ]; then
+			return 0;
+		fi
+		
+		LO_VERSION=`$CMD`;
+	fi
+
+	return 0;
+}
+
+#
+# actual script part starts here
+#
+
+echo "";
+mkdir -p .conftests
+check_pkgconfig;
+
+while [ -n "$1" ]; do
+	arg=`expr "$1" : "[^=]*=\(.*\)"`
+
+	case $1 in 
+		--prefix=*)
+			if [ ! -d $arg ]; then
+				echo_n "  "
+				style_error -n $arg
+				echo " is not a valid directory."
+				echo ""
+				exit 1
+			fi
+
+			PREFIX=$arg;;
+
+		--disable-osc)
+			WANT_OSC=;;
+	esac
+
+	shift;
+done;
+
+att bold;
+echo_n "  configuring "; style_package -n $PROJECT; att; att bold; echo " ${VERSION}:";
+att;
+
+echo_n "    building for platform:        "; 
+get_platform;
+
+case $PLATFORM in 
+	Linux)
+	LIBSUFFIX=so
+	LMSUFFIX=so.$VERSION;;
+	Darwin)
+	LIBSUFFIX=dylib
+	LMSUFFIX=dylib;;
+	*)
+	style_error $PLATFORM " :(";
+
+	echo "";
+	echo "  Your platform is not currently supported by libmonome!  I'm sorry.";
+	echo "  It's entirely possible that libmonome will compile, and perhaps even run, but it just hasn't been tested yet."
+	echo "";
+	echo "  Windows support is not currently available.";
+	echo "";
+
+	cleanup;
+	exit 1;
+	;;
+esac
+
+PLATFORM=`echo $PLATFORM | tr A-Z a-z`
+style_success $PLATFORM
+
+echo_n "    checking for gcc:             ";
+if check_gcc; then
+	style_success "found gcc $CC_VERSION";
+else
+	style_error "no gcc :(";
+
+	echo   "";
+	echo   "  I couldn't find gcc on your system!  you will need it to compile ${PROJECT}.";
+	echo_n "  If you're on "; style_distro -n "Ubuntu"; echo_n ", make sure to grab the "; style_package -n "build-essential"; echo " package.";
+	echo   "  On Mac OS X, you'll need to install the Xcode developer tools.";
+	echo   "";
+
+	cleanup;
+	exit 1;
+fi
+
+if [ $WANT_OSC ]; then
+	echo_n "    checking for liblo:           ";
+	if check_lo; then
+		style_success "found liblo $LO_VERSION";
+		PROTOCOLS="$PROTOCOLS osc";
+		MS_BUILD=monomeserial;
+	else
+		style_error "no liblo :(";
+
+		echo   "";
+		echo   "  I couldn't find liblo on your system!  It is optional, but probably";
+		echo   "  a good idea to build ${PROJECT} with OSC support."
+		echo   "";
+		echo_n "  If you're "; att bold; echo_n sure; att; echo " you want to build without OSC, rerun ./configure";
+		echo_n "  with the "; att bold cyan; echo_n "--disable-osc"; att; echo " option."
+		echo   "";
+		echo_n "  If you're on "; style_distro -n "Ubuntu"; echo_n ", make sure you have the "; style_package -n "liblo0-dev "; echo " package installed.";
+		echo_n "  Users of "; style_distro -n "other distros"; echo_n " and "; style_distro -n "Mac OS X"; echo_n " should look for a "; style_package -n "liblo"; echo " package, or";
+		echo_n "  get the source from the liblo homepage at "; style_link -n "http://liblo.sourceforge.net/"; echo ".";
+		echo   "";
+
+		cleanup;
+		exit 1;
+	fi
+fi
+
+echo "";
+att bold; echo "  options:"; att;
+echo_n "    installation prefix:          ";
+att bold; echo $PREFIX; att;
+echo_n "    building with OSC support:    ";
+if [ $WANT_OSC ]; then
+	att bold; echo yes; att;
+else
+	att bold; echo no; att;
+fi
+
+cat <<EOF > config.mk
+export VERSION   = $VERSION
+export PREFIX    = $PREFIX
+export PLATFORM  = $PLATFORM
+export LIBSUFFIX = $LIBSUFFIX
+export LMSUFFIX  = $LMSUFFIX
+
+export PROTOCOLS = $PROTOCOLS
+
+export MS_BUILD  = $MS_BUILD
+
+export CC        = $CC
+export LD        = $CC
+export CFLAGS    = $CFLAGS
+export LDFLAGS   = $LDFLAGS
+
+export LO_CFLAGS = $LO_CFLAGS
+export LO_LIBS   = $LO_LIBS
+EOF
+
+echo "";
+echo_n "  run "; style_package -n "make"; echo " to compile ${PROJECT}.";
+echo "";
+
+cleanup;
+exit 0;

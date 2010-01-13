@@ -16,7 +16,8 @@
 #include "monome.h"
 #include "monome_internal.h"
 #include "monome_platform.h"
-#include "protocol_40h.h"
+
+#include "40h.h"
 
 /**
  * private

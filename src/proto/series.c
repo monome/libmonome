@@ -16,7 +16,8 @@
 #include <monome.h>
 #include "monome_internal.h"
 #include "monome_platform.h"
-#include "protocol_series.h"
+
+#include "series.h"
 
 /**
  * private
