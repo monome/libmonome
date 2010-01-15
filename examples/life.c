@@ -77,8 +77,8 @@ int main(int argc, char **argv) {
 	
 	cell_t *c;
 	
-	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "osc", "8000")) )
-		return -1;
+	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "osc", "8080")) )
+		return EXIT_FAILURE;
 
 	signal(SIGINT, exit_on_signal);
 	atexit(close_monome);
@@ -160,4 +160,6 @@ int main(int argc, char **argv) {
 			
 		chill(50);
 	}
+
+	return EXIT_SUCCESS;
 }

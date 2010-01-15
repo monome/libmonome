@@ -125,8 +125,10 @@ int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
 
 	port = va_arg(args, char *);
 
+	if( !(self->server = lo_server_new(port, proto_osc_lo_error)) )
+		return 1;
+
 	self->prefix   = lo_url_get_path(dev);
-	self->server   = lo_server_new(port, proto_osc_lo_error);
 	self->outgoing = lo_address_new_from_url(dev);
 
 	if( (monome->fd = lo_server_get_socket_fd(self->server)) < 0 ) {
@@ -166,6 +168,8 @@ void proto_osc_free(monome_t *monome) {
 	self->prefix   = NULL;
 	self->server   = NULL;
 	self->outgoing = NULL;
+
+	free(self);
 }
 
 monome_t *monome_protocol_new() {
