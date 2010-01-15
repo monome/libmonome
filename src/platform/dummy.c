@@ -14,6 +14,8 @@
 
 #include "monome_internal.h"
 
+#warning "using the \"dummy\" platform, please make sure this is what you want!"
+
 int monome_platform_open(monome_t *monome) {
 	printf("libmonome was compiled with the dummy platform and, hence, effectively does nothing.\n"
 		   "please recompile for any functionality!\n");
