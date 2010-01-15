@@ -27,6 +27,9 @@ install: all
 		ldconfig -n $(LIBDIR); \
 	fi
 
+	echo "  INSTALL src/$(MONOMESERIAL) -> $(BINDIR)/$(MONOMESERIAL)"
+	$(INSTALL) $(MONOMESERIAL) $(BINDIR)
+
 libmonome.so.$(VERSION): $(LMOBJS)
 	echo "  LD      src/libmonome.so"
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,libmonome.so $(LMLIBS) -o $@ $(LMOBJS)
