@@ -18,6 +18,8 @@ CFLAGS="";
 LDFLAGS="";
 PROTOCOLS="series 40h";
 
+LMLIBS="-lc";
+
 CC="gcc";
 CC_VERSION=;
 PKGCONFIG_VERSION=;
@@ -251,10 +253,12 @@ get_platform;
 case $PLATFORM in 
 	Linux)
 	LIBSUFFIX=so
-	LMSUFFIX=so.$VERSION;;
+	LMSUFFIX=so.$VERSION
+	LMLIBS="$LMLIBS -ldl -ludev";;
 	Darwin)
 	LIBSUFFIX=dylib
-	LMSUFFIX=dylib;;
+	LMSUFFIX=dylib
+	LMLIBS="$LMLIBS -ldl";;
 	*)
 	style_error $PLATFORM " :(";
 
@@ -332,6 +336,7 @@ export PREFIX    = $PREFIX
 export PLATFORM  = $PLATFORM
 export LIBSUFFIX = $LIBSUFFIX
 export LMSUFFIX  = $LMSUFFIX
+export LMLIBS    = $LMLIBS
 
 export PROTOCOLS = $PROTOCOLS
 

@@ -29,12 +29,12 @@ install: all
 
 libmonome.so.$(VERSION): $(LMOBJS)
 	echo "  LD      src/libmonome.so"
-	$(LD) -shared -Wl,-soname,libmonome.so -lc -ldl -o $@ $(LMOBJS)
+	$(LD) $(LDFLAGS) -shared -Wl,-soname,libmonome.so $(LMLIBS) -o $@ $(LMOBJS)
 	ln -sf $@ libmonome.so
 
 libmonome.dylib: $(LMOBJS)
 	echo "  LD      src/libmonome.dylib"
-	$(LD) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib -lc -ldl -o $@ $(LMOBJS)
+	$(LD) $(LDFLAGS) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib $(LMLIBS) -o $@ $(LMOBJS)
 
 platform.o: platform/$(PLATFORM).c
 	echo "  CC      src/$@"
