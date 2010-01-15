@@ -1,6 +1,6 @@
 CFLAGS += -I. -I../include
 
-LIBMONOME = libmonome.$(LMSUFFIX)
+LIBMONOME = libmonome.$(LM_SUFFIX)
 LMOBJS = libmonome.o platform.o rotation.o
 
 MONOMESERIAL = monomeserial
@@ -32,12 +32,12 @@ install: all
 
 libmonome.so.$(VERSION): $(LMOBJS)
 	echo "  LD      src/libmonome.so"
-	$(LD) $(LDFLAGS) -shared -Wl,-soname,libmonome.so $(LMLIBS) -o $@ $(LMOBJS)
+	$(LD) $(LDFLAGS) -shared -Wl,-soname,libmonome.so $(LM_LDFLAGS) -o $@ $(LMOBJS)
 	ln -sf $@ libmonome.so
 
 libmonome.dylib: $(LMOBJS)
 	echo "  LD      src/libmonome.dylib"
-	$(LD) $(LDFLAGS) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib $(LMLIBS) -o $@ $(LMOBJS)
+	$(LD) $(LDFLAGS) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib $(LM_LDFLAGS) -o $@ $(LMOBJS)
 
 platform.o: platform/$(PLATFORM).c
 	echo "  CC      src/$@"
