@@ -1,6 +1,6 @@
 /*
  * This file is part of libmonome.
- * libmonome is copyright 2007, 2008 will light <visinin@gmail.com>
+ * libmonome is copyright 2007-2010 will light <visinin@gmail.com>
  *
  * libmonome is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
@@ -13,6 +13,8 @@
 #include <stdio.h>
 
 #include "monome_internal.h"
+
+#warning "using the \"dummy\" platform, please make sure this is what you want!"
 
 int monome_platform_open(monome_t *monome) {
 	printf("libmonome was compiled with the dummy platform and, hence, effectively does nothing.\n"

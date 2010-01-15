@@ -1,9 +1,12 @@
-CFLAGS  += -I../src/include
+CFLAGS  += -I../include
 LDFLAGS += -L../src/lib -lmonome
-OBJS     = simple.o test.o life.o
 TARGETS  = simple test life
 
-all: $(OBJS) $(TARGETS)
+all: $(TARGETS)
+
+simple: simple.o
+test: test.o
+life: life.o
 
 clean:
 	echo "  CLEAN   examples"

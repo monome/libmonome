@@ -1,6 +1,6 @@
 /*
  * This file is part of libmonome.
- * libmonome is copyright 2007, 2008 will light <visinin@gmail.com>
+ * libmonome is copyright 2007-2010 will light <visinin@gmail.com>
  *
  * libmonome is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
@@ -19,7 +19,8 @@
 
 #include "monome.h"
 #include "monome_internal.h"
-#include "protocol_osc.h"
+
+#include "osc.h"
 
 #define SELF_FROM(what_okay) monome_osc_t *self = (monome_osc_t *) what_okay;
 #define LO_SEND_MSG(type, ...) lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, self->type##_str, __VA_ARGS__)
@@ -124,8 +125,10 @@ int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
 
 	port = va_arg(args, char *);
 
+	if( !(self->server = lo_server_new(port, proto_osc_lo_error)) )
+		return 1;
+
 	self->prefix   = lo_url_get_path(dev);
-	self->server   = lo_server_new(port, proto_osc_lo_error);
 	self->outgoing = lo_address_new_from_url(dev);
 
 	if( (monome->fd = lo_server_get_socket_fd(self->server)) < 0 ) {
@@ -148,18 +151,10 @@ int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
 	cache_osc_path(frame);
 #undef cache_osc_path
 
-	lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE,
-				 "/sys/hello", "s", self->prefix);
-
 	return 0;
 }
 
 int proto_osc_close(monome_t *monome) {
-	SELF_FROM(monome);
-
-	lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE,
-				 "/sys/goodbye", "s", self->prefix);
-
 	return 0;
 }
 
@@ -173,6 +168,8 @@ void proto_osc_free(monome_t *monome) {
 	self->prefix   = NULL;
 	self->server   = NULL;
 	self->outgoing = NULL;
+
+	free(self);
 }
 
 monome_t *monome_protocol_new() {
