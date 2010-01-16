@@ -91,8 +91,11 @@ static int get_monome_information_from_devname(monome_t *monome, const char *pat
 		break;
 	}
 
-	if( !model )
-		return 1; /* unrecognized device, disregard */
+	if( !model ) {
+		/* unrecognized device, go with lowest common denominator */
+		monome->model = MONOME_DEVICE_40h;
+		return 1;
+	}
 
 	monome->model  = model;
 	monome->serial = buf;
