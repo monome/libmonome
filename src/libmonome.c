@@ -34,6 +34,14 @@
 
 extern monome_cable_impl_t rotate[4];
 
+monome_device_mapping_t mapping[] = {
+	{"m256-%d", MONOME_DEVICE_256, "monome 256"},
+	{"m128-%d", MONOME_DEVICE_128, "monome 128"},
+	{"m64-%d",  MONOME_DEVICE_64,  "monome 64"},
+	{"m40h%d",  MONOME_DEVICE_40h, "monome 40h"},
+	{0, 0, 0}
+};
+
 /**
  * public
  */

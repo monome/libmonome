@@ -20,22 +20,7 @@
 
 #include "monome_internal.h"
 
-typedef struct monome_device_mapping monome_device_mapping_t;
-
-struct monome_device_mapping {
-	char *serial;
-	monome_device_t model;
-	char *friendly;
-};
-
-static monome_device_mapping_t mapping[] = {
-	{"m256-%d", MONOME_DEVICE_256, "monome 256"},
-	{"m128-%d", MONOME_DEVICE_128, "monome 128"},
-	{"m64-%d",  MONOME_DEVICE_64,  "monome 64"},
-	{"m40h%d",  MONOME_DEVICE_40h, "monome 40h"},
-	{0, 0, 0}
-};
-
+extern monome_device_mapping_t mapping[];
 static struct udev *udev;
 
 static int get_monome_information(monome_t *monome, struct udev_device *d) {

@@ -4,7 +4,7 @@ include config.mk
 
 export PROJECT = libmonome
 
-export CFLAGS  += -ggdb -Wall -fPIC -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
+export CFLAGS  += -ggdb -Wall -Werror -fPIC -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
 export LDFLAGS += -ggdb
 export INSTALL = install
 
