@@ -64,6 +64,9 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	monome->fd = fd;
 	monome->ot = ot;
 
+	/* the implementation of this varies wildly between operating systems */
+	get_monome_information_from_devname(monome, dev);
+
 	return 0;
 }
 

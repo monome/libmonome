@@ -23,10 +23,17 @@
 
 typedef struct monome_callback monome_callback_t;
 typedef struct monome_cable_impl monome_cable_impl_t;
+typedef struct monome_device_mapping monome_device_mapping_t;
 
 struct monome_callback {
 	monome_callback_function_t cb;
 	void *data;
+};
+
+struct monome_device_mapping {
+	char *serial;
+	monome_device_t model;
+	char *friendly;
 };
 
 struct monome_cable_impl {
@@ -42,6 +49,8 @@ struct monome_cable_impl {
 struct monome {
 	monome_device_t model;
 	monome_cable_t cable;
+	char *serial;
+	char *device;
 	
 	struct termios ot;
 	int fd;

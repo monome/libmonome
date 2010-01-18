@@ -12,17 +12,23 @@
 PROJECT="libmonome";
 VERSION="0.2";
 
-PLATFORM="";
-PREFIX="/usr";
-CFLAGS="";
-LDFLAGS="";
-PROTOCOLS="series 40h";
-
 CC="gcc";
 CC_VERSION=;
+
+CFLAGS="";
+LDFLAGS="";
+
 PKGCONFIG_VERSION=;
 
-WANT_OSC=yeah;
+PLATFORM=;
+PREFIX="/usr";
+PROTOCOLS="series 40h";
+LIBUDEV_VERSION=;
+
+LM_LDFLAGS="-lc";
+LM_SUFFIX=;
+
+WANT_OSC=probably;
 HAVE_LO=;
 LO_VERSION=;
 LO_CFLAGS="";
@@ -97,6 +103,7 @@ style_package () { att blue bold; _echo $*; att; }
 style_success () { att green; _echo $*; att; }
 style_distro  () { att cyan; _echo $*; att; }
 style_error   () { att red bold; _echo $*; att; }
+style_warning () { att yellow bold; echo $*; att; }
 style_link    () { att blue bold underline; _echo $*; att; }
 
 cleanup () {
@@ -171,6 +178,41 @@ check_gcc () {
 
 	CC_VERSION=;
 	return 1;
+}
+
+check_libudev () {
+	cat <<EOF > .conftests/libudev.c
+#include <libudev.h>
+
+int main(int argc, char **argv) {
+	struct udev *udev = udev_new();
+	udev_unref(udev);
+
+	return 0;
+}
+EOF
+
+	compile_and_run libudev "" "-ludev";
+	RET=$?;
+
+	if [ $RET -ne 0 ]; then
+		return $RET;
+	fi
+	
+	HAVE_LO=1;
+	
+	if [ $PKGCONFIG_VERSION ]; then
+		CMD="pkg-config --modversion libudev"
+		try_command $CMD;
+		
+		if [ $? -ne 0 ]; then
+			return 0;
+		fi
+		
+		LIBUDEV_VERSION=`$CMD`;
+	fi
+
+	return 0;
 }
 
 check_lo () {
@@ -250,11 +292,13 @@ get_platform;
 
 case $PLATFORM in 
 	Linux)
+	LM_LDFLAGS="$LM_LDFLAGS -ldl"
 	LIBSUFFIX=so
-	LMSUFFIX=so.$VERSION;;
+	LM_SUFFIX=so.$VERSION;;
 	Darwin)
+	LM_LDFLAGS="$LM_LDFLAGS -ldl"
 	LIBSUFFIX=dylib
-	LMSUFFIX=dylib;;
+	LM_SUFFIX=dylib;;
 	*)
 	style_error $PLATFORM " :(";
 
@@ -287,6 +331,20 @@ else
 
 	cleanup;
 	exit 1;
+fi
+
+if [ $PLATFORM = "linux" ]; then
+	echo_n "    checking for libudev:         ";
+	if check_libudev; then
+		style_success "found libudev $LIBUDEV_VERSION";
+		PLATFORM=linux_libudev;
+		LM_LDFLAGS="$LM_LDFLAGS -ludev";
+	else
+		# why the fuck would you run a system this old
+
+		style_warning "no, using sysfs (you're probably running an old system)"
+		PLATFORM=linux_sysfs;
+	fi
 fi
 
 if [ $WANT_OSC ]; then
@@ -327,23 +385,25 @@ else
 fi
 
 cat <<EOF > config.mk
-export VERSION   = $VERSION
-export PREFIX    = $PREFIX
-export PLATFORM  = $PLATFORM
-export LIBSUFFIX = $LIBSUFFIX
-export LMSUFFIX  = $LMSUFFIX
+export VERSION    = $VERSION
+export PREFIX     = $PREFIX
 
-export PROTOCOLS = $PROTOCOLS
+export CC         = $CC
+export LD         = $CC
+export CFLAGS     = $CFLAGS
+export LDFLAGS    = $LDFLAGS
 
-export MS_BUILD  = $MS_BUILD
+export PLATFORM   = $PLATFORM
+export LIBSUFFIX  = $LIBSUFFIX
+export LM_SUFFIX  = $LM_SUFFIX
+export LM_LDFLAGS = $LM_LDFLAGS
 
-export CC        = $CC
-export LD        = $CC
-export CFLAGS    = $CFLAGS
-export LDFLAGS   = $LDFLAGS
+export PROTOCOLS  = $PROTOCOLS
 
-export LO_CFLAGS = $LO_CFLAGS
-export LO_LIBS   = $LO_LIBS
+export MS_BUILD   = $MS_BUILD
+
+export LO_CFLAGS  = $LO_CFLAGS
+export LO_LIBS    = $LO_LIBS
 EOF
 
 echo "";

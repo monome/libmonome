@@ -10,4 +10,46 @@
  *
  */
 
+#include <stdio.h>
+#include <string.h>
+
+#include <monome.h>
+#include "monome_internal.h"
+
+extern monome_device_mapping_t mapping[];
+
+static int get_monome_information_from_devname(monome_t *monome, const char *path) {
+	monome_device_mapping_t *c;
+	monome_device_t model = 0;
+	int serialnum;
+	char *serial;
+
+	/* osx serial paths are of the form
+	   /dev/tty.usbserial-<device serial>
+
+	   we'll locate to the first hyphen */
+
+	serial = strchr(path, '-') + 1;
+
+	for( c = mapping; c->serial; c++ ) {
+		if( !sscanf(path, c->serial, &serialnum) )
+			continue;
+
+		model = c->model;
+		break;
+	}
+
+	if( !model ) {
+		/* unrecognized device, go with lowest common denominator */
+		monome->model = MONOME_DEVICE_40h;
+		return 1;
+	}
+
+	monome->model  = model;
+	monome->serial = strdup(serial);
+	monome->device = strdup(path);
+
+	return 0;
+}
+
 #include "posix.inc"

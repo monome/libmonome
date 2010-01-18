@@ -34,6 +34,14 @@
 
 extern monome_cable_impl_t rotate[4];
 
+monome_device_mapping_t mapping[] = {
+	{"m256-%d", MONOME_DEVICE_256, "monome 256"},
+	{"m128-%d", MONOME_DEVICE_128, "monome 128"},
+	{"m64-%d",  MONOME_DEVICE_64,  "monome 64"},
+	{"m40h%d",  MONOME_DEVICE_40h, "monome 40h"},
+	{0, 0, 0}
+};
+
 /**
  * public
  */
@@ -95,11 +103,26 @@ monome_t *monome_open(const char *dev, const char *proto, ...) {
 
 void monome_close(monome_t *monome) {
 	monome->close(monome);
+
+	if( monome->serial )
+		free(monome->serial);
+
+	if( monome->device )
+		free(monome->device);
+
 	monome->free(monome);
 }
 
 void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
 	monome->cable = cable & MONOME_CABLE_TOP;
+}
+
+int monome_get_rows(monome_t *monome) {
+	return ((monome->model >> 4) & 0xF) + 1;
+}
+
+int monome_get_cols(monome_t *monome) {
+	return (monome->model & 0xF) + 1;
 }
 
 void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t cb, void *data) {
