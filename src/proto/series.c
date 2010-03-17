@@ -115,8 +115,7 @@ int proto_series_led_frame(monome_t *monome, unsigned int quadrant, unsigned int
 	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
 	
 	for( i = 1; i < 9; i++ )
-		if( !(buf[i] = *(frame_data++)) )
-			return 0;
+		buf[i] = *(frame_data++);
 	
 	return monome_write(monome, buf, sizeof(buf));
 }

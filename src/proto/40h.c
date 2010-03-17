@@ -100,16 +100,11 @@ int proto_40h_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_da
 
 int proto_40h_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
 	unsigned int i;
-	unsigned int buf;
 	
-	for( i = 0; i < 8; i++ ) {
-		if( !(buf = *(frame_data++)) )
-			return -1;
-		
-		proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, &buf);
-	}
+	for( i = 0; i < 8; i++ )
+		proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, frame_data++);
 	
-	return sizeof(buf) * i;
+	return i * 8;
 }
 
 int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
