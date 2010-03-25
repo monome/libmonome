@@ -100,11 +100,12 @@ int proto_40h_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_da
 
 int proto_40h_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
 	unsigned int i;
+	int ret = 0;
 	
 	for( i = 0; i < 8; i++ )
-		proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, frame_data++);
+		ret += proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, frame_data++);
 	
-	return i * 8;
+	return ret;
 }
 
 int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
