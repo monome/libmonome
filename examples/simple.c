@@ -13,9 +13,6 @@
 /**
  * simple.c
  * press a button to toggle it!
- *
- * this uses the raw libmonome API, not the OSC one.
- * it does not require (and does not work with) monomeserial.
  */
 
 #include <stdio.h>
