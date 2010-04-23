@@ -71,7 +71,7 @@ static int get_monome_information_from_syspath(monome_t *monome, const char *sys
 	return ret;
 }
 
-static int get_monome_information_from_devname(monome_t *monome, const char *name) {
+int monome_platform_get_devinfo(monome_t *monome, const char *name) {
 	struct udev_enumerate *ue;
 	struct udev_list_entry *c;
 	const char *syspath;

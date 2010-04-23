@@ -32,8 +32,6 @@
 #define LIBDIR "/usr/lib"
 #endif
 
-extern monome_cable_impl_t rotate[4];
-
 monome_device_mapping_t mapping[] = {
 	{"m256-%d", MONOME_DEVICE_256, "monome 256"},
 	{"m128-%d", MONOME_DEVICE_128, "monome 128"},
@@ -111,10 +109,6 @@ void monome_close(monome_t *monome) {
 		free(monome->device);
 
 	monome->free(monome);
-}
-
-void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
-	monome->cable = cable & MONOME_CABLE_TOP;
 }
 
 int monome_get_rows(monome_t *monome) {
@@ -214,29 +208,29 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 }
 
 int monome_led_on(monome_t *monome, unsigned int x, unsigned int y) {
-	return rotate[monome->cable].led_on(monome, x, y);
+	return monome->led_on(monome, x, y);
 }
 
 int monome_led_off(monome_t *monome, unsigned int x, unsigned int y) {
-	return rotate[monome->cable].led_off(monome, x, y);
+	return monome->led_off(monome, x, y);
 }
 
 int monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return rotate[monome->cable].led_col_8(monome, col, col_data);
+	return monome->led_col_8(monome, col, col_data);
 }
 
 int monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return rotate[monome->cable].led_row_8(monome, row, row_data);
+	return monome->led_row_8(monome, row, row_data);
 }
 
 int monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
-	return rotate[monome->cable].led_col_16(monome, col, col_data);
+	return monome->led_col_16(monome, col, col_data);
 }
 
 int monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
-	return rotate[monome->cable].led_row_16(monome, row, row_data);
+	return monome->led_row_16(monome, row, row_data);
 }
 
 int monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
-	return rotate[monome->cable].led_frame(monome, quadrant, frame_data);
+	return monome->led_frame(monome, quadrant, frame_data);
 }

@@ -81,7 +81,6 @@ struct monome_event {
 monome_t *monome_open(const char *monome_device, const char *protocol, ...);
 void monome_close(monome_t *monome);
 
-void monome_set_orientation(monome_t *monome, monome_cable_t cable);
 int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 

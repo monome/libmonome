@@ -18,7 +18,7 @@
 
 extern monome_device_mapping_t mapping[];
 
-static int get_monome_information_from_devname(monome_t *monome, const char *path) {
+int monome_platform_get_devinfo(monome_t *monome, const char *path) {
 	monome_device_mapping_t *c;
 	monome_device_t model = 0;
 	int serialnum;

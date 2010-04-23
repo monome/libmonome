@@ -1,7 +1,7 @@
 CFLAGS += -I. -I../include
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
-LMOBJS = libmonome.o platform.o rotation.o
+LMOBJS = libmonome.o platform.o
 
 MONOMESERIAL = monomeserial
 MSOBJS = monomeserial.o
