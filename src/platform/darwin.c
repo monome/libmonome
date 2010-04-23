@@ -39,16 +39,16 @@ static int get_monome_information_from_devname(monome_t *monome, const char *pat
 		break;
 	}
 
+	monome->serial = strdup(serial);
+	monome->device = strdup(path);
+
 	if( !model ) {
 		/* unrecognized device, go with lowest common denominator */
 		monome->model = MONOME_DEVICE_40h;
 		return 1;
 	}
 
-	monome->model  = model;
-	monome->serial = strdup(serial);
-	monome->device = strdup(path);
-
+	monome->model = model;
 	return 0;
 }
 

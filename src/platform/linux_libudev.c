@@ -44,16 +44,16 @@ static int get_monome_information(monome_t *monome, struct udev_device *d) {
 		break;
 	}
 
+	monome->serial = strdup(serial);
+	monome->device = strdup(tty);
+
 	if( !model ) {
 		/* unrecognized device, go with lowest common denominator */
 		monome->model = MONOME_DEVICE_40h;
 		return 1;
 	}
 
-	monome->model  = model;
-	monome->serial = strdup(serial);
-	monome->device = strdup(tty);
-
+	monome->model = model;
 	return 0;
 }
 
