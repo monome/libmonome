@@ -20,93 +20,61 @@
 
 #include "monome_internal.h"
 
-extern monome_device_mapping_t mapping[];
 static struct udev *udev;
 
-static int get_monome_information(monome_t *monome, struct udev_device *d) {
+static char *get_monome_information(struct udev_device *d) {
 	const char *serial, *tty;
-	int serialnum;
-
-	monome_device_t model = 0;
-	monome_device_mapping_t *c;
 
 	assert(d);
 
 	if( !(tty    = udev_device_get_devnode(d)) ||
 		!(serial = udev_device_get_property_value(d, "ID_SERIAL_SHORT")) )
-		return 1;
+		return NULL;
 
-	for( c = mapping; c->serial; c++ ) {
-		if( !sscanf(serial, c->serial, &serialnum) )
-			continue;
-
-		model = c->model;
-		break;
-	}
-
-	monome->serial = strdup(serial);
-	monome->device = strdup(tty);
-
-	if( !model ) {
-		/* unrecognized device, go with lowest common denominator */
-		monome->model = MONOME_DEVICE_40h;
-		return 1;
-	}
-
-	monome->model = model;
-	return 0;
+	return strdup(serial);
 }
 
-static int get_monome_information_from_syspath(monome_t *monome, const char *syspath) {
+static char *get_monome_information_from_syspath(const char *syspath) {
 	struct udev_device *d = NULL;
-	int ret;
+	char *serial;
 
 	assert(syspath);
 	if( !(d = udev_device_new_from_syspath(udev, syspath)) )
-		return 1;
+		return NULL;
 
-	ret = get_monome_information(monome, d);
+	serial = get_monome_information(d);
 	udev_device_unref(d);
 
-	return ret;
+	return serial;
 }
 
-int monome_platform_get_devinfo(monome_t *monome, const char *name) {
+char *monome_platform_get_dev_serial(const char *device) {
 	struct udev_enumerate *ue;
 	struct udev_list_entry *c;
 	const char *syspath;
+	char *serial = NULL;
 
-	assert(name);
+	assert(device);
 
 	udev = udev_new();
 
 	ue = udev_enumerate_new(udev);
-	udev_enumerate_add_match_property(ue, "DEVNAME", name);
+	udev_enumerate_add_match_property(ue, "DEVNAME", device);
 
 	if( udev_enumerate_scan_devices(ue) )
-		goto err;
+		return NULL;
 
 	c = udev_enumerate_get_list_entry(ue);
 
 	if( !(syspath = udev_list_entry_get_name(c)) )
 		goto err; /* should NOT happen ever but whatever... */
 
-	if( get_monome_information_from_syspath(monome, syspath) )
-		goto err;
-
-	udev_enumerate_unref(ue);
-	udev_unref(udev);
-	return 0;
+	serial = get_monome_information_from_syspath(syspath);
 
 err:
-	/* so uh something went wrong
-	   we'll just assume we've got a 40h... */
-
-	monome->model = MONOME_DEVICE_40h;
-
 	udev_enumerate_unref(ue);
 	udev_unref(udev);
-	return 1;
+	return serial;
 }
 
 #include "posix.inc"

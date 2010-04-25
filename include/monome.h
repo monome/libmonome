@@ -52,19 +52,14 @@ typedef enum {
 	MONOME_CABLE_TOP           = 3
 } monome_cable_t;
 	
-/* devices, their protocol versions, and their dimensions */
-
-typedef enum {
-	MONOME_PROTOCOL_SERIES     = 0x0200,
-	MONOME_PROTOCOL_40h        = 0x0100
-} monome_protocol_version_t;
+/* devices and their dimensions */
 
 typedef enum {	
-	MONOME_DEVICE_256          = 0x00FF | MONOME_PROTOCOL_SERIES,
-	MONOME_DEVICE_128          = 0x007F | MONOME_PROTOCOL_SERIES,
-	MONOME_DEVICE_64           = 0x0077 | MONOME_PROTOCOL_SERIES,
-	MONOME_DEVICE_40h          = 0x0077 | MONOME_PROTOCOL_40h
-} monome_device_t;
+	MONOME_DEVICE_256          = 0xFF,
+	MONOME_DEVICE_128          = 0x7F,
+	MONOME_DEVICE_64           = 0x77,
+	MONOME_DEVICE_40h          = 0x77
+} monome_model_t;
 
 typedef struct monome_event monome_event_t;
 typedef struct monome monome_t; /* opaque data type */
@@ -78,7 +73,7 @@ struct monome_event {
 	unsigned int y;
 };
 
-monome_t *monome_open(const char *monome_device, const char *protocol, ...);
+monome_t *monome_open(const char *monome_device, ...);
 void monome_close(monome_t *monome);
 
 int monome_get_rows(monome_t *monome);

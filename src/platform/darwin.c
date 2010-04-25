@@ -10,19 +10,20 @@
  *
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <monome.h>
 #include "monome_internal.h"
 
-extern monome_device_mapping_t mapping[];
-
-int monome_platform_get_devinfo(monome_t *monome, const char *path) {
+char *monome_platform_get_dev_serial(monome_t *monome, const char *path) {
 	monome_device_mapping_t *c;
 	monome_device_t model = 0;
 	int serialnum;
 	char *serial;
+
+	assert(path);
 
 	/* osx serial paths are of the form
 	   /dev/tty.usbserial-<device serial>
@@ -30,26 +31,7 @@ int monome_platform_get_devinfo(monome_t *monome, const char *path) {
 	   we'll locate to the first hyphen */
 
 	serial = strchr(path, '-') + 1;
-
-	for( c = mapping; c->serial; c++ ) {
-		if( !sscanf(path, c->serial, &serialnum) )
-			continue;
-
-		model = c->model;
-		break;
-	}
-
-	monome->serial = strdup(serial);
-	monome->device = strdup(path);
-
-	if( !model ) {
-		/* unrecognized device, go with lowest common denominator */
-		monome->model = MONOME_DEVICE_40h;
-		return 1;
-	}
-
-	monome->model = model;
-	return 0;
+	return strdup(serial);
 }
 
 #include "posix.inc"

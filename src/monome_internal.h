@@ -22,21 +22,22 @@
 #include <monome.h>
 
 typedef struct monome_callback monome_callback_t;
-typedef struct monome_device_mapping monome_device_mapping_t;
+typedef struct monome_devmap monome_devmap_t;
 
 struct monome_callback {
 	monome_callback_function_t cb;
 	void *data;
 };
 
-struct monome_device_mapping {
-	char *serial;
-	monome_device_t model;
+struct monome_devmap {
 	char *friendly;
+	monome_model_t model;
+	char *sermatch;
+	char *proto;
 };
 
 struct monome {
-	monome_device_t model;
+	monome_model_t model;
 	char *serial;
 	char *device;
 	

@@ -32,13 +32,35 @@
 #define LIBDIR "/usr/lib"
 #endif
 
-monome_device_mapping_t mapping[] = {
-	{"m256-%d", MONOME_DEVICE_256, "monome 256"},
-	{"m128-%d", MONOME_DEVICE_128, "monome 128"},
-	{"m64-%d",  MONOME_DEVICE_64,  "monome 64"},
-	{"m40h%d",  MONOME_DEVICE_40h, "monome 40h"},
+static monome_devmap_t mapping[] = {
+	{"monome 256", MONOME_DEVICE_256, "m256-%d", "series"},
+	{"monome 128", MONOME_DEVICE_128, "m128-%d", "series"},
+	{"monome 64",  MONOME_DEVICE_64,  "m64-%d",  "series"},
+	{"monome 40h", MONOME_DEVICE_40h, "m40h%d",  "40h"   },
+	{"arduinome",  MONOME_DEVICE_40h, "a40h%d",  "40h"   },
 	{0, 0, 0}
 };
+
+#define DEFAULT_MODEL    MONOME_DEVICE_40h
+#define DEFAULT_PROTOCOL "40h"
+
+/**
+ * private
+ */
+
+static monome_devmap_t *map_serial_to_device(const char *serial) {
+	monome_devmap_t *m;
+	int serialnum;
+
+	for( m = mapping; m->sermatch; m++ ) {
+		if( !sscanf(serial, m->sermatch, &serialnum) )
+			continue;
+
+		return m;
+	}
+
+	return NULL;
+}
 
 /**
  * public
@@ -79,15 +101,41 @@ monome_t *monome_init(const char *proto) {
 	return monome;
 }
 
-monome_t *monome_open(const char *dev, const char *proto, ...) {
-	monome_t *monome = monome_init(proto);
+monome_t *monome_open(const char *dev, ...) {
+	monome_t *monome;
+	monome_model_t model;
+	monome_devmap_t *m;
+
 	va_list arguments;
+	char *serial, *proto;
 	int error;
-	
-	if( !monome )
+
+	/* first let's figure out which protocol to use */
+	if( *dev == '/' ) {
+		/* assume that the device is a tty...let's probe and see what device
+		   we're dealing with */
+
+		if( !(serial = monome_platform_get_dev_serial(dev)) )
+			return NULL;
+
+		if( (m = map_serial_to_device(serial)) ) {
+			model = m->model;
+			proto = m->proto;
+		} else {
+			model = DEFAULT_MODEL;
+			proto = DEFAULT_PROTOCOL;
+		}
+	} else
+		/* otherwise, we'll assume that what we have is an OSC URL.
+
+		   in the future, maybe we'll have more protocol modules...something
+		   to think about. */
+		proto = "osc";
+
+	if( !(monome = monome_init(proto)) )
 		return NULL;
-	
-	va_start(arguments, proto);
+
+	va_start(arguments, dev);
 	error = monome->open(monome, dev, arguments);
 	va_end(arguments);
 
@@ -95,7 +143,18 @@ monome_t *monome_open(const char *dev, const char *proto, ...) {
 		monome->free(monome);
 		return NULL;
 	}
-	
+
+	/* if we have a physical device, make sure we've got the device and
+	   serial in the structure.  the OSC device will have this populated
+	   by now.
+	 
+	   TODO: make the OSC protocol get this stuff over the network */
+	if( *dev == '/' ) {
+		monome->model  = model;
+		monome->serial = serial;
+		monome->device = strdup(dev);
+	}
+
 	return monome;
 }
 

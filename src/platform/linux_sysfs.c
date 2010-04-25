@@ -28,8 +28,6 @@
 #define FTDI_PATH "/sys/bus/usb/drivers/ftdi_sio"
 #define MAX_LENGTH 128
 
-extern monome_device_mapping_t mapping[];
-
 static char *get_serial(int bus, int device) {
 	char *filestr, buf[MAX_LENGTH], *serial;
 	int len, serial_fd;
@@ -56,14 +54,11 @@ err:
 	return serial;
 }
 
-int monome_platform_get_devinfo(monome_t *monome, const char *path) {
-	monome_device_mapping_t *c;
-	monome_device_t model = 0;
-	int bus, device, serial;
+char *monome_platform_get_dev_serial(const char *path) {
+	int bus, device;
 	glob_t gb;
 	char *buf;
 
-	assert(monome);
 	assert(path);
 
 	if( *path == '/' )
@@ -76,32 +71,14 @@ int monome_platform_get_devinfo(monome_t *monome, const char *path) {
 	free(buf);
 
 	if( !gb.gl_pathc )
-		return 1;
+		return NULL;
 
 	sscanf(*gb.gl_pathv, FTDI_PATH "/%d-%d", &bus, &device);
 	globfree(&gb);
 
-	buf = get_serial(bus, device);
-
-	for( c = mapping; c->serial; c++ ) {
-		if( !sscanf(buf, c->serial, &serial) )
-			continue;
-
-		model = c->model;
-		break;
-	}
-
-	monome->serial = buf;
-	monome->device = strdup(path);
-
-	if( !model ) {
-		/* unrecognized device, go with lowest common denominator */
-		monome->model = MONOME_DEVICE_40h;
-		return 1;
-	}
-
-	monome->model = model;
-	return 0;
+	if( (buf = get_serial(bus, device)) )
+		return buf;
+	return NULL;
 }
 
 #include "posix.inc"

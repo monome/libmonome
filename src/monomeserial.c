@@ -331,8 +331,10 @@ int main(int argc, char *argv[]) {
 	} else
 		state.lo_prefix = strdup(argv[optind]);
 
-	if( !(monome = monome_open(device, proto)) )
+	if( !(monome = monome_open(device)) ) {
+		printf("failed to open %s\n", device);
 		return 1;
+	}
 
 	if( !(state.st = lo_server_thread_new(sport, lo_error)) )
 		return -1;
