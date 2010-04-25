@@ -53,16 +53,16 @@ struct monome {
 	int  (*next_event)(monome_t *monome, monome_event_t *event);
 
 	int  (*clear)(monome_t *monome, monome_clear_status_t status);
-	int  (*intensity)(monome_t *monome, unsigned int brightness);
+	int  (*intensity)(monome_t *monome, uint brightness);
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
 	
-	int  (*led_on)(monome_t *monome, unsigned int x, unsigned int y);
-	int  (*led_off)(monome_t *monome, unsigned int x, unsigned int y);
-	int  (*led_col_8)(monome_t *monome, unsigned int col, unsigned int *col_data);
-	int  (*led_row_8)(monome_t *monome, unsigned int row, unsigned int *row_data);
-	int  (*led_col_16)(monome_t *monome, unsigned int col, unsigned int *col_data);
-	int  (*led_row_16)(monome_t *monome, unsigned int row, unsigned int *row_data);
-	int  (*led_frame)(monome_t *monome, unsigned int quadrant, unsigned int *frame_data);
+	int  (*led_on)(monome_t *monome, uint x, uint y);
+	int  (*led_off)(monome_t *monome, uint x, uint y);
+	int  (*led_col_8)(monome_t *monome, uint col, uint *col_data);
+	int  (*led_row_8)(monome_t *monome, uint row, uint *row_data);
+	int  (*led_col_16)(monome_t *monome, uint col, uint *col_data);
+	int  (*led_row_16)(monome_t *monome, uint row, uint *row_data);
+	int  (*led_frame)(monome_t *monome, uint quadrant, uint *frame_data);
 };
 
 #endif

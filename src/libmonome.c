@@ -178,7 +178,7 @@ int monome_get_cols(monome_t *monome) {
 	return (monome->model & 0xF) + 1;
 }
 
-void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t cb, void *data) {
+void monome_register_handler(monome_t *monome, uint event_type, monome_callback_function_t cb, void *data) {
 	monome_callback_t *handler;
 	
 	if( event_type > 2 || !cb )
@@ -189,7 +189,7 @@ void monome_register_handler(monome_t *monome, unsigned int event_type, monome_c
 	handler->data = data;
 }
 
-void monome_unregister_handler(monome_t *monome, unsigned int event_type) {
+void monome_unregister_handler(monome_t *monome, uint event_type) {
 	monome_register_handler(monome, event_type, NULL, NULL);
 }
 
@@ -258,7 +258,7 @@ int monome_clear(monome_t *monome, monome_clear_status_t status) {
 	return monome->clear(monome, status);
 }
 
-int monome_intensity(monome_t *monome, unsigned int brightness) {
+int monome_intensity(monome_t *monome, uint brightness) {
 	return monome->intensity(monome, brightness);
 }
 
@@ -266,30 +266,30 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 	return monome->mode(monome, mode);
 }
 
-int monome_led_on(monome_t *monome, unsigned int x, unsigned int y) {
+int monome_led_on(monome_t *monome, uint x, uint y) {
 	return monome->led_on(monome, x, y);
 }
 
-int monome_led_off(monome_t *monome, unsigned int x, unsigned int y) {
+int monome_led_off(monome_t *monome, uint x, uint y) {
 	return monome->led_off(monome, x, y);
 }
 
-int monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
+int monome_led_col_8(monome_t *monome, uint col, uint *col_data) {
 	return monome->led_col_8(monome, col, col_data);
 }
 
-int monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
+int monome_led_row_8(monome_t *monome, uint row, uint *row_data) {
 	return monome->led_row_8(monome, row, row_data);
 }
 
-int monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
+int monome_led_col_16(monome_t *monome, uint col, uint *col_data) {
 	return monome->led_col_16(monome, col, col_data);
 }
 
-int monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
+int monome_led_row_16(monome_t *monome, uint row, uint *row_data) {
 	return monome->led_row_16(monome, row, row_data);
 }
 
-int monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
+int monome_led_frame(monome_t *monome, uint quadrant, uint *frame_data) {
 	return monome->led_frame(monome, quadrant, frame_data);
 }

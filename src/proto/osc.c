@@ -61,7 +61,7 @@ int proto_osc_clear(monome_t *monome, monome_clear_status_t status) {
 	return LO_SEND_MSG(clear, "i", status);
 }
 
-int proto_osc_intensity(monome_t *monome, unsigned int brightness) {
+int proto_osc_intensity(monome_t *monome, uint brightness) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(intensity, "i", brightness);
 }
@@ -71,37 +71,37 @@ int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 	return LO_SEND_MSG(mode, "i", mode);
 }
 
-int proto_osc_led_on(monome_t *monome, unsigned int x, unsigned int y) {
+int proto_osc_led_on(monome_t *monome, uint x, uint y) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led, "iii", x, y, 1);
 }
 
-int proto_osc_led_off(monome_t *monome, unsigned int x, unsigned int y) {
+int proto_osc_led_off(monome_t *monome, uint x, uint y) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led, "iii", x, y, 0);
 }
 
-int proto_osc_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
+int proto_osc_led_col_8(monome_t *monome, uint col, uint *col_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_col, "ii", col, col_data[0]);
 }
 
-int proto_osc_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
+int proto_osc_led_row_8(monome_t *monome, uint row, uint *row_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_row, "ii", row, row_data[0]);
 }
 
-int proto_osc_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data) {
+int proto_osc_led_col_16(monome_t *monome, uint col, uint *col_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_col, "iii", col, col_data[0], col_data[1]);
 }
 
-int proto_osc_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data) {
+int proto_osc_led_row_16(monome_t *monome, uint row, uint *row_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_row, "iii", row, row_data[0], row_data[1]);
 }
 
-int proto_osc_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *f) {
+int proto_osc_led_frame(monome_t *monome, uint quadrant, uint *f) {
 	SELF_FROM(monome);
 
 	/* there has to be a cleaner way to do this */

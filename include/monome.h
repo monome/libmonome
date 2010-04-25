@@ -69,8 +69,8 @@ typedef void (*monome_callback_function_t)(const monome_event_t *event, void *da
 struct monome_event {
 	monome_t *monome;
 	monome_event_type_t event_type;
-	unsigned int x;
-	unsigned int y;
+	uint x;
+	uint y;
 };
 
 monome_t *monome_open(const char *monome_device, ...);
@@ -79,22 +79,22 @@ void monome_close(monome_t *monome);
 int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 
-void monome_register_handler(monome_t *monome, unsigned int event_type, monome_callback_function_t, void *user_data);
-void monome_unregister_handler(monome_t *monome, unsigned int event_type);
+void monome_register_handler(monome_t *monome, uint event_type, monome_callback_function_t, void *user_data);
+void monome_unregister_handler(monome_t *monome, uint event_type);
 void monome_main_loop(monome_t *monome);
 int monome_next_event(monome_t *monome);
 
 int monome_clear(monome_t *monome, monome_clear_status_t status);
-int monome_intensity(monome_t *monome, unsigned int brightness);
+int monome_intensity(monome_t *monome, uint brightness);
 int monome_mode(monome_t *monome, monome_mode_t mode);
 
-int monome_led_on(monome_t *monome, unsigned int x, unsigned int y);
-int monome_led_off(monome_t *monome, unsigned int x, unsigned int y);
-int monome_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data);
-int monome_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data);
-int monome_led_col_16(monome_t *monome, unsigned int col, unsigned int *col_data);
-int monome_led_row_16(monome_t *monome, unsigned int row, unsigned int *row_data);
-int monome_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data);
+int monome_led_on(monome_t *monome, uint x, uint y);
+int monome_led_off(monome_t *monome, uint x, uint y);
+int monome_led_col_8(monome_t *monome, uint col, uint *col_data);
+int monome_led_row_8(monome_t *monome, uint row, uint *row_data);
+int monome_led_col_16(monome_t *monome, uint col, uint *col_data);
+int monome_led_row_16(monome_t *monome, uint row, uint *row_data);
+int monome_led_frame(monome_t *monome, uint quadrant, uint *frame_data);
 
 #ifdef __cplusplus
 } /* extern "C" */

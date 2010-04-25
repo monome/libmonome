@@ -30,7 +30,7 @@ static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	return -1;
 }
 
-static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, unsigned int address, unsigned int *data) {
+static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uint address, uint *data) {
 	uint8_t buf[2];
 	
 	buf[0] = mode | (address & 0x7 );
@@ -39,7 +39,7 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uns
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_40h_led(monome_t *monome, unsigned int status, unsigned int x, unsigned int y) {
+static int proto_40h_led(monome_t *monome, uint status, uint x, uint y) {
 	uint8_t buf[2];
 	
 	x &= 0x7;
@@ -56,7 +56,7 @@ static int proto_40h_led(monome_t *monome, unsigned int status, unsigned int x, 
  */
 
 int proto_40h_clear(monome_t *monome, monome_clear_status_t status) {
-	unsigned int i;
+	uint i;
 	uint8_t buf[2] = {0, 0};
 	
 	for( i = 0; i < 8; i++ ) {
@@ -67,7 +67,7 @@ int proto_40h_clear(monome_t *monome, monome_clear_status_t status) {
 	return sizeof(buf) * i;
 }
 
-int proto_40h_intensity(monome_t *monome, unsigned int brightness) {
+int proto_40h_intensity(monome_t *monome, uint brightness) {
 	uint8_t buf[2] = {PROTO_40h_INTENSITY, brightness};
 	return monome_write(monome, buf, sizeof(buf));
 }
@@ -82,24 +82,24 @@ int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
 	return 0;
 }
 
-int proto_40h_led_on(monome_t *monome, unsigned int x, unsigned int y) {
+int proto_40h_led_on(monome_t *monome, uint x, uint y) {
 	return proto_40h_led(monome, PROTO_40h_LED_ON, x, y);
 }
 
-int proto_40h_led_off(monome_t *monome, unsigned int x, unsigned int y) {
+int proto_40h_led_off(monome_t *monome, uint x, uint y) {
 	return proto_40h_led(monome, PROTO_40h_LED_OFF, x, y);
 }
 
-int proto_40h_led_col_8(monome_t *monome, unsigned int col, unsigned int *col_data) {
+int proto_40h_led_col_8(monome_t *monome, uint col, uint *col_data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, col_data);
 }
 
-int proto_40h_led_row_8(monome_t *monome, unsigned int row, unsigned int *row_data) {
+int proto_40h_led_row_8(monome_t *monome, uint row, uint *row_data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, row_data);
 }
 
-int proto_40h_led_frame(monome_t *monome, unsigned int quadrant, unsigned int *frame_data) {
-	unsigned int i;
+int proto_40h_led_frame(monome_t *monome, uint quadrant, uint *frame_data) {
+	uint i;
 	int ret = 0;
 	
 	for( i = 0; i < 8; i++ )
