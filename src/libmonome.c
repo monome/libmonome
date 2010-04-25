@@ -37,7 +37,7 @@ static monome_devmap_t mapping[] = {
 	{"monome 128", MONOME_DEVICE_128, "m128-%d", "series"},
 	{"monome 64",  MONOME_DEVICE_64,  "m64-%d",  "series"},
 	{"monome 40h", MONOME_DEVICE_40h, "m40h%d",  "40h"   },
-	{"arduinome",  MONOME_DEVICE_40h, "a40h%d",  "40h"   },
+	{"arduinome",  MONOME_DEVICE_40h, "a40h-%d", "40h"   },
 	{0, 0, 0}
 };
 
