@@ -19,7 +19,6 @@
 #include <monome.h>
 
 #define DEFAULT_MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
-#define PROTOCOL "osc"
 
 #define BPM 115
 
@@ -104,7 +103,7 @@ int main(int argc, char **argv) {
 	monome_t *monome;
 	int i;
 	
-	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, PROTOCOL, "8000")) )
+	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, "8000")) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);

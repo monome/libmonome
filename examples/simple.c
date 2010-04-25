@@ -25,7 +25,6 @@
 unsigned int grid[16][16];
 
 #define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
-#define PROTOCOL "osc"
 
 /**
  * this function gets registered with monome_register_handler
@@ -51,7 +50,7 @@ int main(int argc, char *argv[]) {
 	unsigned int x, y;
 
 	/* open the monome device */
-	if( !(monome = monome_open(MONOME_DEVICE, PROTOCOL, "8000")) )
+	if( !(monome = monome_open(MONOME_DEVICE, "8000")) )
 		return -1;
 	
 	monome_clear(monome, MONOME_CLEAR_OFF);
