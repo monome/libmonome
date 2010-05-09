@@ -15,7 +15,6 @@
  * press a button to toggle it!
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <monome.h>
 

@@ -47,7 +47,7 @@ struct monome_rotspec {
 
 	enum {
 		ROW_COL_SWAP    = 0x1,
-		ROW_COL_REVBITS = 0x2,
+		ROW_COL_REVBITS = 0x2
 	} flags;
 };
 

@@ -18,9 +18,6 @@
 
 /* faster than using the global libmonome functions
    also, the global functions are 1-indexed, these are 0-indexed */
-#define ROWS(monome) get_rows(monome)
-#define COLS(monome) get_cols(monome)
-
 #define ROWS(monome) (monome->rows - 1)
 #define COLS(monome) (monome->cols - 1)
 
