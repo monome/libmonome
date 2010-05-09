@@ -30,16 +30,18 @@ struct monome_callback {
 };
 
 struct monome_devmap {
-	char *friendly;
-	monome_model_t model;
 	char *sermatch;
 	char *proto;
+	struct {
+		int rows, cols;
+	} dimensions;
+	char *friendly;
 };
 
 struct monome {
-	monome_model_t model;
 	char *serial;
 	char *device;
+	int rows, cols;
 	
 	struct termios ot;
 	int fd;

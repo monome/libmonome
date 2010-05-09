@@ -33,12 +33,12 @@
 #endif
 
 static monome_devmap_t mapping[] = {
-	{"monome 256", MONOME_DEVICE_256, "m256-%d", "series"},
-	{"monome 128", MONOME_DEVICE_128, "m128-%d", "series"},
-	{"monome 64",  MONOME_DEVICE_64,  "m64-%d",  "series"},
-	{"monome 40h", MONOME_DEVICE_40h, "m40h%d",  "40h"   },
-	{"arduinome",  MONOME_DEVICE_40h, "a40h-%d", "40h"   },
-	{0, 0, 0}
+	{"m256-%d", "series", {16, 16}, "monome 256"},
+	{"m128-%d", "series", {16, 8},  "monome 128"},
+	{"m64-%d",  "series", {8, 8},   "monome 64" },
+	{"m40h%d",  "40h",    {8, 8},   "monome 40h"},
+	{"a40h-%d", "40h",    {8, 8},   "arduinome" },
+	{NULL}
 };
 
 #define DEFAULT_MODEL    MONOME_DEVICE_40h
@@ -103,7 +103,6 @@ monome_t *monome_init(const char *proto) {
 
 monome_t *monome_open(const char *dev, ...) {
 	monome_t *monome;
-	monome_model_t model;
 	monome_devmap_t *m;
 
 	va_list arguments;
@@ -118,13 +117,10 @@ monome_t *monome_open(const char *dev, ...) {
 		if( !(serial = monome_platform_get_dev_serial(dev)) )
 			return NULL;
 
-		if( (m = map_serial_to_device(serial)) ) {
-			model = m->model;
+		if( (m = map_serial_to_device(serial)) )
 			proto = m->proto;
-		} else {
-			model = DEFAULT_MODEL;
+		else
 			proto = DEFAULT_PROTOCOL;
-		}
 	} else
 		/* otherwise, we'll assume that what we have is an OSC URL.
 
@@ -150,7 +146,8 @@ monome_t *monome_open(const char *dev, ...) {
 	 
 	   TODO: make the OSC protocol get this stuff over the network */
 	if( *dev == '/' ) {
-		monome->model  = model;
+		monome->rows   = m->dimensions.rows;
+		monome->cols   = m->dimensions.cols;
 		monome->serial = serial;
 		monome->device = strdup(dev);
 	}
@@ -171,11 +168,11 @@ void monome_close(monome_t *monome) {
 }
 
 int monome_get_rows(monome_t *monome) {
-	return ((monome->model >> 4) & 0xF) + 1;
+	return monome->rows;
 }
 
 int monome_get_cols(monome_t *monome) {
-	return (monome->model & 0xF) + 1;
+	return monome->cols;
 }
 
 void monome_register_handler(monome_t *monome, uint event_type, monome_callback_function_t cb, void *data) {

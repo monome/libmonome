@@ -52,15 +52,6 @@ typedef enum {
 	MONOME_CABLE_TOP           = 3
 } monome_cable_t;
 	
-/* devices and their dimensions */
-
-typedef enum {	
-	MONOME_DEVICE_256          = 0xFF,
-	MONOME_DEVICE_128          = 0x7F,
-	MONOME_DEVICE_64           = 0x77,
-	MONOME_DEVICE_40h          = 0x77
-} monome_model_t;
-
 typedef struct monome_event monome_event_t;
 typedef struct monome monome_t; /* opaque data type */
 
