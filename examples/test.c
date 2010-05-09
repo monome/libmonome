@@ -22,6 +22,8 @@
 
 #define BPM 115
 
+uint pattern[8] = { 0, 66, 102, 90, 66, 66, 66, 0 };
+	
 static void chill(int speed) {
 	struct timespec rem, req = {0, ((60000 / (BPM * speed)) * 1000000)};
 	nanosleep(&req, &rem);
@@ -70,23 +72,16 @@ void test_led_col(monome_t *monome) {
 }
 
 void test_led_frame(monome_t *monome) {
-	uint pat[2], buf[8], i, j, k, l;
-	
-	pat[0] = 0x55;
-	pat[1] = 0xAA;
-	
-	k = 1;
-	
-	for( l = 0; l < 8; l++ ) {
+	uint i, l;
+
+	for( l = 0; l < 9; l++ ) {
+		for( i = 0; i < 4; i++ )
+			monome_led_frame(monome, i, pattern);
+
 		for( i = 0; i < 8; i++ )
-			buf[i] = pat[(i+k) & 0x1];
+			pattern[i] ^= 0xFF;
 		
-		for( j = 0; j < 4; j++ )
-			monome_led_frame(monome, j, buf);
-		
-		k = !k;
-		
-		chill(8);
+		chill(2);
 	}
 }
 
@@ -102,6 +97,7 @@ void fade_out(monome_t *monome) {
 int main(int argc, char **argv) {
 	monome_t *monome;
 	int i;
+	i =0;
 	
 	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, "8000")) )
 		return -1;

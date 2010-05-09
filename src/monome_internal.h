@@ -22,7 +22,10 @@
 #include <monome.h>
 
 typedef struct monome_callback monome_callback_t;
+typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
+
+typedef void (*monome_coord_cb)(monome_t *, uint *x, uint *y);
 
 struct monome_callback {
 	monome_callback_function_t cb;
@@ -38,6 +41,16 @@ struct monome_devmap {
 	char *friendly;
 };
 
+struct monome_rotspec {
+	monome_coord_cb output_cb;
+	monome_coord_cb input_cb;
+
+	enum {
+		ROW_COL_SWAP    = 0x1,
+		ROW_COL_REVBITS = 0x2,
+	} flags;
+};
+
 struct monome {
 	char *serial;
 	char *device;
@@ -47,6 +60,7 @@ struct monome {
 	int fd;
 	
 	monome_callback_t handlers[3];
+	monome_cable_t orientation;
 	
 	int  (*open)(monome_t *monome, const char *dev, va_list args);
 	int  (*close)(monome_t *monome);

@@ -256,6 +256,8 @@ void usage(const char *app) {
 		   "  -s, --server-port <port>	what port to listen on\n"
 		   "  -a, --application-port <port>	what port to talk to\n"
 		   "  -o, --application-host <host> the host your application is on\n"
+		   "\n"
+		   "  -r, --orientation <direction>	one of \"left\", \"right\", \"bottom\", or \"top\"\n"
 		   "\n", app);
 }
 
@@ -270,6 +272,7 @@ int is_numstr(const char *s) {
 int main(int argc, char *argv[]) {
 	monome_t *monome;
 	char c, *device, *sport, *aport, *ahost, *proto;
+	monome_cable_t orientation = MONOME_CABLE_LEFT;
 	int i;
 
 	struct option arguments[] = {
@@ -280,7 +283,9 @@ int main(int argc, char *argv[]) {
 
 		{"server-port",      required_argument, 0, 's'},
 		{"application-port", required_argument, 0, 'a'},
-		{"application-host", required_argument, 0, 'o'}
+		{"application-host", required_argument, 0, 'o'},
+
+		{"orientation",      required_argument, 0, 'r'}
 	};
 
 	device = DEFAULT_MONOME_DEVICE;
@@ -289,7 +294,7 @@ int main(int argc, char *argv[]) {
 	aport  = DEFAULT_OSC_APP_PORT;
 	ahost  = DEFAULT_OSC_APP_HOST;
 
-	while( (c = getopt_long(argc, argv, "hd:p:s:a:o:", arguments, &i)) > 0 ) {
+	while( (c = getopt_long(argc, argv, "hd:p:s:a:o:r:", arguments, &i)) > 0 ) {
 		switch( c ) {
 		case 'h':
 			usage(argv[0]);
@@ -322,6 +327,15 @@ int main(int argc, char *argv[]) {
 		case 'o':
 			ahost = optarg;
 			break;
+
+		case 'r':
+			switch(*optarg) {
+				case 'l': orientation = MONOME_CABLE_LEFT;   break;
+				case 'b': orientation = MONOME_CABLE_BOTTOM; break;
+				case 'r': orientation = MONOME_CABLE_RIGHT;  break;
+				case 't': orientation = MONOME_CABLE_TOP;    break;
+			}
+			break;
 		}
 	}
 
@@ -343,6 +357,8 @@ int main(int argc, char *argv[]) {
 	printf("initialized device %s, which is %dx%d\n", device,
 		   monome_get_rows(monome), monome_get_cols(monome));
 	printf("running with prefix /%s\n\n", state.lo_prefix);
+
+	monome_set_orientation(monome, orientation);
 
 	state.outgoing = lo_address_new(ahost, aport);
 	

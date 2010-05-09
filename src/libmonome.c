@@ -32,6 +32,9 @@
 #define LIBDIR "/usr/lib"
 #endif
 
+#define DEFAULT_MODEL    MONOME_DEVICE_40h
+#define DEFAULT_PROTOCOL "40h"
+
 static monome_devmap_t mapping[] = {
 	{"m256-%d", "series", {16, 16}, "monome 256"},
 	{"m128-%d", "series", {16, 8},  "monome 128"},
@@ -41,12 +44,15 @@ static monome_devmap_t mapping[] = {
 	{NULL}
 };
 
-#define DEFAULT_MODEL    MONOME_DEVICE_40h
-#define DEFAULT_PROTOCOL "40h"
+/* defined in rotation.c */
+extern monome_rotspec_t rotation[4];
 
 /**
  * private
  */
+
+#define ROTATE_COORDS(monome, x, y) (rotation[monome->orientation].output_cb(monome, &x, &y))
+#define UNROTATE_COORDS(monome, x, y) (rotation[monome->orientation].input_cb(monome, &x, &y))
 
 static monome_devmap_t *map_serial_to_device(const char *serial) {
 	monome_devmap_t *m;
@@ -60,6 +66,10 @@ static monome_devmap_t *map_serial_to_device(const char *serial) {
 	}
 
 	return NULL;
+}
+
+static inline uint8_t revbyte(uint8_t x) {
+	return (((x * 0x0802) & 0x22110) | ((x * 0x8020) & 0x88440)) * 0x10101 >> 16;
 }
 
 /**
@@ -152,6 +162,8 @@ monome_t *monome_open(const char *dev, ...) {
 		monome->device = strdup(dev);
 	}
 
+	monome->orientation = MONOME_CABLE_LEFT;
+
 	return monome;
 }
 
@@ -173,6 +185,14 @@ int monome_get_rows(monome_t *monome) {
 
 int monome_get_cols(monome_t *monome) {
 	return monome->cols;
+}
+
+void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
+	monome->orientation = cable & 3;
+}
+
+monome_cable_t monome_get_orientation(monome_t *monome) {
+	return monome->orientation;
 }
 
 void monome_register_handler(monome_t *monome, uint event_type, monome_callback_function_t cb, void *data) {
@@ -220,6 +240,7 @@ int monome_next_event(monome_t *monome) {
 	if( !handler->cb )
 		return 1;
 
+	UNROTATE_COORDS(monome, e.x, e.y);
 	handler->cb(&e, handler->data);
 
 	return 0;
@@ -246,8 +267,11 @@ void monome_main_loop(monome_t *monome) {
 			continue;
 
 		handler = &monome->handlers[e.event_type];
-		if( handler->cb )
-			handler->cb(&e, handler->data);
+		if( !handler->cb )
+			continue;
+
+		UNROTATE_COORDS(monome, e.x, e.y);
+		handler->cb(&e, handler->data);
 	} while( 1 );
 }
 
@@ -264,10 +288,12 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 }
 
 int monome_led_on(monome_t *monome, uint x, uint y) {
+	ROTATE_COORDS(monome, x, y);
 	return monome->led_on(monome, x, y);
 }
 
 int monome_led_off(monome_t *monome, uint x, uint y) {
+	ROTATE_COORDS(monome, x, y);
 	return monome->led_off(monome, x, y);
 }
 
