@@ -161,6 +161,16 @@ int proto_osc_close(monome_t *monome) {
 void proto_osc_free(monome_t *monome) {
 	SELF_FROM(monome);
 
+#define clear_osc_path(base) free(self->base##_str);
+	clear_osc_path(clear);
+	clear_osc_path(intensity);
+	clear_osc_path(mode);
+	clear_osc_path(led);
+	clear_osc_path(led_row);
+	clear_osc_path(led_col);
+	clear_osc_path(frame);
+#undef clear_osc_path
+
 	free(self->prefix);
 	lo_server_free(self->server);
 	lo_address_free(self->outgoing);
