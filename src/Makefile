@@ -1,4 +1,4 @@
-CFLAGS += -I. -I../include
+CFLAGS += -I. -I../libmonome
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
 LMOBJS = libmonome.o platform.o rotation.o

@@ -1,4 +1,4 @@
-CFLAGS  += -I../include
+CFLAGS  += -I../libmonome
 LDFLAGS += -L../src/lib -lmonome
 TARGETS  = simple test life
 

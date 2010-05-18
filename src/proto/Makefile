@@ -1,4 +1,4 @@
-CFLAGS += -I. -I.. -I../../include
+CFLAGS += -I. -I.. -I../../libmonome
 
 LDFLAGS = -lc -ldl -lmonome
 
