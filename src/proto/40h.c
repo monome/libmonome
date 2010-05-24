@@ -16,6 +16,7 @@
 #include "monome.h"
 #include "monome_internal.h"
 #include "monome_platform.h"
+#include "rotation.h"
 
 #include "40h.h"
 
@@ -41,6 +42,8 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 
 static int proto_40h_led(monome_t *monome, uint status, uint x, uint y) {
 	uint8_t buf[2];
+
+	ROTATE_COORDS(monome, x, y);
 	
 	x &= 0x7;
 	y &= 0x7;
@@ -120,6 +123,8 @@ int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 		e->event_type = (buf[0] == PROTO_40h_BUTTON_DOWN) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
 		e->x = buf[1] >> 4;
 		e->y = buf[1] & 0xF;
+
+		UNROTATE_COORDS(monome, e->x, e->y);
 		return 0;
 		
 	case PROTO_40h_AUX_INPUT:

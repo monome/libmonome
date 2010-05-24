@@ -44,15 +44,9 @@ static monome_devmap_t mapping[] = {
 	{NULL}
 };
 
-/* defined in rotation.c */
-extern monome_rotspec_t rotation[4];
-
 /**
  * private
  */
-
-#define ROTATE_COORDS(monome, x, y) (rotation[monome->orientation].output_cb(monome, &x, &y))
-#define UNROTATE_COORDS(monome, x, y) (rotation[monome->orientation].input_cb(monome, &x, &y))
 
 static monome_devmap_t *map_serial_to_device(const char *serial) {
 	monome_devmap_t *m;
@@ -240,7 +234,6 @@ int monome_next_event(monome_t *monome) {
 	if( !handler->cb )
 		return 1;
 
-	UNROTATE_COORDS(monome, e.x, e.y);
 	handler->cb(&e, handler->data);
 
 	return 0;
@@ -270,7 +263,6 @@ void monome_main_loop(monome_t *monome) {
 		if( !handler->cb )
 			continue;
 
-		UNROTATE_COORDS(monome, e.x, e.y);
 		handler->cb(&e, handler->data);
 	} while( 1 );
 }
@@ -288,12 +280,10 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 }
 
 int monome_led_on(monome_t *monome, uint x, uint y) {
-	ROTATE_COORDS(monome, x, y);
 	return monome->led_on(monome, x, y);
 }
 
 int monome_led_off(monome_t *monome, uint x, uint y) {
-	ROTATE_COORDS(monome, x, y);
 	return monome->led_off(monome, x, y);
 }
 

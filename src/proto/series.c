@@ -16,6 +16,7 @@
 #include <monome.h>
 #include "monome_internal.h"
 #include "monome_platform.h"
+#include "rotation.h"
 
 #include "series.h"
 
@@ -59,6 +60,8 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 static int proto_series_led(monome_t *monome, uint status, uint x, uint y) {
 	uint8_t buf[2];
 	
+	ROTATE_COORDS(monome, x, y);
+
 	buf[0] = status;
 	buf[1] = (x << 4) | y;
 	
@@ -132,6 +135,8 @@ int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 		e->event_type = (buf[0] == PROTO_SERIES_BUTTON_DOWN) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
 		e->x = buf[1] >> 4;
 		e->y = buf[1] & 0x0F;
+
+		UNROTATE_COORDS(monome, e->x, e->y);
 		return 0;
 		
 	case PROTO_SERIES_AUX_INPUT:
