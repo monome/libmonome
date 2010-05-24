@@ -35,18 +35,30 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 	uint8_t buf[3];
 	
 	switch( mode ) {
-	case PROTO_SERIES_LED_COL_8:
 	case PROTO_SERIES_LED_ROW_8:
+	case PROTO_SERIES_LED_COL_8:
+		if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+			mode = (!(mode - PROTO_SERIES_LED_ROW_8) << 4) + PROTO_SERIES_LED_ROW_8;
+
 		buf[0] = mode | (address & 0x0F );
-		buf[1] = data[0];
+		buf[1] = ( ORIENTATION(monome).flags & ROW_COL_REVBITS ) ? REVERSE_BYTE(*data) : *data;
 		
 		return monome_write(monome, buf, sizeof(buf) - sizeof(char));
 		
-	case PROTO_SERIES_LED_COL_16:
 	case PROTO_SERIES_LED_ROW_16:
+	case PROTO_SERIES_LED_COL_16:
+		if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+			mode = (!(mode - PROTO_SERIES_LED_ROW_16) << 4) + PROTO_SERIES_LED_ROW_16;
+
 		buf[0] = mode | (address & 0x0F );
-		buf[1] = data[0];
-		buf[2] = data[1];
+
+		if( ORIENTATION(monome).flags & ROW_COL_REVBITS ) {
+			buf[1] = REVERSE_BYTE(data[1]);
+			buf[2] = REVERSE_BYTE(data[0]);
+		} else {
+			buf[1] = data[0];
+			buf[2] = data[1];
+		}
 		
 		return monome_write(monome, buf, sizeof(buf));
 		

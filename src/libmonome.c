@@ -62,10 +62,6 @@ static monome_devmap_t *map_serial_to_device(const char *serial) {
 	return NULL;
 }
 
-static inline uint8_t revbyte(uint8_t x) {
-	return (((x * 0x0802) & 0x22110) | ((x * 0x8020) & 0x88440)) * 0x10101 >> 16;
-}
-
 /**
  * public
  */

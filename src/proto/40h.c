@@ -35,7 +35,7 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 	uint8_t buf[2];
 	
 	buf[0] = mode | (address & 0x7 );
-	buf[1] = data[0];
+	buf[1] = ( ORIENTATION(monome).flags & ROW_COL_REVBITS ) ? REVERSE_BYTE(*data) : *data;
 	
 	return monome_write(monome, buf, sizeof(buf));
 }
