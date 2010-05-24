@@ -20,9 +20,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "monome.h"
-#include "monome_internal.h"
-#include "monome_platform.h"
+#include <monome.h>
+#include "internal.h"
+#include "platform.h"
 
 #ifndef LIBSUFFIX
 #define LIBSUFFIX ".so"

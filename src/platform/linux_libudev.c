@@ -14,11 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-
 #include <libudev.h>
-#include <monome.h>
 
-#include "monome_internal.h"
+#include <monome.h>
+#include "internal.h"
 
 static struct udev *udev;
 

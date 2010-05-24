@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "monome.h"
-#include "monome_internal.h"
-#include "monome_platform.h"
+#include <monome.h>
+#include "internal.h"
+#include "platform.h"
 #include "rotation.h"
 
 #include "40h.h"

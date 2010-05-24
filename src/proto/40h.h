@@ -11,7 +11,7 @@
  */
 
 #include "monome.h"
-#include "monome_internal.h"
+#include "internal.h"
 
 typedef enum {
 	/* input (from device) */

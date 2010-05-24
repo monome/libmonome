@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include "monome.h"
-#include "monome_internal.h"
+#include "internal.h"
 
 int monome_platform_open(monome_t *monome, const char *dev) {
 	struct termios nt, ot;

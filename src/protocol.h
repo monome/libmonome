@@ -12,6 +12,6 @@
 
 #include <stdint.h>
 
-#include "monome_internal.h"
+#include "internal.h"
 
 monome_t *monome_protocol_new();

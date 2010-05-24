@@ -13,7 +13,7 @@
 #include <lo/lo.h>
 
 #include "monome.h"
-#include "monome_internal.h"
+#include "internal.h"
 
 typedef struct monome_osc monome_osc_t;
 

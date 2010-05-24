@@ -14,11 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-
 #include <lo/lo.h>
 
-#include "monome.h"
-#include "monome_internal.h"
+#include <monome.h>
+#include "internal.h"
 
 #include "osc.h"
 

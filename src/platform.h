@@ -13,7 +13,7 @@
 #ifndef _MONOME_PLATFORM_H
 #define _MONOME_PLATFORM_H
 
-#include "monome_internal.h"
+#include "internal.h"
 
 char *monome_platform_get_dev_serial(const char *device);
 

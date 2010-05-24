@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 #include <monome.h>
-#include "monome_internal.h"
+#include "internal.h"
 
 /* faster than using the global libmonome functions
    also, the global functions are 1-indexed, these are 0-indexed */
