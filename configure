@@ -10,7 +10,7 @@
 # http://sam.zoy.org/wtfpl/COPYING for more details.
 
 PROJECT="libmonome";
-VERSION="0.2";
+VERSION="0.3";
 
 CC="gcc";
 LD=$CC;

@@ -5,6 +5,6 @@ includedir=${prefix}/include
 
 Name: libmonome
 Description: C library for accessing Monome user interface devices.
-Version: 0.2
+Version: 0.3
 Libs: -L${libdir} -lmonome
 Cflags: -I${includedir}
