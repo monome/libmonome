@@ -1,6 +1,6 @@
 CFLAGS += -I. -I.. -I../../libmonome
 
-LDFLAGS = -lc -ldl -lmonome
+LDFLAGS = -lc -ldl -L.. -lmonome
 
 all: $(PROTOCOLS)
 

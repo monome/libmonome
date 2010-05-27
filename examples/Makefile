@@ -1,5 +1,5 @@
 CFLAGS  += -I../libmonome
-LDFLAGS += -L../src/lib -lmonome
+LDFLAGS += -L../src -lmonome
 TARGETS  = simple test life
 
 all: $(TARGETS)

@@ -1,4 +1,5 @@
 CFLAGS += -I. -I../libmonome
+LDFLAGS = -L$(LIBDIR)
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
 LMOBJS = libmonome.o platform.o rotation.o
@@ -43,7 +44,7 @@ platform.o: platform/$(PLATFORM).c
 
 $(MONOMESERIAL): $(MSOBJS)
 	echo "  LD      src/monomeserial"
-	$(LD) -L. -lmonome -llo -o $@ $<
+	$(LD) $(LDFLAGS) -L. -lmonome -llo -o $@ $<
 
 .c.o:
 	echo "  CC      src/$@"
