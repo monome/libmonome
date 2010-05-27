@@ -33,6 +33,12 @@ static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 
 static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uint address, uint *data) {
 	uint8_t buf[2];
+	uint xaddress = address;
+
+	ROTATE_COORDS(monome, xaddress, address);
+
+	if( mode == PROTO_40h_LED_ROW )
+		address = xaddress;
 	
 	buf[0] = mode | (address & 0x7 );
 	buf[1] = ( ORIENTATION(monome).flags & ROW_COL_REVBITS ) ? REVERSE_BYTE(*data) : *data;

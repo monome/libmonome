@@ -33,9 +33,21 @@ static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 
 static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mode, uint address, uint *data) {
 	uint8_t buf[3];
+	uint xaddress = address;
+
+	/* I guess this is a bit of a hack...but damn does it work well!
+
+	   treating the address as a coordinate pair with itself lets us calculate
+	   the row/col translation in one call using the existing rotation code
+	   then we just pick whether we want the x coord (row) or y coord (col)
+	   depending on what sort of message it is. */
+
+	ROTATE_COORDS(monome, xaddress, address);
 	
 	switch( mode ) {
 	case PROTO_SERIES_LED_ROW_8:
+		address = xaddress;
+
 	case PROTO_SERIES_LED_COL_8:
 		if( ORIENTATION(monome).flags & ROW_COL_SWAP )
 			mode = (!(mode - PROTO_SERIES_LED_ROW_8) << 4) + PROTO_SERIES_LED_ROW_8;
@@ -46,6 +58,8 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 		return monome_write(monome, buf, sizeof(buf) - sizeof(char));
 		
 	case PROTO_SERIES_LED_ROW_16:
+		address = xaddress;
+
 	case PROTO_SERIES_LED_COL_16:
 		if( ORIENTATION(monome).flags & ROW_COL_SWAP )
 			mode = (!(mode - PROTO_SERIES_LED_ROW_16) << 4) + PROTO_SERIES_LED_ROW_16;
