@@ -66,24 +66,9 @@ static void exit_on_signal(int s) {
 	exit(EXIT_SUCCESS);
 }
 
-static void close_monome() {
-	monome_clear(monome, MONOME_CLEAR_OFF);
-	monome_close(monome);
-}
-
-int main(int argc, char **argv) {
+static void init_world() {
 	uint x, y;
-	int tick = 0;
-
 	cell_t *c;
-
-	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "8000")) )
-		return EXIT_FAILURE;
-
-	signal(SIGINT, exit_on_signal);
-	atexit(close_monome);
-
-	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
 
 	for( x = 0; x < COLUMNS; x++ ) {
 		for( y = 0; y < ROWS; y++ ) {
@@ -107,7 +92,28 @@ int main(int argc, char **argv) {
 			c->neighbors[7] = &world[x][(y + 1) % ROWS];
 		}
 	}
+}
 
+static void close_monome() {
+	monome_clear(monome, MONOME_CLEAR_OFF);
+	monome_close(monome);
+}
+
+int main(int argc, char **argv) {
+	uint x, y;
+	int tick = 0;
+
+	cell_t *c;
+
+	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "8000")) )
+		return EXIT_FAILURE;
+
+	signal(SIGINT, exit_on_signal);
+	atexit(close_monome);
+
+	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
+
+	init_world();
 	monome_clear(monome, MONOME_CLEAR_OFF);
 
 	while(1) {
