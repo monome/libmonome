@@ -49,7 +49,7 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 		break;
 
 	case PROTO_40h_LED_COL:
-		if( ORIENTATION(monome).flags & ROW_REVBITS )
+		if( ORIENTATION(monome).flags & COL_REVBITS )
 			buf[1] = REVERSE_BYTE(*data);
 		else
 			buf[1] = *data;
@@ -59,6 +59,9 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 	default:
 		return -1;
 	}
+
+	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+		mode = (!(mode - PROTO_40h_LED_ROW) << 4) + PROTO_40h_LED_ROW;
 
 	buf[0] = mode | (address & 0x7 );
 
