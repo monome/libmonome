@@ -20,7 +20,7 @@
 
 #define DEFAULT_MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
 
-#define BPM 115
+#define BPM 98
 
 uint pattern[8] = { 0, 66, 102, 90, 66, 66, 66, 0 };
 	
@@ -49,12 +49,18 @@ void test_led_row(monome_t *monome) {
 	uint i, buf_off[2], buf_on[2];
 
 	buf_off[0] = buf_off[1] = 0x00;
-	buf_on[0]  = buf_on[1]  = 0xFF;
+	buf_on[0]  = buf_on[1]  = 0x05;
 
 	for( i = 0; i < 16; i++ ) {
 		monome_led_row_16(monome, i, buf_on);
 		chill(16);
 		monome_led_row_16(monome, i, buf_off);
+
+		buf_on[0] <<= 1;
+		buf_on[1] <<= 1;
+
+		if( !(*buf_on & 0xFF) )
+			buf_on[0]  = buf_on[1]  = 0x05;
 	}
 }
 
@@ -62,12 +68,18 @@ void test_led_col(monome_t *monome) {
 	uint i, buf_off[2], buf_on[2];
 
 	buf_off[0] = buf_off[1] = 0x00;
-	buf_on[0]  = buf_on[1]  = 0xFF;
+	buf_on[0]  = buf_on[1]  = 0x05;
 
 	for( i = 0; i < 16; i++ ) {
 		monome_led_col_16(monome, i, buf_on);
 		chill(16);
 		monome_led_col_16(monome, i, buf_off);
+
+		buf_on[0] <<= 1;
+		buf_on[1] <<= 1;
+
+		if( !(*buf_on & 0xFF) )
+			buf_on[0]  = buf_on[1]  = 0x05;
 	}
 }
 

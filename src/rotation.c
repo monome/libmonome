@@ -87,18 +87,18 @@ monome_rotspec_t rotation[4] = {
 	[MONOME_CABLE_BOTTOM] = {
 		.output_cb = bottom_output_cb,
 		.input_cb = bottom_input_cb,
-		.flags    = ROW_COL_SWAP,
+		.flags    = ROW_COL_SWAP | COL_REVBITS
 	},
 
 	[MONOME_CABLE_RIGHT] = {
 		.output_cb = right_output_cb,
 		.input_cb = right_input_cb,
-		.flags    = ROW_COL_REVBITS,
+		.flags    = ROW_REVBITS | COL_REVBITS
 	},
 
 	[MONOME_CABLE_TOP] = {
 		.output_cb = top_output_cb,
 		.input_cb = top_input_cb,
-		.flags    = ROW_COL_SWAP | ROW_COL_REVBITS,
+		.flags    = ROW_COL_SWAP | ROW_REVBITS
 	},
 };

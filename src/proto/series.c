@@ -31,8 +31,8 @@ static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	return -1;
 }
 
-static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mode, uint address, uint *data) {
-	uint8_t buf[3];
+static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t mode, uint address, uint *data) {
+	uint8_t buf[2];
 	uint xaddress = address;
 
 	/* I guess this is a bit of a hack...but damn does it work well!
@@ -48,25 +48,44 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 	case PROTO_SERIES_LED_ROW_8:
 		address = xaddress;
 
+		if( ORIENTATION(monome).flags & ROW_REVBITS )
+			buf[1] = REVERSE_BYTE(*data);
+		else
+			buf[1] = *data;
+
+		break;
+
 	case PROTO_SERIES_LED_COL_8:
-		if( ORIENTATION(monome).flags & ROW_COL_SWAP )
-			mode = (!(mode - PROTO_SERIES_LED_ROW_8) << 4) + PROTO_SERIES_LED_ROW_8;
+		if( ORIENTATION(monome).flags & COL_REVBITS )
+			buf[1] = REVERSE_BYTE(*data);
+		else
+			buf[1] = *data;
 
-		buf[0] = mode | (address & 0x0F );
-		buf[1] = ( ORIENTATION(monome).flags & ROW_COL_REVBITS ) ? REVERSE_BYTE(*data) : *data;
+		break;
+	
+	default:
+		return -1;
+	}
 
-		return monome_write(monome, buf, sizeof(buf) - sizeof(char));
+	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+		mode = (!(mode - PROTO_SERIES_LED_ROW_8) << 4) + PROTO_SERIES_LED_ROW_8;
 
+	buf[0] = mode | (address & 0x0F );
+
+	return monome_write(monome, buf, sizeof(buf));
+}
+
+static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t mode, uint address, uint *data) {
+	uint8_t buf[3];
+	uint xaddress = address;
+
+	ROTATE_COORDS(monome, xaddress, address);
+
+	switch( mode ) {
 	case PROTO_SERIES_LED_ROW_16:
 		address = xaddress;
 
-	case PROTO_SERIES_LED_COL_16:
-		if( ORIENTATION(monome).flags & ROW_COL_SWAP )
-			mode = (!(mode - PROTO_SERIES_LED_ROW_16) << 4) + PROTO_SERIES_LED_ROW_16;
-
-		buf[0] = mode | (address & 0x0F );
-
-		if( ORIENTATION(monome).flags & ROW_COL_REVBITS ) {
+		if( ORIENTATION(monome).flags & ROW_REVBITS ) {
 			buf[1] = REVERSE_BYTE(data[1]);
 			buf[2] = REVERSE_BYTE(data[0]);
 		} else {
@@ -74,13 +93,29 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 			buf[2] = data[1];
 		}
 
-		return monome_write(monome, buf, sizeof(buf));
+		break;
+
+	case PROTO_SERIES_LED_COL_16:
+		if( ORIENTATION(monome).flags & COL_REVBITS ) {
+			buf[1] = REVERSE_BYTE(data[1]);
+			buf[2] = REVERSE_BYTE(data[0]);
+		} else {
+			buf[1] = data[0];
+			buf[2] = data[1];
+		}
+
+		break;
 
 	default:
-		break;
+		return -1;
 	}
 
-	return -1;
+	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+		mode = (!(mode - PROTO_SERIES_LED_ROW_16) << 4) + PROTO_SERIES_LED_ROW_16;
+
+	buf[0] = mode | (address & 0x0F );
+
+	return monome_write(monome, buf, sizeof(buf));
 }
 
 static int proto_series_led(monome_t *monome, uint status, uint x, uint y) {
@@ -122,19 +157,19 @@ int proto_series_led_off(monome_t *monome, uint x, uint y) {
 }
 
 int proto_series_led_col_8(monome_t *monome, uint col, uint *col_data) {
-	return proto_series_led_col_row(monome, PROTO_SERIES_LED_COL_8, col, col_data);
+	return proto_series_led_col_row_8(monome, PROTO_SERIES_LED_COL_8, col, col_data);
 }
 
 int proto_series_led_row_8(monome_t *monome, uint row, uint *row_data) {
-	return proto_series_led_col_row(monome, PROTO_SERIES_LED_ROW_8, row, row_data);
+	return proto_series_led_col_row_8(monome, PROTO_SERIES_LED_ROW_8, row, row_data);
 }
 
 int proto_series_led_col_16(monome_t *monome, uint col, uint *col_data) {
-	return proto_series_led_col_row(monome, PROTO_SERIES_LED_COL_16, col, col_data);
+	return proto_series_led_col_row_16(monome, PROTO_SERIES_LED_COL_16, col, col_data);
 }
 
 int proto_series_led_row_16(monome_t *monome, uint row, uint *row_data) {
-	return proto_series_led_col_row(monome, PROTO_SERIES_LED_ROW_16, row, row_data);
+	return proto_series_led_col_row_16(monome, PROTO_SERIES_LED_ROW_16, row, row_data);
 }
 
 int proto_series_led_frame(monome_t *monome, uint quadrant, uint *frame_data) {

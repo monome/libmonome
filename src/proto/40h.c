@@ -37,11 +37,30 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 
 	ROTATE_COORDS(monome, xaddress, address);
 
-	if( mode == PROTO_40h_LED_ROW )
+	switch( mode ) {
+	case PROTO_40h_LED_ROW:
 		address = xaddress;
 
+		if( ORIENTATION(monome).flags & ROW_REVBITS )
+			buf[1] = REVERSE_BYTE(*data);
+		else
+			buf[1] = *data;
+
+		break;
+
+	case PROTO_40h_LED_COL:
+		if( ORIENTATION(monome).flags & ROW_REVBITS )
+			buf[1] = REVERSE_BYTE(*data);
+		else
+			buf[1] = *data;
+
+		break;
+
+	default:
+		return -1;
+	}
+
 	buf[0] = mode | (address & 0x7 );
-	buf[1] = ( ORIENTATION(monome).flags & ROW_COL_REVBITS ) ? REVERSE_BYTE(*data) : *data;
 
 	return monome_write(monome, buf, sizeof(buf));
 }
