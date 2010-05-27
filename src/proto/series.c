@@ -27,7 +27,7 @@
 static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
     if( monome_platform_write(monome, buf, bufsize) == bufsize )
 		return 0;
-	
+
 	return -1;
 }
 
@@ -43,7 +43,7 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 	   depending on what sort of message it is. */
 
 	ROTATE_COORDS(monome, xaddress, address);
-	
+
 	switch( mode ) {
 	case PROTO_SERIES_LED_ROW_8:
 		address = xaddress;
@@ -54,9 +54,9 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 
 		buf[0] = mode | (address & 0x0F );
 		buf[1] = ( ORIENTATION(monome).flags & ROW_COL_REVBITS ) ? REVERSE_BYTE(*data) : *data;
-		
+
 		return monome_write(monome, buf, sizeof(buf) - sizeof(char));
-		
+
 	case PROTO_SERIES_LED_ROW_16:
 		address = xaddress;
 
@@ -73,24 +73,24 @@ static int proto_series_led_col_row(monome_t *monome, proto_series_message_t mod
 			buf[1] = data[0];
 			buf[2] = data[1];
 		}
-		
+
 		return monome_write(monome, buf, sizeof(buf));
-		
+
 	default:
 		break;
 	}
-	
+
 	return -1;
 }
 
 static int proto_series_led(monome_t *monome, uint status, uint x, uint y) {
 	uint8_t buf[2];
-	
+
 	ROTATE_COORDS(monome, x, y);
 
 	buf[0] = status;
 	buf[1] = (x << 4) | y;
-	
+
 	return monome_write(monome, buf, sizeof(buf));
 }
 
@@ -140,12 +140,12 @@ int proto_series_led_row_16(monome_t *monome, uint row, uint *row_data) {
 int proto_series_led_frame(monome_t *monome, uint quadrant, uint *frame_data) {
 	uint i;
 	uint8_t buf[9];
-	
+
 	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
-	
+
 	for( i = 1; i < 9; i++ )
 		buf[i] = *(frame_data++);
-	
+
 	return monome_write(monome, buf, sizeof(buf));
 }
 
@@ -164,12 +164,12 @@ int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 
 		UNROTATE_COORDS(monome, e->x, e->y);
 		return 0;
-		
+
 	case PROTO_SERIES_AUX_INPUT:
 		/* soon */
 		return 0;
 	}
-	
+
 	return -1;
 }
 
@@ -187,10 +187,10 @@ void proto_series_free(monome_t *monome) {
 
 monome_t *monome_protocol_new() {
 	monome_t *monome = calloc(1, sizeof(monome_t));
-	
+
 	if( !monome )
 		return NULL;
-	
+
 	monome->open       = proto_series_open;
 	monome->close      = proto_series_close;
 	monome->free       = proto_series_free;
@@ -200,7 +200,7 @@ monome_t *monome_protocol_new() {
 	monome->clear      = proto_series_clear;
 	monome->intensity  = proto_series_intensity;
 	monome->mode       = proto_series_mode;
-	
+
 	monome->led_on     = proto_series_led_on;
 	monome->led_off    = proto_series_led_off;
 	monome->led_col_8  = proto_series_led_col_8;

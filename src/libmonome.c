@@ -187,10 +187,10 @@ monome_cable_t monome_get_orientation(monome_t *monome) {
 
 void monome_register_handler(monome_t *monome, uint event_type, monome_callback_function_t cb, void *data) {
 	monome_callback_t *handler;
-	
+
 	if( event_type > 2 || !cb )
 		return;
-	
+
 	handler       = &monome->handlers[event_type];
 	handler->cb   = cb;
 	handler->data = data;

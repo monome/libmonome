@@ -19,7 +19,7 @@ typedef enum {
 	PROTO_SERIES_BUTTON_DOWN         = 0x00,
 	PROTO_SERIES_BUTTON_UP           = 0x10,
 	PROTO_SERIES_AUX_INPUT           = 0xE0,
-	
+
 	/* output (to device) */
 
 	PROTO_SERIES_LED_ON              = 0x20,

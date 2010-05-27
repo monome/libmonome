@@ -28,7 +28,7 @@ uint grid[16][16];
  */
 void handle_press(const monome_event_t *e, void *data) {
 	uint x, y;
-	
+
 	x = e->x;
 	y = e->y;
 
@@ -36,7 +36,7 @@ void handle_press(const monome_event_t *e, void *data) {
 		monome_led_off(e->monome, x, y);
 	else
 		monome_led_on(e->monome, x, y);
-	
+
 	/* toggle the button */
 	grid[x][y] = !grid[x][y];
 }
@@ -48,21 +48,21 @@ int main(int argc, char *argv[]) {
 	/* open the monome device */
 	if( !(monome = monome_open(MONOME_DEVICE, "8000")) )
 		return -1;
-	
+
 	monome_clear(monome, MONOME_CLEAR_OFF);
-	
+
 	/* initialize the grid (all off) */
 	for( x = 0; x < 16; x++ )
 		for( y = 0; y < 16; y++ )
 			grid[x][y] = 0;
-	
+
 	/* register our button press callback */
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
-	
+
 	/* wait for presses! */
 	monome_main_loop(monome);
-	
+
 	monome_close(monome);
-	
+
 	return 0;
 }

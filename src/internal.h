@@ -55,13 +55,13 @@ struct monome {
 	char *serial;
 	char *device;
 	int rows, cols;
-	
+
 	struct termios ot;
 	int fd;
-	
+
 	monome_callback_t handlers[3];
 	monome_cable_t orientation;
-	
+
 	int  (*open)(monome_t *monome, const char *dev, va_list args);
 	int  (*close)(monome_t *monome);
 	void (*free)(monome_t *monome);
@@ -71,7 +71,7 @@ struct monome {
 	int  (*clear)(monome_t *monome, monome_clear_status_t status);
 	int  (*intensity)(monome_t *monome, uint brightness);
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
-	
+
 	int  (*led_on)(monome_t *monome, uint x, uint y);
 	int  (*led_off)(monome_t *monome, uint x, uint y);
 	int  (*led_col_8)(monome_t *monome, uint col, uint *col_data);

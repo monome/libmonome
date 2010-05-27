@@ -25,9 +25,9 @@
  */
 
 static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-    if( monome_platform_write(monome, buf, bufsize) == bufsize )
+	if( monome_platform_write(monome, buf, bufsize) == bufsize )
 		return 0;
-	
+
 	return -1;
 }
 
@@ -39,10 +39,10 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 
 	if( mode == PROTO_40h_LED_ROW )
 		address = xaddress;
-	
+
 	buf[0] = mode | (address & 0x7 );
 	buf[1] = ( ORIENTATION(monome).flags & ROW_COL_REVBITS ) ? REVERSE_BYTE(*data) : *data;
-	
+
 	return monome_write(monome, buf, sizeof(buf));
 }
 
@@ -50,13 +50,13 @@ static int proto_40h_led(monome_t *monome, uint status, uint x, uint y) {
 	uint8_t buf[2];
 
 	ROTATE_COORDS(monome, x, y);
-	
+
 	x &= 0x7;
 	y &= 0x7;
-	
+
 	buf[0] = status;
 	buf[1] = (x << 4) | y;
-	
+
 	return monome_write(monome, buf, sizeof(buf));
 }
 
@@ -67,12 +67,12 @@ static int proto_40h_led(monome_t *monome, uint status, uint x, uint y) {
 int proto_40h_clear(monome_t *monome, monome_clear_status_t status) {
 	uint i;
 	uint8_t buf[2] = {0, 0};
-	
+
 	for( i = 0; i < 8; i++ ) {
 		buf[0] = PROTO_40h_LED_ROW | i;
 		monome_write(monome, buf, sizeof(buf));
 	}
-	
+
 	return sizeof(buf) * i;
 }
 
@@ -84,10 +84,10 @@ int proto_40h_intensity(monome_t *monome, uint brightness) {
 int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
 	/* the 40h splits this into two commands and will need an extra variable
 	 * in the monome_t structure to keep track. */
-	
+
 	/* uint8_t buf[2] = PROTO_40h_MODE | ( (mode & PROTO_40h_MODE_TEST) | (mode & PROTO_40h_MODE_SHUTDOWN) );
 	   return monome_write(monome, buf, sizeof(buf)); */
-	
+
 	return 0;
 }
 
@@ -110,10 +110,10 @@ int proto_40h_led_row_8(monome_t *monome, uint row, uint *row_data) {
 int proto_40h_led_frame(monome_t *monome, uint quadrant, uint *frame_data) {
 	uint i;
 	int ret = 0;
-	
+
 	for( i = 0; i < 8; i++ )
 		ret += proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, frame_data++);
-	
+
 	return ret;
 }
 
@@ -132,12 +132,12 @@ int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 
 		UNROTATE_COORDS(monome, e->x, e->y);
 		return 0;
-		
+
 	case PROTO_40h_AUX_INPUT:
 		/* soon */
 		return 0;
 	}
-	
+
 	return -1;
 }
 
@@ -156,10 +156,10 @@ void proto_40h_free(monome_t *monome) {
 
 monome_t *monome_protocol_new() {
 	monome_t *monome = calloc(1, sizeof(monome_40h_t));
-	
+
 	if( !monome )
 		return NULL;
-	
+
 	monome->open       = proto_40h_open;
 	monome->close      = proto_40h_close;
 	monome->free       = proto_40h_free;
@@ -169,7 +169,7 @@ monome_t *monome_protocol_new() {
 	monome->clear      = proto_40h_clear;
 	monome->intensity  = proto_40h_intensity;
 	monome->mode       = proto_40h_mode;
-	
+
 	monome->led_on     = proto_40h_led_on;
 	monome->led_off    = proto_40h_led_off;
 	monome->led_col_8  = proto_40h_led_col_8;

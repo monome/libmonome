@@ -22,7 +22,7 @@
 int monome_platform_open(monome_t *monome, const char *dev) {
 	struct termios nt, ot;
 	int fd;
-	
+
 	if( (fd = open(dev, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0 ) {
 		perror("libmonome: could not open monome device");
 		return 1;
@@ -30,7 +30,7 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 
 	tcgetattr(fd, &ot);
 	nt = ot;
-	
+
 	/* baud rate (9600) */
 	cfsetispeed(&nt, B9600);
 	cfsetospeed(&nt, B9600);
