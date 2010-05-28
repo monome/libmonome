@@ -80,27 +80,27 @@ int proto_osc_led_off(monome_t *monome, uint x, uint y) {
 	return LO_SEND_MSG(led, "iii", x, y, 0);
 }
 
-int proto_osc_led_col_8(monome_t *monome, uint col, uint *col_data) {
+int proto_osc_led_col_8(monome_t *monome, uint col, uint8_t *col_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_col, "ii", col, col_data[0]);
 }
 
-int proto_osc_led_row_8(monome_t *monome, uint row, uint *row_data) {
+int proto_osc_led_row_8(monome_t *monome, uint row, uint8_t *row_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_row, "ii", row, row_data[0]);
 }
 
-int proto_osc_led_col_16(monome_t *monome, uint col, uint *col_data) {
+int proto_osc_led_col_16(monome_t *monome, uint col, uint8_t *col_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_col, "iii", col, col_data[0], col_data[1]);
 }
 
-int proto_osc_led_row_16(monome_t *monome, uint row, uint *row_data) {
+int proto_osc_led_row_16(monome_t *monome, uint row, uint8_t *row_data) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_row, "iii", row, row_data[0], row_data[1]);
 }
 
-int proto_osc_led_frame(monome_t *monome, uint quadrant, uint *f) {
+int proto_osc_led_frame(monome_t *monome, uint quadrant, uint8_t *f) {
 	SELF_FROM(monome);
 
 	/* there has to be a cleaner way to do this */

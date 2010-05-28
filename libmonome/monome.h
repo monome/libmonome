@@ -84,11 +84,11 @@ int monome_mode(monome_t *monome, monome_mode_t mode);
 
 int monome_led_on(monome_t *monome, uint x, uint y);
 int monome_led_off(monome_t *monome, uint x, uint y);
-int monome_led_col_8(monome_t *monome, uint col, uint *col_data);
-int monome_led_row_8(monome_t *monome, uint row, uint *row_data);
-int monome_led_col_16(monome_t *monome, uint col, uint *col_data);
-int monome_led_row_16(monome_t *monome, uint row, uint *row_data);
-int monome_led_frame(monome_t *monome, uint quadrant, uint *frame_data);
+int monome_led_col_8(monome_t *monome, uint col, uint8_t *col_data);
+int monome_led_row_8(monome_t *monome, uint row, uint8_t *row_data);
+int monome_led_col_16(monome_t *monome, uint col, uint8_t *col_data);
+int monome_led_row_16(monome_t *monome, uint row, uint8_t *row_data);
+int monome_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -90,7 +90,7 @@ static int osc_led_handler(const char *path, const char *types, lo_arg **argv, i
 
 static int osc_led_col_row_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
-	uint buf[2];
+	uint8_t buf[2];
 
 	if( argv[0]->i > 15 || argv[0]->i < 0 )
 		return -1;
@@ -129,7 +129,8 @@ static int osc_led_col_row_handler(const char *path, const char *types, lo_arg *
 
 static int osc_frame_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
 	monome_t *monome = user_data;
-	uint buf[8], i;
+	uint8_t buf[8];
+	uint i;
 
 	for( i = 0; i < 8; i++ )
 		buf[i] = argv[i]->i;

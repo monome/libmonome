@@ -26,6 +26,7 @@ typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
 
 typedef void (*monome_coord_cb)(monome_t *, uint *x, uint *y);
+typedef void (*monome_frame_cb)(monome_t *, uint *frame_data);
 
 struct monome_callback {
 	monome_callback_function_t cb;
@@ -44,6 +45,7 @@ struct monome_devmap {
 struct monome_rotspec {
 	monome_coord_cb output_cb;
 	monome_coord_cb input_cb;
+	monome_frame_cb frame_cb;
 
 	enum {
 		ROW_COL_SWAP    = 0x1,
@@ -75,11 +77,11 @@ struct monome {
 
 	int  (*led_on)(monome_t *monome, uint x, uint y);
 	int  (*led_off)(monome_t *monome, uint x, uint y);
-	int  (*led_col_8)(monome_t *monome, uint col, uint *col_data);
-	int  (*led_row_8)(monome_t *monome, uint row, uint *row_data);
-	int  (*led_col_16)(monome_t *monome, uint col, uint *col_data);
-	int  (*led_row_16)(monome_t *monome, uint row, uint *row_data);
-	int  (*led_frame)(monome_t *monome, uint quadrant, uint *frame_data);
+	int  (*led_col_8)(monome_t *monome, uint col, uint8_t *col_data);
+	int  (*led_row_8)(monome_t *monome, uint row, uint8_t *row_data);
+	int  (*led_col_16)(monome_t *monome, uint col, uint8_t *col_data);
+	int  (*led_row_16)(monome_t *monome, uint row, uint8_t *row_data);
+	int  (*led_frame)(monome_t *monome, uint quadrant, uint8_t *frame_data);
 };
 
 #endif

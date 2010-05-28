@@ -22,7 +22,7 @@
 
 #define BPM 98
 
-uint pattern[8] = { 0, 66, 102, 90, 66, 66, 66, 0 };
+uint8_t pattern[8] = { 0, 66, 102, 90, 66, 66, 66, 0 };
 	
 static void chill(int speed) {
 	struct timespec rem, req = {0, ((60000 / (BPM * speed)) * 1000000)};
@@ -46,7 +46,8 @@ void test_led_on_off(monome_t *monome) {
 }
 
 void test_led_row(monome_t *monome) {
-	uint i, buf_off[2], buf_on[2];
+	uint8_t buf_off[2], buf_on[2];
+	uint i;
 
 	buf_off[0] = buf_off[1] = 0x00;
 	buf_on[0]  = buf_on[1]  = 0x05;
@@ -65,7 +66,8 @@ void test_led_row(monome_t *monome) {
 }
 
 void test_led_col(monome_t *monome) {
-	uint i, buf_off[2], buf_on[2];
+	uint8_t buf_off[2], buf_on[2];
+	uint i;
 
 	buf_off[0] = buf_off[1] = 0x00;
 	buf_on[0]  = buf_on[1]  = 0x05;

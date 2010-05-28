@@ -31,7 +31,7 @@ static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	return -1;
 }
 
-static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uint address, uint *data) {
+static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uint address, uint8_t *data) {
 	uint8_t buf[2];
 	uint xaddress = address;
 
@@ -121,15 +121,15 @@ int proto_40h_led_off(monome_t *monome, uint x, uint y) {
 	return proto_40h_led(monome, PROTO_40h_LED_OFF, x, y);
 }
 
-int proto_40h_led_col_8(monome_t *monome, uint col, uint *col_data) {
+int proto_40h_led_col_8(monome_t *monome, uint col, uint8_t *col_data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, col_data);
 }
 
-int proto_40h_led_row_8(monome_t *monome, uint row, uint *row_data) {
+int proto_40h_led_row_8(monome_t *monome, uint row, uint8_t *row_data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, row_data);
 }
 
-int proto_40h_led_frame(monome_t *monome, uint quadrant, uint *frame_data) {
+int proto_40h_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data) {
 	uint i;
 	int ret = 0;
 
