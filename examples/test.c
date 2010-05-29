@@ -86,16 +86,18 @@ void test_led_col(monome_t *monome) {
 }
 
 void test_led_frame(monome_t *monome) {
-	uint i, l;
+	uint i, q, l;
 
-	for( l = 0; l < 9; l++ ) {
-		for( i = 0; i < 4; i++ )
-			monome_led_frame(monome, i, pattern);
+	for( l = 0, q = 0; l < 16; l++ ) {
+		monome_led_frame(monome, q, pattern);
 
 		for( i = 0; i < 8; i++ )
 			pattern[i] ^= 0xFF;
 
 		chill(2);
+
+		if( l % 2 )
+			q++;
 	}
 }
 
@@ -126,7 +128,6 @@ int main(int argc, char **argv) {
 	test_led_on_off(monome);
 	test_led_frame(monome);
 
-	chill(2);
 	fade_out(monome);
 
 	monome_clear(monome, MONOME_CLEAR_OFF);
