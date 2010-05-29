@@ -174,12 +174,11 @@ int proto_series_led_row_16(monome_t *monome, uint row, uint8_t *row_data) {
 
 int proto_series_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data) {
 	uint8_t buf[9];
-	uint i;
+
+	ORIENTATION(monome).frame_cb(monome, &quadrant, frame_data);
 
 	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
-
-	for( i = 1; i < 9; i++ )
-		buf[i] = *(frame_data++);
+	*((uint64_t *) &buf[1]) = *((uint64_t *) frame_data);
 
 	return monome_write(monome, buf, sizeof(buf));
 }

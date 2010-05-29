@@ -39,6 +39,10 @@ void left_cb(monome_t *monome, uint *x, uint *y) {
 	return;
 }
 
+void left_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+	return;
+}
+
 void bottom_output_cb(monome_t *monome, uint *x, uint *y) {
 	uint t = *x;
 
@@ -53,6 +57,9 @@ void bottom_input_cb(monome_t *monome, uint *x, uint *y) {
 	*y = (COLS(monome) - t) % (COLS(monome) + 1);
 }
 
+void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+}
+
 void right_output_cb(monome_t *monome, uint *x, uint *y) {
 	*x = ROWS(monome) - *x;
 	*y = COLS(monome) - *y;
@@ -61,6 +68,23 @@ void right_output_cb(monome_t *monome, uint *x, uint *y) {
 void right_input_cb(monome_t *monome, uint *x, uint *y) {
 	*x = (ROWS(monome) - *x) % (ROWS(monome) + 1);
 	*y = (COLS(monome) - *y) % (COLS(monome) + 1);
+}
+
+void right_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+	uint64_t x = *((uint64_t *) frame_data);
+
+	/* straightforward 64bit integer reversal...
+	   might not work on embedded platforms? */
+
+	x = x >> 32 | x << 32;
+	x = (x & 0xFFFF0000FFFF0000) >> 16 | (x & 0x0000FFFF0000FFFF) << 16;
+	x = (x & 0xFF00FF00FF00FF00) >> 8  | (x & 0x00FF00FF00FF00FF) << 8;
+	x = (x & 0xF0F0F0F0F0F0F0F0) >> 4  | (x & 0x0F0F0F0F0F0F0F0F) << 4;
+	x = (x & 0xCCCCCCCCCCCCCCCC) >> 2  | (x & 0x3333333333333333) << 2;
+	x = (x & 0xAAAAAAAAAAAAAAAA) >> 1  | (x & 0x5555555555555555) << 1;
+
+	*((uint64_t *) frame_data) = x;
+	*quadrant = (3 - *quadrant) & 0x3;
 }
 
 void top_output_cb(monome_t *monome, uint *x, uint *y) {
@@ -77,28 +101,39 @@ void top_input_cb(monome_t *monome, uint *x, uint *y) {
 	*y = t;
 }
 
+void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+}
+
 monome_rotspec_t rotation[4] = {
 	[MONOME_CABLE_LEFT] = {
 		.output_cb = left_cb,
 		.input_cb = left_cb,
+		.frame_cb = left_frame_cb,
+
 		.flags    = 0,
 	},
 	
 	[MONOME_CABLE_BOTTOM] = {
 		.output_cb = bottom_output_cb,
 		.input_cb = bottom_input_cb,
+		.frame_cb = bottom_frame_cb,
+
 		.flags    = ROW_COL_SWAP | COL_REVBITS
 	},
 
 	[MONOME_CABLE_RIGHT] = {
 		.output_cb = right_output_cb,
 		.input_cb = right_input_cb,
+		.frame_cb = right_frame_cb,
+
 		.flags    = ROW_REVBITS | COL_REVBITS
 	},
 
 	[MONOME_CABLE_TOP] = {
 		.output_cb = top_output_cb,
 		.input_cb = top_input_cb,
+		.frame_cb = top_frame_cb,
+
 		.flags    = ROW_COL_SWAP | ROW_REVBITS
 	},
 };
