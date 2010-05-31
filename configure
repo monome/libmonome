@@ -32,7 +32,7 @@ PROJECT="libmonome";
 VERSION="0.3";
 
 CC="gcc";
-LD=$CC;
+LD="\$(CC)";
 CC_VERSION=;
 
 CFLAGS="";
