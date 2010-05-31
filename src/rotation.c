@@ -21,6 +21,9 @@
 #define ROWS(monome) (monome->rows - 1)
 #define COLS(monome) (monome->cols - 1)
 
+static uint top_quad_map[]    = {2, 0, 3, 1};
+static uint bottom_quad_map[] = {1, 3, 0, 2};
+
 /**
  * public
  */
@@ -58,6 +61,7 @@ static void bottom_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+	*quadrant = bottom_quad_map[*quadrant & 0x3];
 }
 
 static void right_output_cb(monome_t *monome, uint *x, uint *y) {
@@ -102,6 +106,7 @@ static void top_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+	*quadrant = top_quad_map[*quadrant & 0x3];
 }
 
 monome_rotspec_t rotation[4] = {
