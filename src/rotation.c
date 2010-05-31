@@ -35,42 +35,42 @@
    while this bug is arguably contrived, I'd rather pay the minute
    computational cost here and avoid causing trouble in application code. */
 
-void left_cb(monome_t *monome, uint *x, uint *y) {
+static void left_cb(monome_t *monome, uint *x, uint *y) {
 	return;
 }
 
-void left_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void left_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
 	return;
 }
 
-void bottom_output_cb(monome_t *monome, uint *x, uint *y) {
+static void bottom_output_cb(monome_t *monome, uint *x, uint *y) {
 	uint t = *x;
 
 	*x = COLS(monome) - *y;
 	*y = t;
 }
 
-void bottom_input_cb(monome_t *monome, uint *x, uint *y) {
+static void bottom_input_cb(monome_t *monome, uint *x, uint *y) {
 	uint t = *x;
 
 	*x = *y;
 	*y = (COLS(monome) - t) % (COLS(monome) + 1);
 }
 
-void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
 }
 
-void right_output_cb(monome_t *monome, uint *x, uint *y) {
+static void right_output_cb(monome_t *monome, uint *x, uint *y) {
 	*x = ROWS(monome) - *x;
 	*y = COLS(monome) - *y;
 }
 
-void right_input_cb(monome_t *monome, uint *x, uint *y) {
+static void right_input_cb(monome_t *monome, uint *x, uint *y) {
 	*x = (ROWS(monome) - *x) % (ROWS(monome) + 1);
 	*y = (COLS(monome) - *y) % (COLS(monome) + 1);
 }
 
-void right_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void right_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
 	uint64_t x = *((uint64_t *) frame_data);
 
 	/* straightforward 64bit integer reversal...
@@ -87,21 +87,21 @@ void right_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
 	*quadrant = (3 - *quadrant) & 0x3;
 }
 
-void top_output_cb(monome_t *monome, uint *x, uint *y) {
+static void top_output_cb(monome_t *monome, uint *x, uint *y) {
 	uint t = *x;
 
 	*x = *y;
 	*y = ROWS(monome) - t;
 }
 
-void top_input_cb(monome_t *monome, uint *x, uint *y) {
+static void top_input_cb(monome_t *monome, uint *x, uint *y) {
 	uint t = *x;
 
 	*x = (ROWS(monome) - *y) % (ROWS(monome) + 1);
 	*y = t;
 }
 
-void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
 }
 
 monome_rotspec_t rotation[4] = {
