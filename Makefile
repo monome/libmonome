@@ -30,7 +30,7 @@ distclean: clean
 	rm config.mk
 
 install:
-	cd libmonome; $(MAKE) install
+	cd public; $(MAKE) install
 	cd src; $(MAKE) install
 
 	echo "  INSTALL $(PKGCONFIGDIR)/libmonome.pc"

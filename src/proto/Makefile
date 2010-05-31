@@ -1,4 +1,4 @@
-CFLAGS += -I. -I.. -I../../libmonome
+CFLAGS += -I. -I../private -I../../public
 
 LDFLAGS = -lc -ldl -L.. -lmonome
 

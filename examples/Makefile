@@ -1,4 +1,4 @@
-CFLAGS  += -I../libmonome
+CFLAGS  += -I../public
 LDFLAGS += -L../src -lmonome
 TARGETS  = simple test life
 

@@ -1,4 +1,4 @@
-CFLAGS += -I. -I../libmonome
+CFLAGS += -I./private -I../public
 LDFLAGS = -L$(LIBDIR)
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
