@@ -77,6 +77,34 @@ static void bottom_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+	uint64_t t, x = *((uint64_t *) frame_data);
+
+	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
+	   in the case of bottom_frame_cb, the rotation is clockwise, in the case
+	   of top_frame_cb it is counter-clockwise.
+
+	   the matrix is made up of an array of 8 bytes, which, laid out
+	   contiguously in memory, can be treated as a 64-bit integer, which I've
+	   opted to do here.  this allows rotation to be accomplished solely with
+	   bitwise operations.
+
+	   inspired by "hacker's delight" by henry s. warren
+	   see section 7-3 "transposing a bit matrix" */
+
+#define swap(f, c)\
+	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
+
+	swap(8, 0xFF00FF00FF00FF00);
+	swap(7, 0x5500550055005500);
+
+	swap(16, 0xFFFF0000FFFF0000);
+	swap(14, 0x3333000033330000);
+
+	swap(32, 0xFFFFFFFF00000000);
+	swap(28, 0x0F0F0F0F00000000);
+#undef swap
+
+	*((uint64_t *) frame_data) = x;
 	*quadrant = bottom_quad_map[*quadrant & 0x3];
 }
 
@@ -124,8 +152,7 @@ static void top_input_cb(monome_t *monome, uint *x, uint *y) {
 static void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
 	uint64_t t, x = *((uint64_t *) frame_data);
 
-	/* inspired by "hacker's delight" by henry s. warren
-	   see section 7-3 "transposing a bit matrix" */
+	/* see bottom_frame_cb for a brief explanation */
 
 #define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
