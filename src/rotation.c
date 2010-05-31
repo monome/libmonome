@@ -84,7 +84,7 @@ static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_dat
 	   of top_frame_cb it is counter-clockwise.
 
 	   the matrix is made up of an array of 8 bytes, which, laid out
-	   contiguously in memory, can be treated as a 64-bit integer, which I've
+	   contiguously in memory, can be treated as a 64 bit integer, which I've
 	   opted to do here.  this allows rotation to be accomplished solely with
 	   bitwise operations.
 
@@ -94,14 +94,14 @@ static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_dat
 #define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
 
-	swap(8, 0xFF00FF00FF00FF00);
-	swap(7, 0x5500550055005500);
+	swap(8, 0xFF00FF00FF00FF00LLU);
+	swap(7, 0x5500550055005500LLU);
 
-	swap(16, 0xFFFF0000FFFF0000);
-	swap(14, 0x3333000033330000);
+	swap(16, 0xFFFF0000FFFF0000LLU);
+	swap(14, 0x3333000033330000LLU);
 
-	swap(32, 0xFFFFFFFF00000000);
-	swap(28, 0x0F0F0F0F00000000);
+	swap(32, 0xFFFFFFFF00000000LLU);
+	swap(28, 0x0F0F0F0F00000000LLU);
 #undef swap
 
 	*((uint64_t *) frame_data) = x;
@@ -125,11 +125,11 @@ static void right_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data
 	   might not work on embedded platforms? */
 
 	x = x >> 32 | x << 32;
-	x = (x & 0xFFFF0000FFFF0000) >> 16 | (x & 0x0000FFFF0000FFFF) << 16;
-	x = (x & 0xFF00FF00FF00FF00) >> 8  | (x & 0x00FF00FF00FF00FF) << 8;
-	x = (x & 0xF0F0F0F0F0F0F0F0) >> 4  | (x & 0x0F0F0F0F0F0F0F0F) << 4;
-	x = (x & 0xCCCCCCCCCCCCCCCC) >> 2  | (x & 0x3333333333333333) << 2;
-	x = (x & 0xAAAAAAAAAAAAAAAA) >> 1  | (x & 0x5555555555555555) << 1;
+	x = (x & 0xFFFF0000FFFF0000LLU) >> 16 | (x & 0x0000FFFF0000FFFFLLU) << 16;
+	x = (x & 0xFF00FF00FF00FF00LLU) >> 8  | (x & 0x00FF00FF00FF00FFLLU) << 8;
+	x = (x & 0xF0F0F0F0F0F0F0F0LLU) >> 4  | (x & 0x0F0F0F0F0F0F0F0FLLU) << 4;
+	x = (x & 0xCCCCCCCCCCCCCCCCLLU) >> 2  | (x & 0x3333333333333333LLU) << 2;
+	x = (x & 0xAAAAAAAAAAAAAAAALLU) >> 1  | (x & 0x5555555555555555LLU) << 1;
 
 	*((uint64_t *) frame_data) = x;
 	*quadrant = (3 - *quadrant) & 0x3;
@@ -157,14 +157,14 @@ static void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) 
 #define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
 
-	swap(8, 0xFF00FF00FF00FF00);
-	swap(9, 0xAA00AA00AA00AA00);
+	swap(8, 0xFF00FF00FF00FF00LLU);
+	swap(9, 0xAA00AA00AA00AA00LLU);
 
-	swap(16, 0xFFFF0000FFFF0000);
-	swap(18, 0xCCCC0000CCCC0000);
+	swap(16, 0xFFFF0000FFFF0000LLU);
+	swap(18, 0xCCCC0000CCCC0000LLU);
 
-	swap(32, 0xFFFFFFFF00000000);
-	swap(36, 0xF0F0F0F000000000);
+	swap(32, 0xFFFFFFFF00000000LLU);
+	swap(36, 0xF0F0F0F000000000LLU);
 #undef swap
 
 	*((uint64_t *) frame_data) = x;
