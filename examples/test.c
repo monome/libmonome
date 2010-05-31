@@ -38,8 +38,13 @@
 
 #define BPM 98
 
-uint8_t pattern[8] = { 0, 66, 102, 90, 66, 66, 66, 0 };
-	
+uint8_t pattern[4][8] = {
+	/* Y */ {0, 34, 20, 8, 8, 8, 8, 0},
+	/* E */ {0, 126, 2, 2, 30, 2, 126},
+	/* A */ {0, 124, 66, 66, 126, 66, 66, 0},
+	/* H */ {0, 36, 36, 36, 60, 36, 36, 0}
+};
+
 static void chill(int speed) {
 	struct timespec rem, req = {0, ((60000 / (BPM * speed)) * 1000000)};
 	nanosleep(&req, &rem);
@@ -61,59 +66,41 @@ void test_led_on_off(monome_t *monome) {
 		}
 }
 
-void test_led_row(monome_t *monome) {
-	uint8_t buf_off[2], buf_on[2];
+void test_led_row(monome_t *monome, uint16_t on) {
 	uint i;
 
-	buf_off[0] = buf_off[1] = 0x00;
-	buf_on[0]  = buf_on[1]  = 0x05;
-
 	for( i = 0; i < 16; i++ ) {
-		monome_led_row_16(monome, i, buf_on);
+		monome_led_row_16(monome, i, (uint8_t *) &on);
 		chill(16);
-		monome_led_row_16(monome, i, buf_off);
 
-		buf_on[0] <<= 1;
-		buf_on[1] <<= 1;
-
-		if( !(*buf_on & 0xFF) )
-			buf_on[0]  = buf_on[1]  = 0x05;
+		on |= on << 1;
 	}
 }
 
-void test_led_col(monome_t *monome) {
-	uint8_t buf_off[2], buf_on[2];
+void test_led_col(monome_t *monome, uint16_t on) {
 	uint i;
 
-	buf_off[0] = buf_off[1] = 0x00;
-	buf_on[0]  = buf_on[1]  = 0x05;
-
 	for( i = 0; i < 16; i++ ) {
-		monome_led_col_16(monome, i, buf_on);
+		monome_led_col_16(monome, i, (uint8_t *) &on);
 		chill(16);
-		monome_led_col_16(monome, i, buf_off);
 
-		buf_on[0] <<= 1;
-		buf_on[1] <<= 1;
-
-		if( !(*buf_on & 0xFF) )
-			buf_on[0]  = buf_on[1]  = 0x05;
+		on |= on << 1;
 	}
 }
 
 void test_led_frame(monome_t *monome) {
 	uint i, q, l;
 
-	for( l = 0, q = 0; l < 16; l++ ) {
-		monome_led_frame(monome, q, pattern);
+	for( l = 0, q = 0; l < 8; l++ ) {
+		monome_led_frame(monome, q, pattern[q]);
 
 		for( i = 0; i < 8; i++ )
-			pattern[i] ^= 0xFF;
+			pattern[q][i] ^= 0xFF;
 
 		chill(2);
 
 		if( l % 2 )
-			q++;
+			q = (q + 1) & 3;
 	}
 }
 
@@ -137,13 +124,15 @@ int main(int argc, char **argv) {
 	monome_clear(monome, MONOME_CLEAR_OFF);
 
 	for( i = 0; i < 2; i++ ) {
-		test_led_row(monome);
-		test_led_col(monome);
+		test_led_row(monome, 1);
+		test_led_col(monome, 1);
 	}
 
+	test_led_col(monome, 0);
 	test_led_on_off(monome);
 	test_led_frame(monome);
 
+	chill(1);
 	fade_out(monome);
 
 	monome_clear(monome, MONOME_CLEAR_OFF);
