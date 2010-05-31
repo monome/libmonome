@@ -122,6 +122,25 @@ static void top_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+	uint64_t t, x = *((uint64_t *) frame_data);
+
+	/* inspired by "hacker's delight" by henry s. warren
+	   see section 7-3 "transposing a bit matrix" */
+
+#define swap(f, c)\
+	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
+
+	swap(8, 0xFF00FF00FF00FF00);
+	swap(9, 0xAA00AA00AA00AA00);
+
+	swap(16, 0xFFFF0000FFFF0000);
+	swap(18, 0xCCCC0000CCCC0000);
+
+	swap(32, 0xFFFFFFFF00000000);
+	swap(36, 0xF0F0F0F000000000);
+#undef swap
+
+	*((uint64_t *) frame_data) = x;
 	*quadrant = top_quad_map[*quadrant & 0x3];
 }
 
