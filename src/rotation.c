@@ -77,8 +77,6 @@ static void bottom_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
-	uint64_t t, x = *((uint64_t *) frame_data);
-
 	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
 	   in the case of bottom_frame_cb, the rotation is clockwise, in the case
 	   of top_frame_cb it is counter-clockwise.
@@ -88,8 +86,14 @@ static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_dat
 	   opted to do here.  this allows rotation to be accomplished solely with
 	   bitwise operations.
 
+	   on 64 bit architectures, we treat frame_data as a 64 bit integer, on 32
+	   bit architectures we treat it as two 32 bit integers.
+
 	   inspired by "hacker's delight" by henry s. warren
 	   see section 7-3 "transposing a bit matrix" */
+
+#ifdef __LP64__
+	uint64_t t, x = *((uint64_t *) frame_data);
 
 #define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
@@ -105,6 +109,33 @@ static void bottom_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_dat
 #undef swap
 
 	*((uint64_t *) frame_data) = x;
+#else /* __LP64__ */
+	uint32_t x, y, t;
+
+	x = *((uint32_t *) frame_data);
+	y = *(((uint32_t *) frame_data) + 1);
+	t = 0;
+
+#define swap(x, f, c)\
+	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
+
+	swap(x, 8, 0xFF00FF00);
+	swap(x, 7, 0x55005500);
+
+	swap(x, 16, 0xFFFF0000);
+	swap(x, 14, 0x33330000);
+
+	swap(y, 8, 0xFF00FF00);
+	swap(y, 7, 0x55005500);
+
+	swap(y, 16, 0xFFFF0000);
+	swap(y, 14, 0x33330000);
+#undef swap
+
+	*((uint32_t *) frame_data) = ((x & 0x0F0F0F0F) << 4) | (y & 0x0F0F0F0F);
+	*(((uint32_t *) frame_data) + 1) = (x & 0xF0F0F0F0) | ((y & 0xF0F0F0F0) >> 4);
+#endif
+
 	*quadrant = bottom_quad_map[*quadrant & 0x3];
 }
 
@@ -150,9 +181,10 @@ static void top_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
-	uint64_t t, x = *((uint64_t *) frame_data);
-
 	/* see bottom_frame_cb for a brief explanation */
+
+#ifdef __LP64__
+	uint64_t t, x = *((uint64_t *) frame_data);
 
 #define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
@@ -168,6 +200,33 @@ static void top_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) 
 #undef swap
 
 	*((uint64_t *) frame_data) = x;
+#else /* __LP64__ */
+	uint32_t x, y, t;
+
+	x = *((uint32_t *) frame_data);
+	y = *(((uint32_t *) frame_data) + 1);
+	t = 0;
+
+#define swap(x, f, c)\
+	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
+
+	swap(x, 8, 0xFF00FF00);
+	swap(x, 9, 0xAA00AA00);
+
+	swap(x, 16, 0xFFFF0000);
+	swap(x, 18, 0xCCCC0000);
+
+	swap(y, 8, 0xFF00FF00);
+	swap(y, 9, 0xAA00AA00);
+
+	swap(y, 16, 0xFFFF0000);
+	swap(y, 18, 0xCCCC0000);
+#undef swap
+
+	*((uint32_t *) frame_data) = ((x & 0xF0F0F0F0) >> 4) | (y & 0xF0F0F0F0);
+	*(((uint32_t *) frame_data) + 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) << 4);
+#endif
+
 	*quadrant = top_quad_map[*quadrant & 0x3];
 }
 
