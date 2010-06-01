@@ -1,5 +1,9 @@
+# compiled stuff
 config.mk
-
 *.o
 *.so*
+*.dylib
+
+# temporary stuff
 *.swp
+*~
