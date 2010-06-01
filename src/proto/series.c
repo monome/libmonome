@@ -47,7 +47,7 @@ static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	return -1;
 }
 
-static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t mode, uint address, uint8_t *data) {
+static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t mode, uint address, const uint8_t *data) {
 	uint8_t buf[2];
 	uint xaddress = address;
 
@@ -91,7 +91,7 @@ static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t m
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t mode, uint address, uint8_t *data) {
+static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t mode, uint address, const uint8_t *data) {
 	uint8_t buf[3];
 	uint xaddress = address;
 
@@ -172,29 +172,36 @@ int proto_series_led_off(monome_t *monome, uint x, uint y) {
 	return proto_series_led(monome, PROTO_SERIES_LED_OFF, x, y);
 }
 
-int proto_series_led_col_8(monome_t *monome, uint col, uint8_t *col_data) {
+int proto_series_led_col_8(monome_t *monome, uint col, const uint8_t *col_data) {
 	return proto_series_led_col_row_8(monome, PROTO_SERIES_LED_COL_8, col, col_data);
 }
 
-int proto_series_led_row_8(monome_t *monome, uint row, uint8_t *row_data) {
+int proto_series_led_row_8(monome_t *monome, uint row, const uint8_t *row_data) {
 	return proto_series_led_col_row_8(monome, PROTO_SERIES_LED_ROW_8, row, row_data);
 }
 
-int proto_series_led_col_16(monome_t *monome, uint col, uint8_t *col_data) {
+int proto_series_led_col_16(monome_t *monome, uint col, const uint8_t *col_data) {
 	return proto_series_led_col_row_16(monome, PROTO_SERIES_LED_COL_16, col, col_data);
 }
 
-int proto_series_led_row_16(monome_t *monome, uint row, uint8_t *row_data) {
+int proto_series_led_row_16(monome_t *monome, uint row, const uint8_t *row_data) {
 	return proto_series_led_col_row_16(monome, PROTO_SERIES_LED_ROW_16, row, row_data);
 }
 
-int proto_series_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data) {
+int proto_series_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
 	uint8_t buf[9];
 
-	ORIENTATION(monome).frame_cb(monome, &quadrant, frame_data);
-
-	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
+	/* by treating frame_data as a bigger integer, we can copy it in
+	   one or two operations (instead of 8) */
+#ifdef __LP64__
 	*((uint64_t *) &buf[1]) = *((uint64_t *) frame_data);
+#else
+	*((uint32_t *) &buf[1]) = *((uint32_t *) frame_data);
+	*((uint32_t *) &buf[5]) = *(((uint32_t *) frame_data) + 1);
+#endif
+
+	ORIENTATION(monome).frame_cb(monome, &quadrant, &buf[1]);
+	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
 
 	return monome_write(monome, buf, sizeof(buf));
 }

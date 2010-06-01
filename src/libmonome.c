@@ -299,22 +299,22 @@ int monome_led_off(monome_t *monome, uint x, uint y) {
 	return monome->led_off(monome, x, y);
 }
 
-int monome_led_col_8(monome_t *monome, uint col, uint8_t *col_data) {
+int monome_led_col_8(monome_t *monome, uint col, const uint8_t *col_data) {
 	return monome->led_col_8(monome, col, col_data);
 }
 
-int monome_led_row_8(monome_t *monome, uint row, uint8_t *row_data) {
+int monome_led_row_8(monome_t *monome, uint row, const uint8_t *row_data) {
 	return monome->led_row_8(monome, row, row_data);
 }
 
-int monome_led_col_16(monome_t *monome, uint col, uint8_t *col_data) {
+int monome_led_col_16(monome_t *monome, uint col, const uint8_t *col_data) {
 	return monome->led_col_16(monome, col, col_data);
 }
 
-int monome_led_row_16(monome_t *monome, uint row, uint8_t *row_data) {
+int monome_led_row_16(monome_t *monome, uint row, const uint8_t *row_data) {
 	return monome->led_row_16(monome, row, row_data);
 }
 
-int monome_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data) {
+int monome_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
 	return monome->led_frame(monome, quadrant, frame_data);
 }
