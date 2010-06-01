@@ -40,10 +40,6 @@
 static uint top_quad_map[]    = {2, 0, 3, 1};
 static uint bottom_quad_map[] = {1, 3, 0, 2};
 
-/**
- * public
- */
-
 /* you may notice the gratituous use of modulo when translating input
    coordinates...this is because it's possible to translate into negatives
    when pretending a bigger monome (say, a 256) is a smaller monome (say,
@@ -150,10 +146,10 @@ static void right_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void right_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
-	uint64_t x = *((uint64_t *) frame_data);
+	/* integer reversal. */
 
-	/* straightforward 64bit integer reversal...
-	   might not work on embedded platforms? */
+#ifdef __LP64__
+	uint64_t x = *((uint64_t *) frame_data);
 
 	x = x >> 32 | x << 32;
 	x = (x & 0xFFFF0000FFFF0000LLU) >> 16 | (x & 0x0000FFFF0000FFFFLLU) << 16;
@@ -163,6 +159,28 @@ static void right_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data
 	x = (x & 0xAAAAAAAAAAAAAAAALLU) >> 1  | (x & 0x5555555555555555LLU) << 1;
 
 	*((uint64_t *) frame_data) = x;
+#else /* __LP64__ */
+	uint32_t x, y;
+
+	x = *((uint32_t *) frame_data);
+	y = *(((uint32_t *) frame_data) + 1);
+
+	x = x >> 16 | x << 16;
+	x = (x & 0xFF00FF00) >> 8  | (x & 0x00FF00FF) << 8;
+	x = (x & 0xF0F0F0F0) >> 4  | (x & 0x0F0F0F0F) << 4;
+	x = (x & 0xCCCCCCCC) >> 2  | (x & 0x33333333) << 2;
+	x = (x & 0xAAAAAAAA) >> 1  | (x & 0x55555555) << 1;
+
+	y = y >> 16 | y << 16;
+	y = (y & 0xFF00FF00) >> 8  | (y & 0x00FF00FF) << 8;
+	y = (y & 0xF0F0F0F0) >> 4  | (y & 0x0F0F0F0F) << 4;
+	y = (y & 0xCCCCCCCC) >> 2  | (y & 0x33333333) << 2;
+	y = (y & 0xAAAAAAAA) >> 1  | (y & 0x55555555) << 1;
+
+	*((uint64_t *) frame_data) = y;
+	*(((uint32_t *) frame_data) + 1) = x;
+#endif
+
 	*quadrant = (3 - *quadrant) & 0x3;
 }
 
