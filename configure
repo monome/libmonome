@@ -41,7 +41,7 @@ LDFLAGS="";
 PKGCONFIG_VERSION=;
 
 PLATFORM=;
-PREFIX="/usr";
+PREFIX="/usr/local";
 PROTOCOLS="series 40h";
 LIBUDEV_VERSION=;
 
