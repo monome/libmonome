@@ -34,9 +34,6 @@
 #include "internal.h"
 
 char *monome_platform_get_dev_serial(monome_t *monome, const char *path) {
-	monome_device_mapping_t *c;
-	monome_device_t model = 0;
-	int serialnum;
 	char *serial;
 
 	assert(path);
