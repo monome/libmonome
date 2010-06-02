@@ -1,5 +1,6 @@
 # compiled stuff
 config.mk
+libmonome.pc
 *.o
 *.so*
 *.dylib

@@ -27,7 +27,7 @@ clean:
 	cd examples; $(MAKE) clean
 
 distclean: clean
-	rm config.mk
+	rm -f config.mk libmonome.pc
 
 install:
 	cd public; $(MAKE) install

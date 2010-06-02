@@ -440,6 +440,19 @@ export LO_CFLAGS  = $LO_CFLAGS
 export LO_LIBS    = $LO_LIBS
 EOF
 
+cat <<EOF > libmonome.pc
+prefix=$PREFIX
+exec_prefix=\${prefix}
+libdir=\${prefix}/lib
+includedir=\${prefix}/include
+
+Name: libmonome
+Description: C library for accessing Monome user interface devices.
+Version: 0.3
+Libs: -L\${libdir} -lmonome
+Cflags: -I\${includedir}
+EOF
+
 echo "";
 echo_n "  run "; style_package -n "make"; echo " to compile ${PROJECT}.";
 echo "";
