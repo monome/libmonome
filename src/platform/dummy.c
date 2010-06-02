@@ -28,7 +28,7 @@
 
 #include <stdio.h>
 
-#include "monome_internal.h"
+#include "internal.h"
 
 #warning "using the \"dummy\" platform, please make sure this is what you want!"
 

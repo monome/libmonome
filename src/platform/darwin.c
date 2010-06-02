@@ -31,7 +31,7 @@
 #include <string.h>
 
 #include <monome.h>
-#include "monome_internal.h"
+#include "internal.h"
 
 char *monome_platform_get_dev_serial(monome_t *monome, const char *path) {
 	monome_device_mapping_t *c;
