@@ -12,10 +12,11 @@ install:
 
 	for PROTOCOL in $(PROTOCOLS); do \
 		echo "  INSTALL src/proto/protocol_$$PROTOCOL.$(LIBSUFFIX) -> $(LIBDIR)/monome/protocol_$$PROTOCOL.$(LIBSUFFIX)"; \
-		$(INSTALL) protocol_$$PROTOCOL.$(LIBSUFFIX) $(LIBDIR)/monome; \
+		$(INSTALL) -t $(LIBDIR)/monome protocol_$$PROTOCOL.$(LIBSUFFIX); \
 	done
 
-# just a little hack :)
+# small hack so that PROTOCOLS can be set to something like "series 40h osc"
+# or just "series 40h" up at the project root
 series: protocol_series.$(LIBSUFFIX)
 	true
 40h: protocol_40h.$(LIBSUFFIX)

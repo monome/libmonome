@@ -19,7 +19,7 @@ install: all
 	cd proto; $(MAKE) install
 
 	echo "  INSTALL src/$(LIBMONOME) -> $(LIBDIR)/$(LIBMONOME)"
-	$(INSTALL) $(LIBMONOME) $(LIBDIR)
+	$(INSTALL) -t $(LIBDIR) $(LIBMONOME) 
 
 	if `which ldconfig > /dev/null`; then \
 		echo "  LDCONFIG"; \
@@ -27,7 +27,7 @@ install: all
 	fi
 
 	echo "  INSTALL src/$(MONOMESERIAL) -> $(BINDIR)/$(MONOMESERIAL)"
-	$(INSTALL) $(MONOMESERIAL) $(BINDIR)
+	$(INSTALL) -t $(BINDIR) $(MONOMESERIAL) 
 
 libmonome.so.$(VERSION): $(LMOBJS)
 	echo "  LD      src/libmonome.so"

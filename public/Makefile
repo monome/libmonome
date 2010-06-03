@@ -1,3 +1,3 @@
 install:
 	echo "  INSTALL $(INCDIR)/monome.h"
-	$(INSTALL) monome.h $(INCDIR)
+	$(INSTALL) -t $(INCDIR) monome.h 
