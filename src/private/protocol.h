@@ -26,8 +26,5 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-
 #include "internal.h"
-
 monome_t *monome_protocol_new();

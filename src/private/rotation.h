@@ -26,6 +26,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "internal.h"
+
 extern monome_rotspec_t rotation[4];
 
 #define ORIENTATION(monome) (rotation[monome->orientation])
