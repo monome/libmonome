@@ -28,6 +28,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+#
+# variables and such
+#
+
 PROJECT="libmonome";
 VERSION="0.3";
 
@@ -289,13 +293,14 @@ usage () {
 	echo "  usage: ./configure [OPTIONS]"
 	echo ""
 	echo "  options [and defaults] are:"
-	echo "    --prefix=DIR		install files in PREFIX [/usr]"
+	echo "    --prefix=DIR		install files in PREFIX [/usr/local]"
+	echo "    --lo-prefix=DIR   the prefix under which liblo is installed [/usr/local]"
 	echo "    --disable-osc		disable OSC/liblo support [enabled by default]"
 	echo ""
 }
 
 #
-# actual script part starts here
+# parse args
 #
 
 while [ -n "$1" ]; do
@@ -327,7 +332,9 @@ LDFLAGS="$LDFLAGS -L$PREFIX/lib"
 LO_CFLAGS="-I$LO_PREFIX/include $LO_CFLAGS"
 LO_LDFLAGS="-L$LO_PREFIX/lib $LO_LDFLAGS"
 
-###########
+#
+# main course
+#
 
 echo "";
 mkdir -p .conftests
