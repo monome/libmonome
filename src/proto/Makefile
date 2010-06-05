@@ -1,6 +1,6 @@
 CFLAGS += -I. -I../private -I../../public
 
-LDFLAGS = -lc -ldl -L.. -lmonome
+LDFLAGS += -lc -ldl -L.. -lmonome
 
 all: $(PROTOCOLS)
 
@@ -12,7 +12,7 @@ install:
 
 	for PROTOCOL in $(PROTOCOLS); do \
 		echo "  INSTALL src/proto/protocol_$$PROTOCOL.$(LIBSUFFIX) -> $(LIBDIR)/monome/protocol_$$PROTOCOL.$(LIBSUFFIX)"; \
-		$(INSTALL) -t $(LIBDIR)/monome protocol_$$PROTOCOL.$(LIBSUFFIX); \
+		$(INSTALL) protocol_$$PROTOCOL.$(LIBSUFFIX) $(LIBDIR)/monome/protocol_$$PROTOCOL.$(LIBSUFFIX); \
 	done
 
 # small hack so that PROTOCOLS can be set to something like "series 40h osc"
@@ -42,12 +42,12 @@ protocol_40h.dylib: 40h.o
 
 protocol_osc.so: osc.o
 	echo "  LD      src/proto/$@"
-	$(LD) -shared -Wl,-soname,$@ $(LDFLAGS) -llo -o $@ $<
+	$(LD) -shared -Wl,-soname,$@ $(LDFLAGS) $(LO_LDFLAGS) -o $@ $<
 
 protocol_osc.dylib: osc.o
 	echo "  LD      src/proto/$@"
-	$(LD) -dynamiclib -Wl,-dylib_install_name,$@ $(LDFLAGS) -llo -o $@ $<
+	$(LD) -dynamiclib -Wl,-dylib_install_name,$@ $(LDFLAGS) $(LO_LDFLAGS) -o $@ $<
 
 .c.o:
 	echo "  CC      src/proto/$@"
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(LO_CFLAGS) $(CFLAGS) -c $< -o $@

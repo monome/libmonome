@@ -32,8 +32,9 @@
 
 #include <monome.h>
 #include "internal.h"
+#include "platform.h"
 
-char *monome_platform_get_dev_serial(monome_t *monome, const char *path) {
+char *monome_platform_get_dev_serial(const char *path) {
 	char *serial;
 
 	assert(path);
@@ -41,10 +42,12 @@ char *monome_platform_get_dev_serial(monome_t *monome, const char *path) {
 	/* osx serial paths are of the form
 	   /dev/tty.usbserial-<device serial>
 
-	   we'll locate to the first hyphen */
+	   we'll locate to one past the first hyphen */
 
-	serial = strchr(path, '-') + 1;
-	return strdup(serial);
+	if( !(serial = strchr(path, '-')) )
+		return NULL;
+
+	return strdup(serial + 1);
 }
 
 #include "posix.inc"

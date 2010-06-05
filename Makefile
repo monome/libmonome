@@ -34,7 +34,8 @@ install:
 	cd src; $(MAKE) install
 
 	echo "  INSTALL $(PKGCONFIGDIR)/libmonome.pc"
-	$(INSTALL) -t $(PKGCONFIGDIR) libmonome.pc 
+	$(INSTALL) -d $(PKGCONFIGDIR)
+	$(INSTALL) libmonome.pc $(PKGCONFIGDIR)/libmonome.pc
 
 config.mk:
 	if [ ! -f config.mk ]; then \

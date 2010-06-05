@@ -51,8 +51,9 @@ LM_SUFFIX=;
 WANT_OSC=probably;
 HAVE_LO=;
 LO_VERSION=;
+LO_PREFIX=$PREFIX;
 LO_CFLAGS="";
-LO_LIBS="-llo -lpthread";
+LO_LDFLAGS="-llo -lpthread";
 
 #
 # functions
@@ -144,7 +145,7 @@ compile_and_run() {
 	FILE=$1
 	shift;
 	
-	CMD="$CC $* .conftests/$FILE.c -o .conftests/$FILE"
+	CMD="$CC $CFLAGS $LDFLAGS $* .conftests/$FILE.c -o .conftests/$FILE"
 	try_command $CMD;
 	
 	if [ $? -ne 0 ]; then
@@ -250,7 +251,7 @@ int main(int argc, char **argv) {
 }
 EOF
 
-	compile_and_run lo $LO_CFLAGS $LO_LIBS;
+	compile_and_run lo $LO_CFLAGS $LO_LDFLAGS;
 	RET=$?;
 
 	if [ $RET -ne 0 ]; then
@@ -271,6 +272,16 @@ EOF
 	fi
 
 	return 0;
+}
+
+fail_if_not_dir () {
+	if [ ! -d $* ]; then
+		echo_n "  "
+		style_error -n $*
+		echo " is not a valid directory."
+		echo ""
+		exit 1
+	fi
 }
 
 usage () {
@@ -296,15 +307,12 @@ while [ -n "$1" ]; do
 			exit 1;;
 
 		--prefix=*)
-			if [ ! -d $arg ]; then
-				echo_n "  "
-				style_error -n $arg
-				echo " is not a valid directory."
-				echo ""
-				exit 1
-			fi
-
+			fail_if_not_dir $arg;
 			PREFIX=$arg;;
+
+		--lo-prefix=*)
+			fail_if_not_dir $arg;
+			LO_PREFIX=$arg;;
 
 		--disable-osc)
 			WANT_OSC=;;
@@ -312,6 +320,14 @@ while [ -n "$1" ]; do
 
 	shift;
 done;
+
+CFLAGS="$CFLAGS -I$PREFIX/include"
+LDFLAGS="$LDFLAGS -L$PREFIX/lib"
+
+LO_CFLAGS="-I$LO_PREFIX/include $LO_CFLAGS"
+LO_LDFLAGS="-L$LO_PREFIX/lib $LO_LDFLAGS"
+
+###########
 
 echo "";
 mkdir -p .conftests
@@ -437,7 +453,7 @@ export PROTOCOLS  = $PROTOCOLS
 export MS_BUILD   = $MS_BUILD
 
 export LO_CFLAGS  = $LO_CFLAGS
-export LO_LIBS    = $LO_LIBS
+export LO_LDFLAGS = $LO_LDFLAGS
 EOF
 
 cat <<EOF > libmonome.pc

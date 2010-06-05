@@ -17,9 +17,11 @@ clean:
 
 install: all
 	cd proto; $(MAKE) install
+	$(INSTALL) -d $(LIBDIR)
+	$(INSTALL) -d $(BINDIR)
 
 	echo "  INSTALL src/$(LIBMONOME) -> $(LIBDIR)/$(LIBMONOME)"
-	$(INSTALL) -t $(LIBDIR) $(LIBMONOME) 
+	$(INSTALL) $(LIBMONOME) $(LIBDIR)/$(LIBMONOME)
 
 	if `which ldconfig > /dev/null`; then \
 		echo "  LDCONFIG"; \
@@ -27,7 +29,7 @@ install: all
 	fi
 
 	echo "  INSTALL src/$(MONOMESERIAL) -> $(BINDIR)/$(MONOMESERIAL)"
-	$(INSTALL) -t $(BINDIR) $(MONOMESERIAL) 
+	$(INSTALL) $(MONOMESERIAL) $(BINDIR)/$(MONOMESERIAL)
 
 libmonome.so.$(VERSION): $(LMOBJS)
 	echo "  LD      src/libmonome.so"
@@ -44,8 +46,8 @@ platform.o: platform/$(PLATFORM).c
 
 $(MONOMESERIAL): $(MSOBJS)
 	echo "  LD      src/monomeserial"
-	$(LD) $(LDFLAGS) -L. -lmonome -llo -o $@ $<
+	$(LD) $(LDFLAGS) -L. -lmonome $(LO_LDFLAGS) -o $@ $<
 
 .c.o:
 	echo "  CC      src/$@"
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(LO_CFLAGS) $(CFLAGS) -c $< -o $@
