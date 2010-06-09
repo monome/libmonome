@@ -71,7 +71,7 @@ typedef enum {
 typedef struct monome_event monome_event_t;
 typedef struct monome monome_t; /* opaque data type */
 
-typedef void (*monome_callback_function_t)(const monome_event_t *event, void *data);
+typedef void (*monome_event_callback_t)(const monome_event_t *event, void *data);
 
 struct monome_event {
 	monome_t *monome;
@@ -89,7 +89,7 @@ monome_cable_t monome_get_orientation(monome_t *monome);
 int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 
-void monome_register_handler(monome_t *monome, uint event_type, monome_callback_function_t, void *user_data);
+void monome_register_handler(monome_t *monome, uint event_type, monome_event_callback_t, void *user_data);
 void monome_unregister_handler(monome_t *monome, uint event_type);
 void monome_main_loop(monome_t *monome);
 int monome_next_event(monome_t *monome);

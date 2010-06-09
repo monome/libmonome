@@ -45,7 +45,7 @@ typedef void (*monome_coord_cb)(monome_t *, uint *x, uint *y);
 typedef void (*monome_frame_cb)(monome_t *, uint *quadrant, uint8_t *frame_data);
 
 struct monome_callback {
-	monome_callback_function_t cb;
+	monome_event_callback_t cb;
 	void *data;
 };
 
