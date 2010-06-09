@@ -29,6 +29,8 @@ clean:
 distclean: clean
 	rm -f config.mk libmonome.pc
 
+mrproper: distclean
+
 install:
 	cd public; $(MAKE) install
 	cd src; $(MAKE) install

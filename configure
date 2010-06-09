@@ -59,6 +59,14 @@ LO_PREFIX=$PREFIX;
 LO_CFLAGS="";
 LO_LDFLAGS="-llo -lpthread";
 
+WANT_PYBIND=probably;
+HAVE_PYTHON=;
+HAVE_PYREX=;
+PYREX_VERSION=;
+PYTHON_VERSION=;
+PYBIND_CFLAGS=;
+PYBIND_LDFLAGS=;
+
 #
 # functions
 #
@@ -278,6 +286,34 @@ EOF
 	return 0;
 }
 
+check_python() {
+	try_command "python --version";
+	RET=$?;
+
+	if [ $RET -ne 0 ]; then
+		return $RET;
+	fi
+
+	HAVE_PYTHON=1;
+	PYTHON_VERSION=`expr "$(python --version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
+
+	return 0;
+}
+
+check_pyrex() {
+	try_command "pyrexc";
+	RET=$?;
+
+	if [ $RET -ne 0 ]; then
+		return $RET;
+	fi
+
+	HAVE_PYREX=1;
+	PYREX_VERSION=`expr "$(pyrexc --version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
+
+	return 0;
+}
+
 fail_if_not_dir () {
 	if [ ! -d $* ]; then
 		echo_n "  "
@@ -405,6 +441,7 @@ if [ $PLATFORM = "linux" ]; then
 fi
 
 if [ $WANT_OSC ]; then
+	echo ""
 	echo_n "    checking for liblo:           ";
 	if check_lo; then
 		style_success "found liblo $LO_VERSION";
@@ -427,6 +464,21 @@ if [ $WANT_OSC ]; then
 
 		cleanup;
 		exit 1;
+	fi
+fi
+
+if [ $WANT_PYBIND ]; then
+	echo_n "    checking for python:          ";
+	if check_python; then
+		PYBIND_CFLAGS="-I/usr/include/python`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`"
+
+		if check_pyrex; then
+			style_success "found python $PYTHON_VERSION and pyrex $PYREX_VERSION";
+		else
+			style_success "found python $PYTHON_VERSION";
+		fi
+	else
+		style_warning "no python :(";
 	fi
 fi
 
