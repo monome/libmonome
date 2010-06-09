@@ -59,6 +59,8 @@ LO_PREFIX=$PREFIX;
 LO_CFLAGS="";
 LO_LDFLAGS="-llo -lpthread";
 
+BINDINGS=;
+
 WANT_PYBIND=probably;
 HAVE_PYTHON=;
 HAVE_PYREX=;
@@ -412,7 +414,7 @@ style_success $PLATFORM
 
 echo_n "    checking for gcc:             ";
 if check_gcc; then
-	style_success "found gcc $CC_VERSION";
+	style_success "gcc $CC_VERSION";
 else
 	style_error "no gcc :(";
 
@@ -429,7 +431,7 @@ fi
 if [ $PLATFORM = "linux" ]; then
 	echo_n "    checking for libudev:         ";
 	if check_libudev; then
-		style_success "found libudev $LIBUDEV_VERSION";
+		style_success "libudev $LIBUDEV_VERSION";
 		PLATFORM=linux_libudev;
 		LM_LDFLAGS="$LM_LDFLAGS -ludev";
 	else
@@ -444,7 +446,7 @@ if [ $WANT_OSC ]; then
 	echo ""
 	echo_n "    checking for liblo:           ";
 	if check_lo; then
-		style_success "found liblo $LO_VERSION";
+		style_success "liblo $LO_VERSION";
 		PROTOCOLS="$PROTOCOLS osc";
 		MS_BUILD=monomeserial;
 	else
@@ -471,11 +473,12 @@ if [ $WANT_PYBIND ]; then
 	echo_n "    checking for python:          ";
 	if check_python; then
 		PYBIND_CFLAGS="-I/usr/include/python`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`"
+		BINDINGS="python $BINDINGS";
 
 		if check_pyrex; then
-			style_success "found python $PYTHON_VERSION and pyrex $PYREX_VERSION";
+			style_success "python $PYTHON_VERSION and pyrex $PYREX_VERSION";
 		else
-			style_success "found python $PYTHON_VERSION";
+			style_success "python $PYTHON_VERSION";
 		fi
 	else
 		style_warning "no python :(";
@@ -486,12 +489,10 @@ echo "";
 att bold; echo "  options:"; att;
 echo_n "    installation prefix:          ";
 att bold; echo $PREFIX; att;
-echo_n "    building with OSC support:    ";
-if [ $WANT_OSC ]; then
-	att bold; echo yes; att;
-else
-	att bold; echo no; att;
-fi
+echo_n "    protocols:                    ";
+att bold; echo $PROTOCOLS; att;
+echo_n "    bindings:                     ";
+att bold; echo $BINDINGS; att;
 
 cat <<EOF > config.mk
 export VERSION    = $VERSION
