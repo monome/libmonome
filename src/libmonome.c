@@ -28,6 +28,7 @@
 
 #define _GNU_SOURCE
 
+#include <assert.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -125,6 +126,8 @@ monome_t *monome_open(const char *dev, ...) {
 	char *serial, *proto;
 	int error;
 
+	assert(dev);
+
 	/* first let's figure out which protocol to use */
 	if( *dev == '/' ) {
 		/* assume that the device is a tty...let's probe and see what device
@@ -174,6 +177,8 @@ monome_t *monome_open(const char *dev, ...) {
 }
 
 void monome_close(monome_t *monome) {
+	assert(monome);
+
 	monome->close(monome);
 
 	if( monome->serial )
