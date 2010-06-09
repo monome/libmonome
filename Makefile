@@ -13,23 +13,31 @@ export LIBDIR = $(PREFIX)/lib
 export INCDIR = $(PREFIX)/include
 export PKGCONFIGDIR = $(LIBDIR)/pkgconfig
 
+SUBDIRS = src bindings examples
+
 .SILENT:
 .SUFFIXES:
 .SUFFIXES: .c .o
-.PHONY: all clean distclean install test config.mk
+.PHONY: all clean mrproper distclean install test config.mk
 
 all:
 	cd src; $(MAKE)
+	cd bindings; $(MAKE)
 	cd examples; $(MAKE)
 
 clean:
 	cd src; $(MAKE) clean
+	cd bindings; $(MAKE) clean
 	cd examples; $(MAKE) clean
 
-distclean: clean
+mrproper: clean
+	cd bindings; $(MAKE) mrproper
+
+distclean: mrproper
 	rm -f config.mk libmonome.pc
 
-mrproper: distclean
+dist: mrproper
+	cd bindings; $(MAKE) dist
 
 install:
 	cd public; $(MAKE) install

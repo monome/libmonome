@@ -514,6 +514,11 @@ export MS_BUILD   = $MS_BUILD
 
 export LO_CFLAGS  = $LO_CFLAGS
 export LO_LDFLAGS = $LO_LDFLAGS
+
+export BINDINGS   = $BINDINGS
+
+export PYBIND_CFLAGS  = $PYBIND_CFLAGS
+export PYBIND_LDFLAGS = $PYBIND_LDFLAGS
 EOF
 
 cat <<EOF > libmonome.pc

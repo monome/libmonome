@@ -1,6 +1,7 @@
 CFLAGS += -I. -I../private -I../../public
-
 LDFLAGS += -lc -ldl -L.. -lmonome
+
+.PHONY: $(PROTOCOLS)
 
 all: $(PROTOCOLS)
 
