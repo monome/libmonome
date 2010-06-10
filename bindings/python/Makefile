@@ -1,4 +1,4 @@
-PYBIND_CFLAGS += -fPIC
+PYBIND_CFLAGS += -fPIC -I../../public
 PYBIND_LDFLAGS += -L../../src -lmonome
 
 all: monome.so
@@ -17,8 +17,8 @@ monome.so: monome.o
 	gcc -shared $< $(PYBIND_LDFLAGS) -o $@
 
 monome.c: monome.pyx
-	echo "  PYREXC  bindings/python/$@"
-	pyrexc $< -o $@
+	echo "  CYTHON  bindings/python/$@"
+	cython $< -o $@
 
 .c.o:
 	echo "  CC      bindings/python/$@"

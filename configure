@@ -63,8 +63,8 @@ BINDINGS=;
 
 WANT_PYBIND=probably;
 HAVE_PYTHON=;
-HAVE_PYREX=;
-PYREX_VERSION=;
+HAVE_CYTHON=;
+CYTHON_VERSION=;
 PYTHON_VERSION=;
 PYBIND_CFLAGS=;
 PYBIND_LDFLAGS=;
@@ -302,16 +302,16 @@ check_python() {
 	return 0;
 }
 
-check_pyrex() {
-	try_command "pyrexc";
+check_cython() {
+	try_command "cython --version";
 	RET=$?;
 
 	if [ $RET -ne 0 ]; then
 		return $RET;
 	fi
 
-	HAVE_PYREX=1;
-	PYREX_VERSION=`expr "$(pyrexc --version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
+	HAVE_CYTHON=1;
+	CYTHON_VERSION=`expr "$(cython --version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
 
 	return 0;
 }
@@ -475,8 +475,8 @@ if [ $WANT_PYBIND ]; then
 		PYBIND_CFLAGS="-I/usr/include/python`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`"
 		BINDINGS="python $BINDINGS";
 
-		if check_pyrex; then
-			style_success "python $PYTHON_VERSION and pyrex $PYREX_VERSION";
+		if check_cython; then
+			style_success "python $PYTHON_VERSION and cython $CYTHON_VERSION";
 		else
 			style_success "python $PYTHON_VERSION";
 		fi

@@ -33,7 +33,7 @@ clean:
 mrproper: clean
 	cd bindings; $(MAKE) mrproper
 
-distclean: mrproper
+distclean: clean
 	rm -f config.mk libmonome.pc
 
 dist: mrproper
