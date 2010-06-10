@@ -29,6 +29,7 @@
 cdef extern from "stdint.h":
 	ctypedef unsigned int uint
 	ctypedef char uint8_t
+	ctypedef unsigned short int uint16_t
 
 cdef extern from "monome.h":
 	ctypedef struct monome_t
@@ -103,10 +104,28 @@ CABLE_BOTTOM = 1
 CABLE_RIGHT  = 2
 CABLE_TOP    = 3
 
+cdef uint list_to_bitmap(l):
+	cdef uint i, rlen
+	cdef uint16_t ret = 0
+	rlen = len(l)
+
+	for i from 0 <= i < rlen:
+		if l[i]:
+			ret |= 1 << i
+
+	return ret
+
 cdef class Monome:
 	cdef monome_t *monome
 
-	def __cinit__(self, device, char *port=NULL):
+	orientation_map = {
+		CABLE_LEFT: "left",
+		CABLE_BOTTOM: "bottom",
+		CABLE_RIGHT: "right",
+		CABLE_TOP: "top"
+	}
+
+	def __init__(self, device, char *port=NULL):
 		if port:
 			self.monome = monome_open(device, port)
 		else:
@@ -114,16 +133,23 @@ cdef class Monome:
 
 		if not self.monome:
 			raise IOError("Could not open Monome")
-	
+
+		self.clear(CLEAR_OFF)
+
 	def __dealloc__(self):
+		self.close()
+
+	def close(self):
 		if self.monome:
 			monome_close(self.monome)
 
-	def set_orientation(self, uint cable):
-		monome_set_orientation(self.monome, <monome_cable_t> cable)
+	property orientation:
+		def __get__(self):
+			o = <uint> monome_get_orientation(self.monome)
+			return Monome.orientation_map[o]
 
-	def get_orientation(self):
-		return <uint> monome_get_orientation(self.monome)
+		def __set__(self, uint cable):
+			monome_set_orientation(self.monome, <monome_cable_t> cable)
 
 	property rows:
 		def __get__(self):
@@ -132,3 +158,31 @@ cdef class Monome:
 	property cols:
 		def __get__(self):
 			return <uint> monome_get_cols(self.monome)
+
+	def clear(self, uint status):
+		monome_clear(self.monome, <monome_clear_status_t> status)
+
+	#
+	# led functions
+	#
+
+	def led_on(self, uint x, uint y):
+		monome_led_on(self.monome, x, y)
+
+	def led_off(self, uint x, uint y):
+		monome_led_off(self.monome, x, y)
+
+	def led_row(self, idx, rdata):
+		cdef uint16_t r
+
+		if isinstance(rdata, int):
+			r = rdata
+		elif isinstance(rdata, list):
+			r = list_to_bitmap(rdata)
+		else:
+			raise TypeError("Row data should be integer or list.")
+
+		if r < 256:
+			monome_led_row_8(self.monome, idx, <uint8_t *> &r)
+		else:
+			monome_led_row_16(self.monome, idx, <uint8_t *> &r)
