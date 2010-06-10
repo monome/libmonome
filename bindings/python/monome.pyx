@@ -87,6 +87,22 @@ cdef extern from "monome.h":
 	int monome_led_row_16(monome_t *monome, uint row, uint8_t *row_data)
 	int monome_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data)
 
+BUTTON_UP   = 0
+BUTTON_DOWN = 1
+AUX_INPUT   = 2
+
+CLEAR_OFF = 0
+CLAER_ON  = 1
+
+MODE_NORMAL   = 0
+MODE_TEST     = 1
+MODE_SHUTDOWN = 2
+
+CABLE_LEFT   = 0
+CABLE_BOTTOM = 1
+CABLE_RIGHT  = 2
+CABLE_TOP    = 3
+
 cdef class Monome:
 	cdef monome_t *monome
 
@@ -102,3 +118,17 @@ cdef class Monome:
 	def __dealloc__(self):
 		if self.monome:
 			monome_close(self.monome)
+
+	def set_orientation(self, uint cable):
+		monome_set_orientation(self.monome, <monome_cable_t> cable)
+
+	def get_orientation(self):
+		return <uint> monome_get_orientation(self.monome)
+
+	property rows:
+		def __get__(self):
+			return <uint> monome_get_rows(self.monome)
+
+	property cols:
+		def __get__(self):
+			return <uint> monome_get_cols(self.monome)
