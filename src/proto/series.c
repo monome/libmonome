@@ -87,7 +87,6 @@ static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t m
 		mode = (!(mode - PROTO_SERIES_LED_ROW_8) << 4) + PROTO_SERIES_LED_ROW_8;
 
 	buf[0] = mode | (address & 0x0F );
-	printf("row %d %d\n", address, buf[1]);
 
 	return monome_write(monome, buf, sizeof(buf));
 }

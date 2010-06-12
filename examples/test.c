@@ -66,7 +66,43 @@ void test_led_on_off(monome_t *monome) {
 		}
 }
 
-void test_led_row(monome_t *monome, uint16_t on) {
+void test_led_row_8(monome_t *monome, uint8_t on) {
+	uint i;
+
+	for( i = 0; i < 8; i++ ) {
+		monome_led_row_8(monome, i, (uint8_t *) &on);
+		chill(16);
+
+		on |= on << 1;
+	}
+
+	for( ; i < 16; i++ ) {
+		monome_led_row_8(monome, i, (uint8_t *) &on);
+		chill(16);
+
+		on >>= 1;
+	}
+}
+
+void test_led_col_8(monome_t *monome, uint8_t on) {
+	uint i;
+
+	for( i = 0; i < 8; i++ ) {
+		monome_led_col_8(monome, i, (uint8_t *) &on);
+		chill(16);
+
+		on |= on << 1;
+	}
+
+	for( ; i < 16; i++ ) {
+		monome_led_col_8(monome, i, (uint8_t *) &on);
+		chill(16);
+
+		on >>= 1;
+	}
+}
+
+void test_led_row_16(monome_t *monome, uint16_t on) {
 	uint i;
 
 	for( i = 0; i < 16; i++ ) {
@@ -77,7 +113,7 @@ void test_led_row(monome_t *monome, uint16_t on) {
 	}
 }
 
-void test_led_col(monome_t *monome, uint16_t on) {
+void test_led_col_16(monome_t *monome, uint16_t on) {
 	uint i;
 
 	for( i = 0; i < 16; i++ ) {
@@ -124,11 +160,16 @@ int main(int argc, char **argv) {
 	monome_clear(monome, MONOME_CLEAR_OFF);
 
 	for( i = 0; i < 2; i++ ) {
-		test_led_row(monome, 1);
-		test_led_col(monome, 1);
+		test_led_row_8(monome, 1);
+		test_led_col_8(monome, 1);
 	}
 
-	test_led_col(monome, 0);
+	for( i = 0; i < 2; i++ ) {
+		test_led_row_16(monome, 1);
+		test_led_col_16(monome, 1);
+	}
+
+	test_led_col_16(monome, 0);
 	test_led_on_off(monome);
 	test_led_frame(monome);
 
