@@ -1,4 +1,4 @@
-CFLAGS += -I. -I../private -I../../public
+CFLAGS := -I. -I../private -I../../public $(CFLAGS)
 LDFLAGS += -lc -ldl -L.. -lmonome
 
 .PHONY: $(PROTOCOLS)
