@@ -82,10 +82,8 @@ cdef extern from "monome.h":
 
 	int monome_led_on(monome_t *monome, uint x, uint y)
 	int monome_led_off(monome_t *monome, uint x, uint y)
-	int monome_led_col_8(monome_t *monome, uint col, uint8_t *col_data)
-	int monome_led_row_8(monome_t *monome, uint row, uint8_t *row_data)
-	int monome_led_col_16(monome_t *monome, uint col, uint8_t *col_data)
-	int monome_led_row_16(monome_t *monome, uint row, uint8_t *row_data)
+	int monome_led_col(monome_t *monome, uint col, size_t count, uint8_t *data)
+	int monome_led_row(monome_t *monome, uint row, size_t count, uint8_t *data)
 	int monome_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data)
 
 BUTTON_UP   = 0
@@ -182,7 +180,4 @@ cdef class Monome:
 		else:
 			raise TypeError("Row data should be integer or list.")
 
-		if r < 256:
-			monome_led_row_8(self.monome, idx, <uint8_t *> &r)
-		else:
-			monome_led_row_16(self.monome, idx, <uint8_t *> &r)
+		monome_led_row(self.monome, idx, 2, <uint8_t *> &r)

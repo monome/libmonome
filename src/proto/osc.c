@@ -96,24 +96,22 @@ int proto_osc_led_off(monome_t *monome, uint x, uint y) {
 	return LO_SEND_MSG(led, "iii", x, y, 0);
 }
 
-int proto_osc_led_col_8(monome_t *monome, uint col, const uint8_t *col_data) {
+int proto_osc_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
 	SELF_FROM(monome);
-	return LO_SEND_MSG(led_col, "ii", col, col_data[0]);
+
+	if( count == 1 )
+		return LO_SEND_MSG(led_col, "ii", col, data[0]);
+
+	return LO_SEND_MSG(led_col, "iii", col, data[0], data[1]);
 }
 
-int proto_osc_led_row_8(monome_t *monome, uint row, const uint8_t *row_data) {
+int proto_osc_led_row(monome_t *monome, uint row, size_t count, const uint8_t *data) {
 	SELF_FROM(monome);
-	return LO_SEND_MSG(led_row, "ii", row, row_data[0]);
-}
 
-int proto_osc_led_col_16(monome_t *monome, uint col, const uint8_t *col_data) {
-	SELF_FROM(monome);
-	return LO_SEND_MSG(led_col, "iii", col, col_data[0], col_data[1]);
-}
+	if( count == 1 )
+		return LO_SEND_MSG(led_row, "ii", row, data[0]);
 
-int proto_osc_led_row_16(monome_t *monome, uint row, const uint8_t *row_data) {
-	SELF_FROM(monome);
-	return LO_SEND_MSG(led_row, "iii", row, row_data[0], row_data[1]);
+	return LO_SEND_MSG(led_row, "iii", row, data[0], data[1]);
 }
 
 int proto_osc_led_frame(monome_t *monome, uint quadrant, const uint8_t *f) {
@@ -216,10 +214,8 @@ monome_t *monome_protocol_new() {
 	
 	monome->led_on     = proto_osc_led_on;
 	monome->led_off    = proto_osc_led_off;
-	monome->led_col_8  = proto_osc_led_col_8;
-	monome->led_row_8  = proto_osc_led_row_8;
-	monome->led_col_16 = proto_osc_led_col_16;
-	monome->led_row_16 = proto_osc_led_row_16;
+	monome->led_col    = proto_osc_led_col;
+	monome->led_row    = proto_osc_led_row;
 	monome->led_frame  = proto_osc_led_frame;
 
 	return monome;

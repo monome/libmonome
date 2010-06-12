@@ -137,12 +137,12 @@ int proto_40h_led_off(monome_t *monome, uint x, uint y) {
 	return proto_40h_led(monome, PROTO_40h_LED_OFF, x, y);
 }
 
-int proto_40h_led_col_8(monome_t *monome, uint col, const uint8_t *col_data) {
-	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, col_data);
+int proto_40h_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
+	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, data);
 }
 
-int proto_40h_led_row_8(monome_t *monome, uint row, const uint8_t *row_data) {
-	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, row_data);
+int proto_40h_led_row(monome_t *monome, uint row, size_t count, const uint8_t *data) {
+	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, data);
 }
 
 int proto_40h_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
@@ -222,10 +222,8 @@ monome_t *monome_protocol_new() {
 
 	monome->led_on     = proto_40h_led_on;
 	monome->led_off    = proto_40h_led_off;
-	monome->led_col_8  = proto_40h_led_col_8;
-	monome->led_row_8  = proto_40h_led_row_8;
-	monome->led_col_16 = proto_40h_led_col_8;
-	monome->led_row_16 = proto_40h_led_row_8;
+	monome->led_col    = proto_40h_led_col;
+	monome->led_row    = proto_40h_led_row;
 	monome->led_frame  = proto_40h_led_frame;
 
 	return monome;
