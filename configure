@@ -472,7 +472,10 @@ fi
 if [ $WANT_PYBIND ]; then
 	echo_n "    checking for python:          ";
 	if check_python; then
-		PYBIND_CFLAGS="-I/usr/include/python`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`"
+		PYTHON_VERSION_SHORT=`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`
+		PYBIND_CFLAGS="-I/usr/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
+		PYBIND_LDFLAGS="-lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
+
 		BINDINGS="python $BINDINGS";
 
 		if check_cython; then
