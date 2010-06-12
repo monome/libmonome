@@ -48,7 +48,7 @@ static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 }
 
 static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t mode, uint address, const uint8_t *data) {
-	uint8_t buf[2];
+	uint8_t buf[2] = {0, 0};
 	uint xaddress = address;
 
 	/* I guess this is a bit of a hack...but damn does it work well!
@@ -87,12 +87,13 @@ static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t m
 		mode = (!(mode - PROTO_SERIES_LED_ROW_8) << 4) + PROTO_SERIES_LED_ROW_8;
 
 	buf[0] = mode | (address & 0x0F );
+	printf("row %d %d\n", address, buf[1]);
 
 	return monome_write(monome, buf, sizeof(buf));
 }
 
 static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t mode, uint address, const uint8_t *data) {
-	uint8_t buf[3];
+	uint8_t buf[3] = {0, 0, 0};
 	uint xaddress = address;
 
 	ROTATE_COORDS(monome, xaddress, address);
