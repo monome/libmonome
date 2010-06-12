@@ -115,7 +115,6 @@ static int osc_led_col_row_handler(const char *path, const char *types, lo_arg *
 	case 2:
 		if( strncmp("ii", types, 2) )
 			return -1;
-
 		buf[0] = argv[1]->i;
 
 		if( strstr(path, "led_col") )
@@ -281,7 +280,7 @@ void usage(const char *app) {
 int is_numstr(const char *s) {
 	while((48 <= *s) && (*s++ <= 57)); /* 48 is ASCII '0', 57 is '9' */
 
-	if( *--s ) /* if the character we stopped on isn't a null, we didn't make it through the string */
+	if( *s ) /* if the character we stopped on isn't a null, we didn't make it through the string */
 		return 0; /* oh well :( */
 	return 1;
 }
