@@ -61,7 +61,7 @@ static int proto_osc_press_handler(const char *path, const char *types, lo_arg *
 
 	e->x          = argv[0]->i;
 	e->y          = argv[1]->i;
-	e->event_type = argv[2]->i;
+	e->event_type = argv[2]->i & 1;
 
 	self->have_event = 1;
 	return 0;
