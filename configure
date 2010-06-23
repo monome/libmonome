@@ -442,7 +442,7 @@ if [ $PLATFORM = "linux" ]; then
 	fi
 fi
 
-if [ $WANT_OSC ]; then
+conf_liblo() {
 	echo ""
 	echo_n "    checking for liblo:           ";
 	if check_lo; then
@@ -467,25 +467,38 @@ if [ $WANT_OSC ]; then
 		cleanup;
 		exit 1;
 	fi
+}
+
+if [ $WANT_OSC ]; then
+	conf_liblo;
 fi
 
-if [ $WANT_PYBIND ]; then
+conf_python_bindings() {
 	echo_n "    checking for python:          ";
 	if check_python; then
 		PYTHON_VERSION_SHORT=`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`
 		PYBIND_CFLAGS="-I/usr/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
 		PYBIND_LDFLAGS="-lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
 
-		BINDINGS="python $BINDINGS";
-
 		if check_cython; then
 			style_success "python $PYTHON_VERSION and cython $CYTHON_VERSION";
 		else
-			style_success "python $PYTHON_VERSION";
+			if [ -f bindings/python/monome.c ]; then
+				style_success "python $PYTHON_VERSION";
+			else
+				style_warning "python $PYTHON_VERSION, no cython";
+				return
+			fi
 		fi
+
+		BINDINGS="python $BINDINGS";
 	else
 		style_warning "no python :(";
 	fi
+}
+
+if [ $WANT_PYBIND ]; then
+	conf_python_bindings;
 fi
 
 echo "";
