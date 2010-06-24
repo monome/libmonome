@@ -68,6 +68,8 @@ CYTHON_VERSION=;
 PYTHON_VERSION=;
 PYBIND_CFLAGS=;
 PYBIND_LDFLAGS=;
+HAVE_MACPORTS=;
+MACPORTS_VERSION=;
 
 #
 # functions
@@ -302,6 +304,20 @@ check_python() {
 	return 0;
 }
 
+get_cython() {
+	REVISION="0.12.1"
+	try_command "curl -O http://www.cython.org/release/Cython-$REVISION.tar.gz"
+	try_command "tar xzvf Cython-$REVISION.tar.gz"
+	export CDIR=`pwd`
+	cd "Cython-$REVISION"
+	try_command "python setup.py install"
+	cd $CDIR
+	rm -rf "Cython-$REVISION"
+	rm "Cython-$REVISION.tar.gz"
+
+	return 0;
+}
+
 check_cython() {
 	try_command "cython --version";
 	RET=$?;
@@ -312,6 +328,20 @@ check_cython() {
 
 	HAVE_CYTHON=1;
 	CYTHON_VERSION=`expr "$(cython --version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
+
+	return 0;
+}
+
+check_macports() {
+	try_command "port version";
+	RET=$?;
+
+	if [ $RET -ne 0 ]; then
+		return $RET;
+	fi
+
+	HAVE_MACPORTS=1;
+	MACPORTS_VERSION=`expr "$(port version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
 
 	return 0;
 }
@@ -410,7 +440,16 @@ case $PLATFORM in
 esac
 
 PLATFORM=`echo $PLATFORM | tr A-Z a-z`
-style_success $PLATFORM
+if [ $PLATFORM = "darwin" ]; then
+	OSX_VERSION=`expr "$(sw_vers 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
+	style_success "$PLATFORM ($OSX_VERSION)"
+else
+	style_success $PLATFORM
+fi
+
+if [ $PLATFORM = "darwin" ]; then
+	export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH
+fi
 
 echo_n "    checking for gcc:             ";
 if check_gcc; then
@@ -421,7 +460,7 @@ else
 	echo   "";
 	echo   "  I couldn't find gcc on your system!  you will need it to compile ${PROJECT}.";
 	echo_n "  If you're on "; style_distro -n "Ubuntu"; echo_n ", make sure to grab the "; style_package -n "build-essential"; echo " package.";
-	echo   "  On Mac OS X, you'll need to install the Xcode developer tools.";
+	echo   "  On Mac OS X, you'll need to install the Xcode developer tools or MacPorts.";
 	echo   "";
 
 	cleanup;
@@ -439,6 +478,15 @@ if [ $PLATFORM = "linux" ]; then
 
 		style_warning "no, using sysfs (you're probably running an old system)"
 		PLATFORM=linux_sysfs;
+	fi
+fi
+
+if [ $PLATFORM = "darwin" ]; then
+	echo_n "    checking for macports:        ";
+	if check_macports; then
+		style_success "macports $MACPORTS_VERSION";
+	else
+		style_warning "no, you'll be building everything from source"
 	fi
 fi
 
@@ -479,6 +527,11 @@ conf_python_bindings() {
 		PYTHON_VERSION_SHORT=`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`
 		PYBIND_CFLAGS="-I/usr/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
 		PYBIND_LDFLAGS="-lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
+
+		if [ $PLATFORM = "darwin" ]; then
+			PYBIND_CFLAGS="-I/opt/local/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/include/python$PYTHON_VERSION_SHORT -I/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
+			PYBIND_LDFLAGS="-L/opt/local/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/lib -L/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/lib -lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
+		fi
 
 		if check_cython; then
 			style_success "python $PYTHON_VERSION and cython $CYTHON_VERSION";
