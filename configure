@@ -45,6 +45,7 @@ LDFLAGS="";
 PKGCONFIG_VERSION=;
 
 PLATFORM=;
+PLATFORM_VERSION=;
 PREFIX="/usr/local";
 PROTOCOLS="series 40h";
 LIBUDEV_VERSION=;
@@ -68,6 +69,7 @@ CYTHON_VERSION=;
 PYTHON_VERSION=;
 PYBIND_CFLAGS=;
 PYBIND_LDFLAGS=;
+
 HAVE_MACPORTS=;
 MACPORTS_VERSION=;
 
@@ -403,39 +405,37 @@ get_platform;
 
 case $PLATFORM in 
 	Linux)
-	LM_LDFLAGS="$LM_LDFLAGS -ldl"
-	LIBSUFFIX=so
-	LM_SUFFIX=so.$VERSION;;
+		LM_LDFLAGS="$LM_LDFLAGS -ldl";
+		LIBSUFFIX=so;
+		LM_SUFFIX=so.$VERSION;
+		PLATFORM_VERSION=`uname -r`;
+		;;
+
 	Darwin)
-	LM_LDFLAGS="$LM_LDFLAGS -ldl"
-	LIBSUFFIX=dylib
-	LM_SUFFIX=dylib;;
+		LM_LDFLAGS="$LM_LDFLAGS -ldl";
+		LIBSUFFIX=dylib;
+		LM_SUFFIX=dylib;
+		PLATFORM_VERSION=`expr "$(sw_vers 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
+		export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH
+		;;
+
 	*)
-	style_error $PLATFORM " :(";
+		style_error $PLATFORM;
 
-	echo "";
-	echo "  Your platform is not currently supported by libmonome!  I'm sorry.";
-	echo "  It's entirely possible that libmonome will compile, and perhaps even run, but it just hasn't been tested yet."
-	echo "";
-	echo "  Windows support is not currently available.";
-	echo "";
+		echo "";
+		echo "  Your platform is not currently supported by libmonome!  I'm sorry.";
+		echo "  It's entirely possible that libmonome will compile, and perhaps even run, but it just hasn't been tested yet."
+		echo "";
+		echo "  Windows support is not currently available.";
+		echo "";
 
-	cleanup;
-	exit 1;
-	;;
+		cleanup;
+		exit 1;
+		;;
 esac
 
 PLATFORM=`echo $PLATFORM | tr A-Z a-z`
-if [ $PLATFORM = "darwin" ]; then
-	OSX_VERSION=`expr "$(sw_vers 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
-	style_success "$PLATFORM ($OSX_VERSION)"
-else
-	style_success $PLATFORM
-fi
-
-if [ $PLATFORM = "darwin" ]; then
-	export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH
-fi
+style_success "$PLATFORM $PLATFORM_VERSION"
 
 echo_n "    checking for gcc:             ";
 if check_gcc; then
