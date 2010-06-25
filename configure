@@ -39,8 +39,8 @@ CC="gcc";
 LD="\$(CC)";
 CC_VERSION=;
 
-CFLAGS="";
-LDFLAGS="";
+CFLAGS="-ggdb";
+LDFLAGS="-ggdb";
 
 PKGCONFIG_VERSION=;
 
@@ -550,8 +550,14 @@ echo_n "    bindings:                     ";
 att bold; echo $BINDINGS; att;
 
 cat <<EOF > config.mk
+export PROJECT    = $PROJECT
 export VERSION    = $VERSION
+
 export PREFIX     = $PREFIX
+export BINDIR     = $PREFIX/bin
+export LIBDIR     = $PREFIX/lib
+export INCDIR     = $PREFIX/include
+export PKGCONFIGDIR = \$(LIBDIR)/pkgconfig
 
 export CC         = $CC
 export LD         = $LD

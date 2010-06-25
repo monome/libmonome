@@ -1,5 +1,5 @@
-CFLAGS := -I./private -I../public $(CFLAGS)
-LDFLAGS = -L. -L$(LIBDIR)
+CFLAGS  := -I./private -I../public $(CFLAGS)
+LDFLAGS := -L. $(LDFLAGS)
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
 LMOBJS = libmonome.o platform.o rotation.o

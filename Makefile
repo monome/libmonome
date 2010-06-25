@@ -2,16 +2,9 @@ SHELL = /bin/sh
 
 include config.mk
 
-export PROJECT = libmonome
-
-export CFLAGS  += -ggdb -Wall -Werror -fPIC -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
-export LDFLAGS += -ggdb
+export CFLAGS  += -Wall -Werror -fPIC -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
+export LDFLAGS += -L$(LIBDIR) -Wl,-rpath,$(LIBDIR)
 export INSTALL = install
-
-export BINDIR = $(PREFIX)/bin
-export LIBDIR = $(PREFIX)/lib
-export INCDIR = $(PREFIX)/include
-export PKGCONFIGDIR = $(LIBDIR)/pkgconfig
 
 SUBDIRS = src bindings examples
 
