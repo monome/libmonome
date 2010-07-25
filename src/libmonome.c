@@ -240,19 +240,19 @@ int monome_next_event(monome_t *monome) {
 
 	if( ret < 0 ) {
 		perror("libmonome: error in select()");
-		return -1;
+		return ret;
 	} else if( !ret )
 		return -1;
 
 	e.monome = monome;
 
 	if( monome->next_event(monome, &e) )
-		return 1;
+		return EWOULDBLOCK;
 
 	handler = &monome->handlers[e.event_type];
 
 	if( !handler->cb )
-		return 1;
+		return EBADSLT;
 
 	handler->cb(&e, handler->data);
 
