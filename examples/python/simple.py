@@ -20,6 +20,8 @@ class SimpleTest(object):
             self.m.led_off(x, y)
 
     def run(self):
+        print ("simple.py running, press some buttons!")
+
         try:
             self.m.main_loop()
         except:
