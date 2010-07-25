@@ -220,6 +220,10 @@ cdef class Monome:
 
 			monome_set_orientation(self.monome, <monome_cable_t> cable)
 
+	property intensity:
+		def __set__(self, uint intensity):
+			monome_intensity(self.monome, intensity)
+
 	property rows:
 		def __get__(self):
 			return monome_get_rows(self.monome)
