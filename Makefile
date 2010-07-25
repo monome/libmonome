@@ -35,6 +35,7 @@ dist: mrproper
 install:
 	cd public; $(MAKE) install
 	cd src; $(MAKE) install
+	cd bindings; $(MAKE) install
 
 	echo "  INSTALL $(PKGCONFIGDIR)/libmonome.pc"
 	$(INSTALL) -d $(PKGCONFIGDIR)

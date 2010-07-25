@@ -69,6 +69,7 @@ CYTHON_VERSION=;
 PYTHON_VERSION=;
 PYBIND_CFLAGS=;
 PYBIND_LDFLAGS=;
+PYTHON_INSTALL_DIR=;
 
 HAVE_MACPORTS=;
 MACPORTS_VERSION=;
@@ -349,9 +350,12 @@ usage () {
 	echo "  usage: ./configure [OPTIONS]"
 	echo ""
 	echo "  options [and defaults] are:"
-	echo "    --prefix=DIR		install files in PREFIX [/usr/local]"
-	echo "    --lo-prefix=DIR   the prefix under which liblo is installed [/usr/local]"
-	echo "    --disable-osc		disable OSC/liblo support [enabled by default]"
+	echo "    --prefix=DIR                install files in PREFIX [/usr/local]"
+	echo "    --lo-prefix=DIR             the prefix under which liblo is installed [/usr/local]"
+	echo "    --python-install-dir=DIR    the directory in which the python binding will be installed [python's site-packages dir by default]"
+	echo ""
+	echo "    --disable-osc               disable OSC/liblo support [enabled by default]"
+	echo "    --disable-python            disable python binding [enabled by default]"
 	echo ""
 }
 
@@ -377,6 +381,9 @@ while [ -n "$1" ]; do
 
 		--disable-osc)
 			WANT_OSC=;;
+
+		--disable-python)
+			WANT_PYBIND=;;
 	esac
 
 	shift;
@@ -400,7 +407,7 @@ att bold;
 echo_n "  configuring "; style_package -n $PROJECT; att; att bold; echo " ${VERSION}:";
 att;
 
-echo_n "    building for platform:        "; 
+echo_n "    checking platform:            "; 
 get_platform;
 
 case $PLATFORM in 
@@ -511,6 +518,7 @@ conf_python_bindings() {
 	echo_n "    checking for python:          ";
 	if check_python; then
 		PYTHON_VERSION_SHORT=`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`
+		PYTHON_INSTALL_DIR="`python -c "import sys; print sys.prefix;"`/lib/python$PYTHON_VERSION_SHORT/site-packages"
 		PYBIND_CFLAGS="-I/usr/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
 		PYBIND_LDFLAGS="-lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
 
@@ -580,6 +588,7 @@ export BINDINGS   = $BINDINGS
 
 export PYBIND_CFLAGS  = $PYBIND_CFLAGS
 export PYBIND_LDFLAGS = $PYBIND_LDFLAGS
+export PYTHON_INSTALL_DIR = $PYTHON_INSTALL_DIR
 EOF
 
 cat <<EOF > libmonome.pc

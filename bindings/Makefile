@@ -1,10 +1,15 @@
-.PHONY: $(BINDINGS) all clean mrproper dist
+.PHONY: $(BINDINGS) all clean mrproper dist instal
 
 all: $(BINDINGS)
 
 python:
 	cd python; $(MAKE)
 
+
+install:
+	for DIR in $(BINDINGS); do \
+		sh -c "cd $$DIR && $(MAKE) install"; \
+	done
 
 clean:
 	cd python; $(MAKE) clean
