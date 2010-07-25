@@ -41,6 +41,7 @@
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
+#include "rotation.h"
 
 #ifndef LIBSUFFIX
 #define LIBSUFFIX ".so"
@@ -169,9 +170,9 @@ monome_t *monome_open(const char *dev, ...) {
 		monome->rows   = m->dimensions.rows;
 		monome->cols   = m->dimensions.cols;
 		monome->serial = serial;
-		monome->device = strdup(dev);
 	}
 
+	monome->device = strdup(dev);
 	monome->orientation = MONOME_CABLE_LEFT;
 
 	return monome;
@@ -192,11 +193,17 @@ void monome_close(monome_t *monome) {
 }
 
 int monome_get_rows(monome_t *monome) {
-	return monome->rows;
+	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+		return monome->cols;
+	else
+		return monome->rows;
 }
 
 int monome_get_cols(monome_t *monome) {
-	return monome->cols;
+	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+		return monome->rows;
+	else
+		return monome->cols;
 }
 
 void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
