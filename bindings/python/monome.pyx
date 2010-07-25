@@ -103,25 +103,28 @@ CABLE_RIGHT  = 2
 CABLE_TOP    = 3
 
 cdef uint list_to_bitmap(l):
-	cdef uint i, rlen
 	cdef uint16_t ret = 0
-	rlen = len(l)
+	cdef uint i
 
-	# TODO: support generic iterators
-	for i from 0 <= i < rlen:
-		ret |= ((1 & (not not l[i])) << i)
+	iterator = l.__iter__()
+
+	try:
+		for i from 0 <= i < 16:
+			if iterator.next():
+				ret |= (1 << i)
+	except StopIteration:
+		pass
 
 	return ret
 
-cdef uint16_t bitmap_data(data) except *:
-	# TODO: support generic iterators
-
-	if isinstance(data, int):
-		r = data
-	elif isinstance(data, list):
-		r = list_to_bitmap(data)
+def _bitmap_data(data):
+	if getattr(data, "__iter__", None):
+		return list_to_bitmap(data)
 	else:
-		raise TypeError("Data should be integer or list.")
+		try:
+			return int(data)
+		except:
+			raise TypeError("Data should be integer or iterable.")
 
 cdef class Monome:
 	cdef monome_t *monome
@@ -198,21 +201,31 @@ cdef class Monome:
 	#
 
 	def led_row(self, idx, data):
-		cdef uint16_t d = bitmap_data(data)
+		cdef uint16_t d = _bitmap_data(data)
 		monome_led_row(self.monome, idx, 2, <uint8_t *> &d)
 
 	def led_col(self, idx, data):
-		cdef uint16_t d = bitmap_data(data)
+		cdef uint16_t d = _bitmap_data(data)
 		monome_led_col(self.monome, idx, 2, <uint8_t *> &d)
 
 	def led_frame(self, uint quadrant, rows):
-		cdef uint8_t r[8]
+		cdef uint8_t r[8] = [0]
 		cdef uint16_t d
 		cdef uint i
 
-		# TODO: support generic iterators
-		for i from 0 <= i < 8:
-			d = bitmap_data(rows[i])
-			r[i] = (<uint8_t *> &d)[1]
+		if not getattr(rows, "__iter__", None):
+			raise TypeError("'rows' must be an iterable.")
+
+		# cython :(
+		r[0] = r[1] = r[2] = r[3] = r[4] =\
+			r[5] = r[6] = r[7] = 0
+		rowiter = rows.__iter__()
+
+		try:
+			for i from 0 <= i < 8:
+				d = _bitmap_data(rowiter.next())
+				r[i] = (<uint8_t *> &d)[0]
+		except StopIteration:
+			pass 
 
 		monome_led_frame(self.monome, quadrant, r)
