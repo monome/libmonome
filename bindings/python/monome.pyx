@@ -179,7 +179,8 @@ cdef class Monome:
 		def __get__(self):
 			return <uint> monome_get_rows(self.monome)
 
-	property cols:
+	# "columns" seems more pythonic than "cols"
+	property columns:
 		def __get__(self):
 			return <uint> monome_get_cols(self.monome)
 
@@ -209,7 +210,7 @@ cdef class Monome:
 		monome_led_col(self.monome, idx, 2, <uint8_t *> &d)
 
 	def led_frame(self, uint quadrant, rows):
-		cdef uint8_t r[8] = [0]
+		cdef uint8_t r[8]
 		cdef uint16_t d
 		cdef uint i
 
