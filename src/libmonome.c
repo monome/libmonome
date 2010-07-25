@@ -29,6 +29,7 @@
 #define _GNU_SOURCE
 
 #include <assert.h>
+#include <errno.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -206,19 +207,21 @@ monome_cable_t monome_get_orientation(monome_t *monome) {
 	return monome->orientation;
 }
 
-void monome_register_handler(monome_t *monome, uint event_type, monome_event_callback_t cb, void *data) {
+int monome_register_handler(monome_t *monome, uint event_type, monome_event_callback_t cb, void *data) {
 	monome_callback_t *handler;
 
 	if( event_type > 2 )
-		return;
+		return EINVAL;
 
 	handler       = &monome->handlers[event_type];
 	handler->cb   = cb;
 	handler->data = data;
+
+	return 0;
 }
 
-void monome_unregister_handler(monome_t *monome, uint event_type) {
-	monome_register_handler(monome, event_type, NULL, NULL);
+int monome_unregister_handler(monome_t *monome, uint event_type) {
+	return monome_register_handler(monome, event_type, NULL, NULL);
 }
 
 int monome_next_event(monome_t *monome) {
