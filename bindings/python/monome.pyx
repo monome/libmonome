@@ -71,8 +71,9 @@ cdef extern from "monome.h":
 	int monome_get_rows(monome_t *monome)
 	int monome_get_cols(monome_t *monome)
 
-	void monome_register_handler(monome_t *monome, uint event_type, monome_event_callback_t, void *user_data)
-	void monome_unregister_handler(monome_t *monome, uint event_type)
+	int monome_register_handler(monome_t *monome, uint event_type,
+			monome_event_callback_t, void *user_data)
+	int monome_unregister_handler(monome_t *monome, uint event_type)
 	void monome_main_loop(monome_t *monome)
 	int monome_next_event(monome_t *monome)
 
@@ -86,21 +87,26 @@ cdef extern from "monome.h":
 	int monome_led_row(monome_t *monome, uint row, size_t count, uint8_t *data)
 	int monome_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data)
 
-BUTTON_UP   = 0
+cdef extern from *:
+	# hack for handler_thunk
+	ctypedef monome_event_t const_monome_event_t "const monome_event_t"
+
+BUTTON_UP = 0
 BUTTON_DOWN = 1
-AUX_INPUT   = 2
+AUX_INPUT = 2
 
 CLEAR_OFF = 0
-CLEAR_ON  = 1
+CLEAR_ON = 1
 
-MODE_NORMAL   = 0
-MODE_TEST     = 1
+MODE_NORMAL = 0
+MODE_TEST = 1
 MODE_SHUTDOWN = 2
 
-CABLE_LEFT   = 0
+CABLE_LEFT = 0
 CABLE_BOTTOM = 1
-CABLE_RIGHT  = 2
-CABLE_TOP    = 3
+CABLE_RIGHT = 2
+CABLE_TOP = 3
+
 
 cdef uint list_to_bitmap(l):
 	cdef uint16_t ret = 0
@@ -117,6 +123,7 @@ cdef uint list_to_bitmap(l):
 
 	return ret
 
+
 def _bitmap_data(data):
 	if getattr(data, "__iter__", None):
 		return list_to_bitmap(data)
@@ -126,26 +133,64 @@ def _bitmap_data(data):
 		except:
 			raise TypeError("Data should be integer or iterable.")
 
+
+cdef class MonomeEvent(object):
+	pass
+
+
+cdef class MonomeButtonEvent(MonomeEvent):
+	cdef uint state, x, y
+
+	def __cinit__(self, uint state, uint x, uint y):
+		self.state = state
+		self.x = x
+		self.y = y
+	
+	property state:
+		def __get__(self):
+			return self.state
+
+	property x:
+		def __get__(self):
+			return self.x
+
+	property y:
+		def __get__(self):
+			return self.y
+
+
+cdef void handler_thunk(const_monome_event_t *e, void *data):
+	ev_wrapper = MonomeButtonEvent(e.event_type, e.x, e.y)
+	(<Monome> data)._handlers[e.event_type](ev_wrapper)
+
+
 cdef class Monome:
 	cdef monome_t *monome
+	_handlers = [None, None, None]
 
 	orientation_map = {
 		CABLE_LEFT: "left",
 		CABLE_BOTTOM: "bottom",
 		CABLE_RIGHT: "right",
-		CABLE_TOP: "top"
-	}
+		CABLE_TOP: "top"}
 
 	rev_orientation_map = {
-		"left":	CABLE_LEFT,
+		"left": CABLE_LEFT,
 		"bottom": CABLE_BOTTOM,
 		"right": CABLE_RIGHT,
-		"top": CABLE_TOP
-	}
+		"top": CABLE_TOP}
 
-	def __init__(self, device, char *port=NULL):
+	def __init__(self, device, port=None):
+		cdef char *portstr
+
+		if device[:3] == "osc" and not port:
+			raise TypeError("OSC protocol requires a server port.")
+
 		if port:
-			self.monome = monome_open(device, port)
+			port = str(port)
+			portstr = port
+
+			self.monome = monome_open(device, portstr)
 		else:
 			self.monome = monome_open(device)
 
@@ -177,15 +222,38 @@ cdef class Monome:
 
 	property rows:
 		def __get__(self):
-			return <uint> monome_get_rows(self.monome)
+			return monome_get_rows(self.monome)
 
 	# "columns" seems more pythonic than "cols"
 	property columns:
 		def __get__(self):
-			return <uint> monome_get_cols(self.monome)
+			return monome_get_cols(self.monome)
 
 	def clear(self, uint status=CLEAR_OFF):
 		monome_clear(self.monome, <monome_clear_status_t> status)
+
+	#
+	# event functions
+	#
+
+	def register_handler(self, uint event_type, handler):
+		if monome_register_handler(self.monome, event_type,
+		                           handler_thunk, <void *> self):
+			raise TypeError("Unsupported event type.")
+
+		self._handlers[event_type] = handler
+
+	def unregister_handler(self, uint event_type):
+		if event_type not in [BUTTON_UP, BUTTON_DOWN, AUX_INPUT]:
+			raise TypeError("Unsupported event type.")
+
+		monome_unregister_handler(self.monome, event_type)
+	
+	def main_loop(self):
+		monome_main_loop(self.monome)
+
+	def next_event(self):
+		return monome_next_event(self.monome)
 
 	#
 	# led functions
@@ -196,10 +264,6 @@ cdef class Monome:
 
 	def led_off(self, uint x, uint y):
 		monome_led_off(self.monome, x, y)
-
-	#
-	# led row/col
-	#
 
 	def led_row(self, idx, data):
 		cdef uint16_t d = _bitmap_data(data)

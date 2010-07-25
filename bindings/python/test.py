@@ -1,25 +1,27 @@
-import time
 import monome
 
-m = monome.Monome("/dev/ttyUSB0")
-m.clear()
-print("got a {0}x{1} monome".format(m.rows, m.columns))
 
-frame = """\
+class SimpleTest(object):
+    def __init__(self):
+        self.buttons = [[0 for x in xrange(0, 16)] for x in xrange(0, 16)]
 
- .    .
- ..  ..
- . .. .
- .    .
- .    .
- .    .
-"""
+        self.m = monome.Monome("osc.udp://127.0.0.1:8080/monome", 8000)
+        self.m.register_handler(monome.BUTTON_DOWN, self.button_handler)
 
-def frame_from_str(s):
-    def row_from_str(s):
-        return ((1 if x != " " else 0) for x in s[:8])
+        self.m.clear()
 
-    return (row_from_str(x) for x in s.split("\n")[:8])
+    def button_handler(self, event):
+        x, y = event.x, event.y
+        self.buttons[x][y] ^= 1
 
-for i in xrange(0, 4):
-    m.led_frame(i, frame_from_str(frame))
+        if self.buttons[x][event.y]:
+            self.m.led_on(x, y)
+        else:
+            self.m.led_off(x, y)
+
+    def run(self):
+        self.m.main_loop()
+
+if __name__ == "__main__":
+    app = SimpleTest()
+    app.run()
