@@ -87,7 +87,7 @@ class CommandTest(monome.Monome):
             self.intensity = i
             time.sleep(0.05)
 
-    def run(self):
+    def __call__(self):
         self.clear()
 
         for i in xrange(0, 2):
@@ -112,4 +112,4 @@ class CommandTest(monome.Monome):
 
 if __name__ == "__main__":
     app = CommandTest("osc.udp://127.0.0.1:8080/monome", 8000)
-    app.run()
+    app()
