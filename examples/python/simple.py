@@ -20,7 +20,11 @@ class SimpleTest(object):
             self.m.led_off(x, y)
 
     def run(self):
-        self.m.main_loop()
+        try:
+            self.m.main_loop()
+        except:
+            self.m.clear()
+            self.m.close()
 
 if __name__ == "__main__":
     app = SimpleTest()
