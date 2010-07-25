@@ -164,7 +164,7 @@ cdef void handler_thunk(const_monome_event_t *e, void *data):
 	(<Monome> data)._handlers[e.event_type](ev_wrapper)
 
 
-cdef class Monome:
+cdef class Monome(object):
 	cdef monome_t *monome
 	_handlers = [None, None, None]
 
