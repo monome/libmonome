@@ -107,11 +107,21 @@ cdef uint list_to_bitmap(l):
 	cdef uint16_t ret = 0
 	rlen = len(l)
 
+	# TODO: support generic iterators
 	for i from 0 <= i < rlen:
-		if l[i]:
-			ret |= 1 << i
+		ret |= ((1 & (not not l[i])) << i)
 
 	return ret
+
+cdef uint16_t bitmap_data(data) except *:
+	# TODO: support generic iterators
+
+	if isinstance(data, int):
+		r = data
+	elif isinstance(data, list):
+		r = list_to_bitmap(data)
+	else:
+		raise TypeError("Data should be integer or list.")
 
 cdef class Monome:
 	cdef monome_t *monome
@@ -121,6 +131,13 @@ cdef class Monome:
 		CABLE_BOTTOM: "bottom",
 		CABLE_RIGHT: "right",
 		CABLE_TOP: "top"
+	}
+
+	rev_orientation_map = {
+		"left":	CABLE_LEFT,
+		"bottom": CABLE_BOTTOM,
+		"right": CABLE_RIGHT,
+		"top": CABLE_TOP
 	}
 
 	def __init__(self, device, char *port=NULL):
@@ -146,7 +163,13 @@ cdef class Monome:
 			o = <uint> monome_get_orientation(self.monome)
 			return Monome.orientation_map[o]
 
-		def __set__(self, uint cable):
+		def __set__(self, cable):
+			if isinstance(cable, str):
+				try:
+					cable = Monome.rev_orientation_map[cable]
+				except KeyError:
+					raise TypeError("'%s' is not a valid cable orientation." % cable)
+
 			monome_set_orientation(self.monome, <monome_cable_t> cable)
 
 	property rows:
@@ -157,7 +180,7 @@ cdef class Monome:
 		def __get__(self):
 			return <uint> monome_get_cols(self.monome)
 
-	def clear(self, uint status):
+	def clear(self, uint status=CLEAR_OFF):
 		monome_clear(self.monome, <monome_clear_status_t> status)
 
 	#
@@ -170,14 +193,26 @@ cdef class Monome:
 	def led_off(self, uint x, uint y):
 		monome_led_off(self.monome, x, y)
 
-	def led_row(self, idx, rdata):
-		cdef uint16_t r
+	#
+	# led row/col
+	#
 
-		if isinstance(rdata, int):
-			r = rdata
-		elif isinstance(rdata, list):
-			r = list_to_bitmap(rdata)
-		else:
-			raise TypeError("Row data should be integer or list.")
+	def led_row(self, idx, data):
+		cdef uint16_t d = bitmap_data(data)
+		monome_led_row(self.monome, idx, 2, <uint8_t *> &d)
 
-		monome_led_row(self.monome, idx, 2, <uint8_t *> &r)
+	def led_col(self, idx, data):
+		cdef uint16_t d = bitmap_data(data)
+		monome_led_col(self.monome, idx, 2, <uint8_t *> &d)
+
+	def led_frame(self, uint quadrant, rows):
+		cdef uint8_t r[8]
+		cdef uint16_t d
+		cdef uint i
+
+		# TODO: support generic iterators
+		for i from 0 <= i < 8:
+			d = bitmap_data(rows[i])
+			r[i] = (<uint8_t *> &d)[1]
+
+		monome_led_frame(self.monome, quadrant, r)
