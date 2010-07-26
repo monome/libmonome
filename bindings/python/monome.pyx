@@ -91,6 +91,31 @@ cdef extern from *:
 	# hack for handler_thunk
 	ctypedef monome_event_t const_monome_event_t "const monome_event_t"
 
+all = [
+	# constants
+	# XXX: should these be members of the class?
+
+	"BUTTON_UP",
+	"BUTTON_DOWN",
+	"AUX_INPUT",
+	"CLEAR_OFF",
+	"CLEAR_ON",
+	"MODE_NORMAL",
+	"MODE_TEST",
+	"MODE_SHUTDOWN",
+	"CABLE_LEFT",
+	"CABLE_BOTTOM",
+	"CABLE_RIGHT",
+	"CABLE_TOP",
+
+	# classes
+
+	"MonomeEvent",
+	"MonomeButtonEvent",
+
+	"Monome"]
+
+
 BUTTON_UP = 0
 BUTTON_DOWN = 1
 AUX_INPUT = 2
@@ -124,14 +149,14 @@ cdef uint list_to_bitmap(l):
 	return ret
 
 
-def _bitmap_data(data):
-	if getattr(data, "__iter__", None):
+def bitmap_data(data):
+	if hasattr(data, "__iter__"):
 		return list_to_bitmap(data)
 	else:
 		try:
 			return int(data)
 		except:
-			raise TypeError("Data should be integer or iterable.")
+			raise TypeError("Expecting integer or iterable, got '%s'." % type(data))
 
 
 cdef class MonomeEvent(object):
@@ -224,14 +249,14 @@ cdef class Monome(object):
 		def __set__(self, uint intensity):
 			monome_intensity(self.monome, intensity)
 
-	property rows:
-		def __get__(self):
-			return monome_get_rows(self.monome)
+	@property
+	def rows(self):
+		return monome_get_rows(self.monome)
 
 	# "columns" seems more pythonic than "cols"
-	property columns:
-		def __get__(self):
-			return monome_get_cols(self.monome)
+	@property
+	def columns(self):
+		return monome_get_cols(self.monome)
 
 	def clear(self, uint status=CLEAR_OFF):
 		monome_clear(self.monome, <monome_clear_status_t> status)
@@ -241,6 +266,11 @@ cdef class Monome(object):
 	#
 
 	def register_handler(self, uint event_type, handler):
+		if not callable(handler):
+			raise TypeError("'%s' object is not callable." % type(handler))
+
+		# monome_register_handler returns 0 on success, EINVAL when
+		# passed an invalid event type.
 		if monome_register_handler(self.monome, event_type,
 		                           handler_thunk, <void *> self):
 			raise TypeError("Unsupported event type.")
@@ -248,11 +278,9 @@ cdef class Monome(object):
 		self._handlers[event_type] = handler
 
 	def unregister_handler(self, uint event_type):
-		if event_type not in [BUTTON_UP, BUTTON_DOWN, AUX_INPUT]:
+		if monome_unregister_handler(self.monome, event_type):
 			raise TypeError("Unsupported event type.")
 
-		monome_unregister_handler(self.monome, event_type)
-	
 	def main_loop(self):
 		monome_main_loop(self.monome)
 
@@ -270,11 +298,11 @@ cdef class Monome(object):
 		monome_led_off(self.monome, x, y)
 
 	def led_row(self, idx, data):
-		cdef uint16_t d = _bitmap_data(data)
+		cdef uint16_t d = bitmap_data(data)
 		monome_led_row(self.monome, idx, 2, <uint8_t *> &d)
 
 	def led_col(self, idx, data):
-		cdef uint16_t d = _bitmap_data(data)
+		cdef uint16_t d = bitmap_data(data)
 		monome_led_col(self.monome, idx, 2, <uint8_t *> &d)
 
 	def led_frame(self, uint quadrant, rows):
@@ -282,8 +310,8 @@ cdef class Monome(object):
 		cdef uint16_t d
 		cdef uint i
 
-		if not getattr(rows, "__iter__", None):
-			raise TypeError("'rows' must be an iterable.")
+		if not hasattr(rows, "__iter__"):
+			raise TypeError("'%s' is not iterable." % type(rows))
 
 		# cython :(
 		r[0] = r[1] = r[2] = r[3] = r[4] =\
@@ -292,7 +320,7 @@ cdef class Monome(object):
 
 		try:
 			for i from 0 <= i < 8:
-				d = _bitmap_data(rowiter.next())
+				d = bitmap_data(rowiter.next())
 				r[i] = (<uint8_t *> &d)[0]
 		except StopIteration:
 			pass 
