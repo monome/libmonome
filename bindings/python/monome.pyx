@@ -133,11 +133,11 @@ CABLE_RIGHT = 2
 CABLE_TOP = 3
 
 
-cdef uint list_to_bitmap(l):
+cdef uint list_to_bitmap(l) except *:
 	cdef uint16_t ret = 0
 	cdef uint i
 
-	iterator = l.__iter__()
+	iterator = iter(l)
 
 	try:
 		for i from 0 <= i < 16:
@@ -149,14 +149,14 @@ cdef uint list_to_bitmap(l):
 	return ret
 
 
-def bitmap_data(data):
-	if hasattr(data, "__iter__"):
+def _bitmap_data(data):
+	try:
 		return list_to_bitmap(data)
-	else:
+	except TypeError:
 		try:
 			return int(data)
 		except:
-			raise TypeError("Expecting integer or iterable, got '%s'." % type(data))
+			raise TypeError("'%s' object is neither iterable nor integer." % type(data).__name__)
 
 
 cdef class MonomeEvent(object):
@@ -267,7 +267,7 @@ cdef class Monome(object):
 
 	def register_handler(self, uint event_type, handler):
 		if not callable(handler):
-			raise TypeError("'%s' object is not callable." % type(handler))
+			raise TypeError("'%s' object is not callable." % type(handler).__name__)
 
 		# monome_register_handler returns 0 on success, EINVAL when
 		# passed an invalid event type.
@@ -298,11 +298,11 @@ cdef class Monome(object):
 		monome_led_off(self.monome, x, y)
 
 	def led_row(self, idx, data):
-		cdef uint16_t d = bitmap_data(data)
+		cdef uint16_t d = _bitmap_data(data)
 		monome_led_row(self.monome, idx, 2, <uint8_t *> &d)
 
 	def led_col(self, idx, data):
-		cdef uint16_t d = bitmap_data(data)
+		cdef uint16_t d = _bitmap_data(data)
 		monome_led_col(self.monome, idx, 2, <uint8_t *> &d)
 
 	def led_frame(self, uint quadrant, rows):
@@ -310,17 +310,16 @@ cdef class Monome(object):
 		cdef uint16_t d
 		cdef uint i
 
-		if not hasattr(rows, "__iter__"):
-			raise TypeError("'%s' is not iterable." % type(rows))
+		# will raise a TypeError if rows is not iterable
+		rowiter = iter(rows)
 
 		# cython :(
 		r[0] = r[1] = r[2] = r[3] = r[4] =\
 			r[5] = r[6] = r[7] = 0
-		rowiter = rows.__iter__()
 
 		try:
 			for i from 0 <= i < 8:
-				d = bitmap_data(rowiter.next())
+				d = _bitmap_data(rowiter.next())
 				r[i] = (<uint8_t *> &d)[0]
 		except StopIteration:
 			pass 
