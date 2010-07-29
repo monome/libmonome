@@ -222,7 +222,8 @@ void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
 	monome->orientation = cable & 3;
 }
 
-int monome_register_handler(monome_t *monome, uint event_type, monome_event_callback_t cb, void *data) {
+int monome_register_handler(monome_t *monome, monome_event_type_t event_type,
+							monome_event_callback_t cb, void *data) {
 	monome_callback_t *handler;
 
 	if( event_type > 2 )
@@ -235,7 +236,8 @@ int monome_register_handler(monome_t *monome, uint event_type, monome_event_call
 	return 0;
 }
 
-int monome_unregister_handler(monome_t *monome, uint event_type) {
+int monome_unregister_handler(monome_t *monome,
+							  monome_event_type_t event_type) {
 	return monome_register_handler(monome, event_type, NULL, NULL);
 }
 

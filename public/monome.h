@@ -72,7 +72,8 @@ typedef enum {
 typedef struct monome_event monome_event_t;
 typedef struct monome monome_t; /* opaque data type */
 
-typedef void (*monome_event_callback_t)(const monome_event_t *event, void *data);
+typedef void (*monome_event_callback_t)
+	(const monome_event_t *event, void *data);
 
 struct monome_event {
 	monome_t *monome;
@@ -92,8 +93,10 @@ const char *monome_get_devpath(monome_t *monome);
 int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 
-int monome_register_handler(monome_t *monome, uint event_type, monome_event_callback_t, void *user_data);
-int monome_unregister_handler(monome_t *monome, uint event_type);
+int monome_register_handler(monome_t *monome, monome_event_type_t event_type,
+							monome_event_callback_t, void *user_data);
+int monome_unregister_handler(monome_t *monome,
+							  monome_event_type_t event_type);
 void monome_main_loop(monome_t *monome);
 int monome_next_event(monome_t *monome);
 
@@ -103,9 +106,12 @@ int monome_mode(monome_t *monome, monome_mode_t mode);
 
 int monome_led_on(monome_t *monome, uint x, uint y);
 int monome_led_off(monome_t *monome, uint x, uint y);
-int monome_led_col(monome_t *monome, uint col, size_t count, const uint8_t *col_data);
-int monome_led_row(monome_t *monome, uint row, size_t count, const uint8_t *row_data);
-int monome_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data);
+int monome_led_col(monome_t *monome, uint col, size_t count,
+				   const uint8_t *col_data);
+int monome_led_row(monome_t *monome, uint row, size_t count,
+				   const uint8_t *row_data);
+int monome_led_frame(monome_t *monome, uint quadrant,
+					 const uint8_t *frame_data);
 
 #ifdef __cplusplus
 } /* extern "C" */

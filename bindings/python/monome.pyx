@@ -77,9 +77,11 @@ cdef extern from "monome.h":
 	int monome_get_rows(monome_t *monome)
 	int monome_get_cols(monome_t *monome)
 
-	int monome_register_handler(monome_t *monome, uint event_type,
-			monome_event_callback_t, void *user_data)
-	int monome_unregister_handler(monome_t *monome, uint event_type)
+	int monome_register_handler(monome_t *monome,
+			monome_event_type_t event_type, monome_event_callback_t,
+			void *user_data)
+	int monome_unregister_handler(monome_t *monome,
+			monome_event_type_t event_type)
 	void monome_main_loop(monome_t *monome)
 	int monome_next_event(monome_t *monome)
 
@@ -187,7 +189,7 @@ cdef class MonomeButtonEvent(MonomeEvent):
 
 
 cdef void handler_thunk(const_monome_event_t *e, void *data):
-	ev_wrapper = MonomeButtonEvent(e.event_type, e.x, e.y)
+	ev_wrapper = MonomeButtonEvent(<uint> e.event_type, e.x, e.y)
 	(<Monome> data)._handlers[e.event_type](ev_wrapper)
 
 
@@ -279,7 +281,7 @@ cdef class Monome(object):
 	# event functions
 	#
 
-	def register_handler(self, uint event_type, handler):
+	def register_handler(self, monome_event_type_t event_type, handler):
 		if not callable(handler):
 			raise TypeError("'%s' object is not callable." % type(handler).__name__)
 
@@ -291,7 +293,7 @@ cdef class Monome(object):
 
 		self._handlers[event_type] = handler
 
-	def unregister_handler(self, uint event_type):
+	def unregister_handler(self, monome_event_type_t event_type):
 		if monome_unregister_handler(self.monome, event_type):
 			raise TypeError("Unsupported event type.")
 
