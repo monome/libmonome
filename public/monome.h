@@ -40,33 +40,33 @@ extern "C" {
 #include <sys/types.h>
 
 typedef enum {
-	MONOME_BUTTON_UP           = 0x00,
-	MONOME_BUTTON_DOWN         = 0x01,
-	MONOME_AUX_INPUT           = 0x02
+	MONOME_BUTTON_UP     = 0x00,
+	MONOME_BUTTON_DOWN   = 0x01,
+	MONOME_AUX_INPUT     = 0x02
 } monome_event_type_t;
 
 /* clearing statuses (argument to monome_clear) */
 
 typedef enum {
-	MONOME_CLEAR_OFF           = 0x00,
-	MONOME_CLEAR_ON            = 0x01
+	MONOME_CLEAR_OFF     = 0x00,
+	MONOME_CLEAR_ON      = 0x01
 } monome_clear_status_t;
 
 /* modes (argument to monome_mode) */
 
 typedef enum {
-	MONOME_MODE_NORMAL         = 0x00,
-	MONOME_MODE_TEST           = 0x01,
-	MONOME_MODE_SHUTDOWN       = 0x02
+	MONOME_MODE_NORMAL   = 0x00,
+	MONOME_MODE_TEST     = 0x01,
+	MONOME_MODE_SHUTDOWN = 0x02
 } monome_mode_t;
 
 /* cable orientation */
 
 typedef enum {
-	MONOME_CABLE_LEFT          = 0,
-	MONOME_CABLE_BOTTOM        = 1,
-	MONOME_CABLE_RIGHT         = 2,
-	MONOME_CABLE_TOP           = 3
+	MONOME_CABLE_LEFT    = 0,
+	MONOME_CABLE_BOTTOM  = 1,
+	MONOME_CABLE_RIGHT   = 2,
+	MONOME_CABLE_TOP     = 3
 } monome_cable_t;
 	
 typedef struct monome_event monome_event_t;
