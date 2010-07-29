@@ -60,7 +60,9 @@ cdef extern from "monome.h":
 		uint x,
 		uint y
 
-	ctypedef void (*monome_event_callback_t)(monome_event_t *event, void *data)
+	# const hackery
+	ctypedef monome_event_t const_monome_event_t "const monome_event_t"
+	ctypedef void (*monome_event_callback_t)(const_monome_event_t *event, void *data)
 
 	monome_t *monome_open(char *monome_device, ...)
 	void monome_close(monome_t *monome)
@@ -68,6 +70,10 @@ cdef extern from "monome.h":
 	void monome_set_orientation(monome_t *monome, monome_cable_t cable)
 	monome_cable_t monome_get_orientation(monome_t *monome)
 
+	# more const hackery
+	ctypedef char * const_char_p "const char *"
+	const_char_p monome_get_serial(monome_t *monome)
+	const_char_p monome_get_devpath(monome_t *monome)
 	int monome_get_rows(monome_t *monome)
 	int monome_get_cols(monome_t *monome)
 
@@ -86,10 +92,6 @@ cdef extern from "monome.h":
 	int monome_led_col(monome_t *monome, uint col, size_t count, uint8_t *data)
 	int monome_led_row(monome_t *monome, uint row, size_t count, uint8_t *data)
 	int monome_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data)
-
-cdef extern from *:
-	# hack for handler_thunk
-	ctypedef monome_event_t const_monome_event_t "const monome_event_t"
 
 all = [
 	# constants
@@ -248,6 +250,18 @@ cdef class Monome(object):
 	property intensity:
 		def __set__(self, uint intensity):
 			monome_intensity(self.monome, intensity)
+
+	@property
+	def serial(self):
+		cdef const_char_p s = monome_get_serial(self.monome)
+
+		if not s:
+			return None
+		return s
+
+	@property
+	def devpath(self):
+		return monome_get_devpath(self.monome)
 
 	@property
 	def rows(self):
