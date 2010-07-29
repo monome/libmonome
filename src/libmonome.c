@@ -192,6 +192,14 @@ void monome_close(monome_t *monome) {
 	monome->free(monome);
 }
 
+const char *monome_get_serial(monome_t *monome) {
+	return monome->serial;
+}
+
+const char *monome_get_devpath(monome_t *monome) {
+	return monome->device;
+}
+
 int monome_get_rows(monome_t *monome) {
 	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
 		return monome->cols;
@@ -206,12 +214,12 @@ int monome_get_cols(monome_t *monome) {
 		return monome->cols;
 }
 
-void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
-	monome->orientation = cable & 3;
-}
-
 monome_cable_t monome_get_orientation(monome_t *monome) {
 	return monome->orientation;
+}
+
+void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
+	monome->orientation = cable & 3;
 }
 
 int monome_register_handler(monome_t *monome, uint event_type, monome_event_callback_t cb, void *data) {

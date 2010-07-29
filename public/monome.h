@@ -87,6 +87,8 @@ void monome_close(monome_t *monome);
 void monome_set_orientation(monome_t *monome, monome_cable_t cable);
 monome_cable_t monome_get_orientation(monome_t *monome);
 
+const char *monome_get_serial(monome_t *monome);
+const char *monome_get_devpath(monome_t *monome);
 int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 
