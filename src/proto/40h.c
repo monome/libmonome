@@ -102,7 +102,7 @@ static int proto_40h_led(monome_t *monome, uint status, uint x, uint y) {
  * public
  */
 
-int proto_40h_clear(monome_t *monome, monome_clear_status_t status) {
+static int proto_40h_clear(monome_t *monome, monome_clear_status_t status) {
 	uint i;
 	uint8_t buf[2] = {0, 0};
 
@@ -114,12 +114,12 @@ int proto_40h_clear(monome_t *monome, monome_clear_status_t status) {
 	return sizeof(buf) * i;
 }
 
-int proto_40h_intensity(monome_t *monome, uint brightness) {
+static int proto_40h_intensity(monome_t *monome, uint brightness) {
 	uint8_t buf[2] = {PROTO_40h_INTENSITY, brightness};
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
+static int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
 	/* the 40h splits this into two commands and will need an extra variable
 	 * in the monome_t structure to keep track. */
 
@@ -129,23 +129,23 @@ int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
 	return 0;
 }
 
-int proto_40h_led_on(monome_t *monome, uint x, uint y) {
+static int proto_40h_led_on(monome_t *monome, uint x, uint y) {
 	return proto_40h_led(monome, PROTO_40h_LED_ON, x, y);
 }
 
-int proto_40h_led_off(monome_t *monome, uint x, uint y) {
+static int proto_40h_led_off(monome_t *monome, uint x, uint y) {
 	return proto_40h_led(monome, PROTO_40h_LED_OFF, x, y);
 }
 
-int proto_40h_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
+static int proto_40h_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, data);
 }
 
-int proto_40h_led_row(monome_t *monome, uint row, size_t count, const uint8_t *data) {
+static int proto_40h_led_row(monome_t *monome, uint row, size_t count, const uint8_t *data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, data);
 }
 
-int proto_40h_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
+static int proto_40h_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
 	uint8_t buf[8];
 	int ret = 0;
 	uint i;
@@ -167,7 +167,7 @@ int proto_40h_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_da
 	return ret;
 }
 
-int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
+static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 
 	if( monome_platform_read(monome, buf, sizeof(buf)) < sizeof(buf) )
@@ -191,15 +191,15 @@ int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	return -1;
 }
 
-int proto_40h_open(monome_t *monome, const char *dev, va_list args) {
+static int proto_40h_open(monome_t *monome, const char *dev, va_list args) {
 	return monome_platform_open(monome, dev);
 }
 
-int proto_40h_close(monome_t *monome) {
+static int proto_40h_close(monome_t *monome) {
 	return monome_platform_close(monome);
 }
 
-void proto_40h_free(monome_t *monome) {
+static void proto_40h_free(monome_t *monome) {
 	monome_40h_t *m40h = (monome_40h_t *) monome;
 	free(m40h);
 }
