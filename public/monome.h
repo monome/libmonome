@@ -99,6 +99,7 @@ int monome_unregister_handler(monome_t *monome,
 							  monome_event_type_t event_type);
 void monome_main_loop(monome_t *monome);
 int monome_next_event(monome_t *monome);
+int monome_get_fd(monome_t *monome);
 
 int monome_clear(monome_t *monome, monome_clear_status_t status);
 int monome_intensity(monome_t *monome, uint brightness);

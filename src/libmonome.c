@@ -304,6 +304,10 @@ void monome_main_loop(monome_t *monome) {
 	} while( 1 );
 }
 
+int monome_get_fd(monome_t *monome) {
+	return monome->fd;
+}
+
 int monome_clear(monome_t *monome, monome_clear_status_t status) {
 	return monome->clear(monome, status);
 }

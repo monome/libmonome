@@ -84,6 +84,7 @@ cdef extern from "monome.h":
 			monome_event_type_t event_type)
 	void monome_main_loop(monome_t *monome)
 	int monome_next_event(monome_t *monome)
+	int monome_get_fd(monome_t *monome)
 
 	int monome_clear(monome_t *monome, monome_clear_status_t status)
 	int monome_intensity(monome_t *monome, uint brightness)
@@ -302,6 +303,10 @@ cdef class Monome(object):
 
 	def next_event(self):
 		return monome_next_event(self.monome)
+
+	@property
+	def fd(self):
+		return monome_get_fd(self.monome)
 
 	#
 	# led functions
