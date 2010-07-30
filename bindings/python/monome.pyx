@@ -196,7 +196,11 @@ cdef void handler_thunk(const_monome_event_t *e, void *data):
 
 cdef class Monome(object):
 	cdef monome_t *monome
-	_handlers = [None, None, None]
+
+	cdef str _serial
+	cdef str _devpath
+	cdef int _fd
+	cdef list _handlers
 
 	orientation_map = {
 		CABLE_LEFT: "left",
@@ -210,8 +214,9 @@ cdef class Monome(object):
 		"right": CABLE_RIGHT,
 		"top": CABLE_TOP}
 
-	def __init__(self, device, port=None):
+	def __init__(self, device, port=None, clear=True):
 		cdef char *portstr
+		cdef const_char_p ser
 
 		if device[:3] == "osc" and not port:
 			raise TypeError("OSC protocol requires a server port.")
@@ -227,7 +232,15 @@ cdef class Monome(object):
 		if not self.monome:
 			raise IOError("Could not open Monome")
 
-		self.clear(CLEAR_OFF)
+		ser = monome_get_serial(self.monome)
+
+		self._serial = ser if ser else None
+		self._devpath = monome_get_devpath(self.monome)
+		self._fd = monome_get_fd(self.monome)
+		self._handlers = [None, None, None]
+
+		if clear:
+			self.clear(CLEAR_OFF)
 
 	def __dealloc__(self):
 		self.close()
