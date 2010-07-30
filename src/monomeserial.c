@@ -370,7 +370,8 @@ int main(int argc, char *argv[]) {
 		return -1;
 
 	printf("monomeserial version %s, yay!\n\n", VERSION);
-	printf("initialized device %s, which is %dx%d\n", device,
+	printf("initialized device %s at %s, which is %dx%d\n",
+		   monome_get_serial(monome), monome_get_devpath(monome),
 		   monome_get_rows(monome), monome_get_cols(monome));
 	printf("running with prefix /%s\n\n", state.lo_prefix);
 
