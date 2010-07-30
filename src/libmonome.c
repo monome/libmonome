@@ -71,12 +71,9 @@ static monome_devmap_t *map_serial_to_device(const char *serial) {
 	monome_devmap_t *m;
 	int serialnum;
 
-	for( m = mapping; m->sermatch; m++ ) {
-		if( !sscanf(serial, m->sermatch, &serialnum) )
-			continue;
-
-		return m;
-	}
+	for( m = mapping; m->sermatch; m++ )
+		if( sscanf(serial, m->sermatch, &serialnum) )
+			return m;
 
 	return NULL;
 }
@@ -150,16 +147,14 @@ monome_t *monome_open(const char *dev, ...) {
 		proto = "osc";
 
 	if( !(monome = monome_init(proto)) )
-		return NULL;
+		goto err_init;
 
 	va_start(arguments, dev);
 	error = monome->open(monome, dev, arguments);
 	va_end(arguments);
 
-	if( error ) {
-		monome->free(monome);
-		return NULL;
-	}
+	if( error )
+		goto err_open;
 
 	/* if we have a physical device, make sure we've got the device and
 	   serial in the structure.  the OSC device will have this populated
@@ -172,10 +167,18 @@ monome_t *monome_open(const char *dev, ...) {
 		monome->serial = serial;
 	}
 
-	monome->device = strdup(dev);
-	monome->orientation = MONOME_CABLE_LEFT;
+	if( !(monome->device = strdup(dev)) )
+		goto err_open;
 
+	monome->orientation = MONOME_CABLE_LEFT;
 	return monome;
+
+err_open:
+	monome->free(monome);
+
+err_init:
+	if( serial ) free(serial);
+	return NULL;
 }
 
 void monome_close(monome_t *monome) {
