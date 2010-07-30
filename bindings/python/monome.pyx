@@ -309,8 +309,7 @@ cdef class Monome(object):
 	def next_event(self):
 		return monome_next_event(self.monome)
 
-	@property
-	def fd(self):
+	def fileno(self):
 		return self._fd
 
 	#
