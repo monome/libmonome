@@ -243,11 +243,7 @@ cdef class Monome(object):
 			self.clear(CLEAR_OFF)
 
 	def __dealloc__(self):
-		self.close()
-
-	def close(self):
-		if self.monome:
-			monome_close(self.monome)
+		monome_close(self.monome)
 
 	property orientation:
 		def __get__(self):

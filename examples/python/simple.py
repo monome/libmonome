@@ -21,4 +21,3 @@ try:
 	m.main_loop()
 except KeyboardInterrupt:
 	m.clear()
-	m.close()
