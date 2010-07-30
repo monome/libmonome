@@ -5,7 +5,7 @@ LIBMONOME = libmonome.$(LM_SUFFIX)
 LMOBJS = libmonome.o platform.o rotation.o
 
 MONOMESERIAL = monomeserial
-MSOBJS = monomeserial.o
+MSOBJS = monomeserial.o $(LIBMONOME)
 
 all: $(LIBMONOME) $(MS_BUILD)
 	cd proto; $(MAKE)
