@@ -265,15 +265,11 @@ cdef class Monome(object):
 
 	@property
 	def serial(self):
-		cdef const_char_p s = monome_get_serial(self.monome)
-
-		if not s:
-			return None
-		return s
+		return self._serial
 
 	@property
 	def devpath(self):
-		return monome_get_devpath(self.monome)
+		return self._devpath
 
 	@property
 	def rows(self):
@@ -315,7 +311,7 @@ cdef class Monome(object):
 
 	@property
 	def fd(self):
-		return monome_get_fd(self.monome)
+		return self._fd
 
 	#
 	# led functions
