@@ -206,16 +206,16 @@ cdef MonomeEvent event_from_event_t(const_monome_event_t *e, object monome=None)
 
 cdef void handler_thunk(const_monome_event_t *event, void *data):
 	ev_wrapper = event_from_event_t(event, (<Monome> data))
-	(<Monome> data)._handlers[event.event_type](ev_wrapper)
+	(<Monome> data).handlers[event.event_type](ev_wrapper)
 
 
 cdef class Monome(object):
 	cdef monome_t *monome
 
-	cdef str _serial
-	cdef str _devpath
-	cdef int _fd
-	cdef list _handlers
+	cdef str serial
+	cdef str devpath
+	cdef int fd
+	cdef list handlers
 
 	orientation_map = {
 		CABLE_LEFT: "left",
@@ -249,10 +249,10 @@ cdef class Monome(object):
 
 		ser = monome_get_serial(self.monome)
 
-		self._serial = ser if ser else None
-		self._devpath = monome_get_devpath(self.monome)
-		self._fd = monome_get_fd(self.monome)
-		self._handlers = [None, None, None]
+		self.serial = ser if ser else None
+		self.devpath = monome_get_devpath(self.monome)
+		self.fd = monome_get_fd(self.monome)
+		self.handlers = [None, None, None]
 
 		if clear:
 			self.clear(CLEAR_OFF)
@@ -278,13 +278,13 @@ cdef class Monome(object):
 		def __set__(self, uint intensity):
 			monome_intensity(self.monome, intensity)
 
-	@property
-	def serial(self):
-		return self._serial
+	property serial:
+		def __get__(self):
+			return self.serial
 
-	@property
-	def devpath(self):
-		return self._devpath
+	property devpath:
+		def __get__(self):
+			return self.devpath
 
 	@property
 	def rows(self):
@@ -312,7 +312,7 @@ cdef class Monome(object):
 		                           handler_thunk, <void *> self):
 			raise TypeError("Unsupported event type.")
 
-		self._handlers[event_type] = handler
+		self.handlers[event_type] = handler
 
 	def unregister_handler(self, monome_event_type_t event_type):
 		if monome_unregister_handler(self.monome, event_type):
@@ -336,7 +336,7 @@ cdef class Monome(object):
 			return event_from_event_t(&e, self)
 
 	def fileno(self):
-		return self._fd
+		return self.fd
 
 	#
 	# led functions
