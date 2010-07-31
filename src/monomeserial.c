@@ -32,6 +32,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <getopt.h>
 #include <lo/lo.h>
@@ -53,9 +55,11 @@
 #endif
 
 typedef struct {
-	char *lo_prefix;
+	monome_t *monome;
 	lo_address *outgoing;
 	lo_server_thread *st;
+
+	char *lo_prefix;
 
 	pthread_mutex_t lock;
 } ms_state;
@@ -261,7 +265,7 @@ static void monome_handle_press(const monome_event_t *e, void *data) {
 	pthread_mutex_unlock(&state.lock);
 }
 
-void usage(const char *app) {
+static void usage(const char *app) {
 	printf("usage: %s [options...] [prefix]\n"
 		   "\n"
 		   "  -h, --help			display this information\n"
@@ -277,7 +281,7 @@ void usage(const char *app) {
 		   "\n", app);
 }
 
-int is_numstr(const char *s) {
+static int is_numstr(const char *s) {
 	while((48 <= *s) && (*s++ <= 57)); /* 48 is ASCII '0', 57 is '9' */
 
 	if( *s ) /* if the character we stopped on isn't a null, we didn't make it through the string */
@@ -285,8 +289,22 @@ int is_numstr(const char *s) {
 	return 1;
 }
 
+static void main_loop() {
+	int monome_fd = monome_get_fd(state.monome);
+	fd_set rfds;
+
+	do {
+		FD_ZERO(&rfds);
+		FD_SET(monome_fd, &rfds);
+
+		select(monome_fd + 1, &rfds, NULL, NULL, NULL);
+
+		if( FD_ISSET(monome_fd, &rfds) )
+			monome_event_handle_next(state.monome);
+	} while( 1 );
+}
+
 int main(int argc, char *argv[]) {
-	monome_t *monome;
 	char c, *device, *sport, *aport, *ahost, *proto;
 	monome_cable_t orientation = MONOME_CABLE_LEFT;
 	int i;
@@ -361,7 +379,7 @@ int main(int argc, char *argv[]) {
 	} else
 		state.lo_prefix = strdup(argv[optind]);
 
-	if( !(monome = monome_open(device)) ) {
+	if( !(state.monome = monome_open(device)) ) {
 		printf("failed to open %s\n", device);
 		return 1;
 	}
@@ -371,27 +389,29 @@ int main(int argc, char *argv[]) {
 
 	printf("monomeserial version %s, yay!\n\n", VERSION);
 	printf("initialized device %s at %s, which is %dx%d\n",
-		   monome_get_serial(monome), monome_get_devpath(monome),
-		   monome_get_rows(monome), monome_get_cols(monome));
+		   monome_get_serial(state.monome), monome_get_devpath(state.monome),
+		   monome_get_rows(state.monome), monome_get_cols(state.monome));
 	printf("running with prefix /%s\n\n", state.lo_prefix);
 
-	monome_set_orientation(monome, orientation);
+	monome_set_orientation(state.monome, orientation);
 
 	state.outgoing = lo_address_new(ahost, aport);
 
-	monome_register_handler(monome, MONOME_BUTTON_DOWN, monome_handle_press, state.lo_prefix);
-	monome_register_handler(monome, MONOME_BUTTON_UP, monome_handle_press, state.lo_prefix);
+	monome_register_handler(state.monome, MONOME_BUTTON_DOWN,
+							monome_handle_press, state.lo_prefix);
+	monome_register_handler(state.monome, MONOME_BUTTON_UP,
+							monome_handle_press, state.lo_prefix);
 
-	register_sys_methods(monome);
-	register_osc_methods(state.lo_prefix, monome);
+	register_sys_methods(state.monome);
+	register_osc_methods(state.lo_prefix, state.monome);
 
-	monome_clear(monome, MONOME_CLEAR_OFF);
+	monome_clear(state.monome, MONOME_CLEAR_OFF);
 
 	lo_server_thread_start(state.st);
-	monome_event_loop(monome);
+	main_loop();
 
 	unregister_osc_methods(state.lo_prefix);
-	monome_close(monome);
+	monome_close(state.monome);
 	free(state.lo_prefix);
 
 	return 0;
