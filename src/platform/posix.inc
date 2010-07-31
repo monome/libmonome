@@ -47,9 +47,9 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	tcgetattr(fd, &ot);
 	nt = ot;
 
-	/* baud rate (9600) */
-	cfsetispeed(&nt, B9600);
-	cfsetospeed(&nt, B9600);
+	/* baud rate */
+	cfsetispeed(&nt, B115200);
+	cfsetospeed(&nt, B115200);
 
 	/* parity (8N1) */
 	nt.c_cflag &= ~(PARENB | CSTOPB | CSIZE);
