@@ -31,7 +31,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -60,13 +59,9 @@ typedef struct {
 	lo_server *server;
 
 	char *lo_prefix;
-
-	pthread_mutex_t lock;
 } ms_state;
 
-ms_state state = {
-	.lock = PTHREAD_MUTEX_INITIALIZER
-};
+ms_state state;
 
 static void lo_error(int num, const char *error_msg, const char *path) {
 	printf("monomeserial: lo server error %d in %s: %s\n", num, path, error_msg);
@@ -256,13 +251,9 @@ static void monome_handle_press(const monome_event_t *e, void *data) {
 	char *cmd;
 	char *prefix = data;
 
-	pthread_mutex_lock(&state.lock);
-
 	asprintf(&cmd, "/%s/press", prefix);
 	lo_send_from(state.outgoing, state.server, LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
 	free(cmd);
-
-	pthread_mutex_unlock(&state.lock);
 }
 
 static void usage(const char *app) {
