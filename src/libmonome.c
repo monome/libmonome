@@ -268,7 +268,7 @@ int monome_event_handle_next(monome_t *monome) {
 	return 1;
 }
 
-void monome_main_loop(monome_t *monome) {
+void monome_event_loop(monome_t *monome) {
 	monome_callback_t *handler;
 	monome_event_t e;
 

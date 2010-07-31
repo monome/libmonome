@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
 
 	/* wait for presses! */
-	monome_main_loop(monome);
+	monome_event_loop(monome);
 
 	monome_close(monome);
 

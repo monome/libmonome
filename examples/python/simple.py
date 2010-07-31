@@ -18,6 +18,6 @@ m.register_handler(monome.BUTTON_DOWN, button_handler)
 print("simple.py running, press some buttons!")
 
 try:
-	m.main_loop()
+	m.event_loop()
 except KeyboardInterrupt:
 	m.clear()

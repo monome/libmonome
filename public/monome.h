@@ -97,9 +97,9 @@ int monome_register_handler(monome_t *monome, monome_event_type_t event_type,
 							monome_event_callback_t, void *user_data);
 int monome_unregister_handler(monome_t *monome,
 							  monome_event_type_t event_type);
-void monome_main_loop(monome_t *monome);
 int monome_event_next(monome_t *monome, monome_event_t *event_buf);
 int monome_event_handle_next(monome_t *monome);
+void monome_event_loop(monome_t *monome);
 int monome_get_fd(monome_t *monome);
 
 int monome_clear(monome_t *monome, monome_clear_status_t status);

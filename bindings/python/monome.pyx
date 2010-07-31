@@ -82,7 +82,7 @@ cdef extern from "monome.h":
 			void *user_data)
 	int monome_unregister_handler(monome_t *monome,
 			monome_event_type_t event_type)
-	void monome_main_loop(monome_t *monome)
+	void monome_event_loop(monome_t *monome)
 	int monome_event_next(monome_t *monome, monome_event_t *event_buf)
 	int monome_event_handle_next(monome_t *monome)
 	int monome_get_fd(monome_t *monome)
@@ -318,8 +318,8 @@ cdef class Monome(object):
 		if monome_unregister_handler(self.monome, event_type):
 			raise TypeError("Unsupported event type.")
 
-	def main_loop(self):
-		monome_main_loop(self.monome)
+	def event_loop(self):
+		monome_event_loop(self.monome)
 
 	def handle_next_event(self):
 		if monome_event_handle_next(self.monome):

@@ -388,7 +388,7 @@ int main(int argc, char *argv[]) {
 	monome_clear(monome, MONOME_CLEAR_OFF);
 
 	lo_server_thread_start(state.st);
-	monome_main_loop(monome);
+	monome_event_loop(monome);
 
 	unregister_osc_methods(state.lo_prefix);
 	monome_close(monome);
