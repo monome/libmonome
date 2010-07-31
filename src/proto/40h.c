@@ -171,7 +171,7 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 
 	if( monome_platform_read(monome, buf, sizeof(buf)) < sizeof(buf) )
-		return -1;
+		return 0;
 
 	switch( buf[0] ) {
 	case PROTO_40h_BUTTON_DOWN:
@@ -181,14 +181,14 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 		e->y = buf[1] & 0xF;
 
 		UNROTATE_COORDS(monome, e->x, e->y);
-		return 0;
+		return 1;
 
 	case PROTO_40h_AUX_INPUT:
 		/* soon */
 		return 0;
 	}
 
-	return -1;
+	return 0;
 }
 
 static int proto_40h_open(monome_t *monome, const char *dev, va_list args) {
