@@ -244,13 +244,19 @@ int monome_unregister_handler(monome_t *monome,
 	return monome_register_handler(monome, event_type, NULL, NULL);
 }
 
-int monome_next_event(monome_t *monome) {
+int monome_event_next(monome_t *monome, monome_event_t *e) {
+	e->monome = monome;
+
+	if( !monome->next_event(monome, e) )
+		return 0;
+	return 1;
+}
+
+int monome_event_handle_next(monome_t *monome) {
 	monome_callback_t *handler;
 	monome_event_t e;
 
-	e.monome = monome;
-
-	if( !monome->next_event(monome, &e) )
+	if( !monome_event_next(monome, &e) )
 		return 0;
 
 	handler = &monome->handlers[e.event_type];
@@ -259,7 +265,6 @@ int monome_next_event(monome_t *monome) {
 		return 0;
 
 	handler->cb(&e, handler->data);
-
 	return 1;
 }
 

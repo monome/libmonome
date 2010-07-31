@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
 	while(1) {
 		tick++;
 		if( !(tick %= 3) )
-			while( monome_next_event(monome) );
+			while( monome_event_handle_next(monome) );
 
 		for( x = 0; x < COLUMNS; x++ ) {
 			for( y = 0; y < ROWS; y++ ) {
