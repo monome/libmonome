@@ -83,7 +83,8 @@ cdef extern from "monome.h":
 	int monome_unregister_handler(monome_t *monome,
 			monome_event_type_t event_type)
 	void monome_main_loop(monome_t *monome)
-	int monome_next_event(monome_t *monome)
+	int monome_event_next(monome_t *monome, monome_event_t *event_buf)
+	int monome_event_handle_next(monome_t *monome)
 	int monome_get_fd(monome_t *monome)
 
 	int monome_clear(monome_t *monome, monome_clear_status_t status)
@@ -169,16 +170,27 @@ cdef class MonomeEvent(object):
 
 
 cdef class MonomeButtonEvent(MonomeEvent):
-	cdef uint state, x, y
+	cdef uint x, y
+	cdef bool pressed
+	cdef object monome
 
-	def __cinit__(self, uint state, uint x, uint y):
-		self.state = state
+	def __cinit__(self, pressed, uint x, uint y, object monome=None):
+		self.monome = monome
+		self.pressed = bool(pressed)
 		self.x = x
 		self.y = y
 	
-	property state:
+	def __repr__(self):
+		return "%s(%s, %d, %d)" % \
+				(self.__class__.__name__, self.pressed, self.x, self.y)
+
+	property monome:
 		def __get__(self):
-			return self.state
+			return self.monome
+
+	property pressed:
+		def __get__(self):
+			return self.pressed
 
 	property x:
 		def __get__(self):
@@ -189,9 +201,12 @@ cdef class MonomeButtonEvent(MonomeEvent):
 			return self.y
 
 
-cdef void handler_thunk(const_monome_event_t *e, void *data):
-	ev_wrapper = MonomeButtonEvent(<uint> e.event_type, e.x, e.y)
-	(<Monome> data)._handlers[e.event_type](ev_wrapper)
+cdef MonomeEvent event_from_event_t(const_monome_event_t *e, object monome=None):
+	return MonomeButtonEvent(<uint> e.event_type, e.x, e.y, monome)
+
+cdef void handler_thunk(const_monome_event_t *event, void *data):
+	ev_wrapper = event_from_event_t(event, (<Monome> data))
+	(<Monome> data)._handlers[event.event_type](ev_wrapper)
 
 
 cdef class Monome(object):
@@ -306,8 +321,19 @@ cdef class Monome(object):
 	def main_loop(self):
 		monome_main_loop(self.monome)
 
+	def handle_next_event(self):
+		if monome_event_handle_next(self.monome):
+			return True
+		else:
+			return False
+
 	def next_event(self):
-		return monome_next_event(self.monome)
+		cdef monome_event_t e
+
+		if not monome_event_next(self.monome, &e):
+			return None
+		else:
+			return event_from_event_t(&e, self)
 
 	def fileno(self):
 		return self._fd
