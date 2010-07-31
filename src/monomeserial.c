@@ -64,11 +64,14 @@ typedef struct {
 ms_state state;
 
 static void lo_error(int num, const char *error_msg, const char *path) {
-	printf("monomeserial: lo server error %d in %s: %s\n", num, path, error_msg);
+	printf("monomeserial: lo server error %d in %s: %s\n",
+		   num, path, error_msg);
 	fflush(stdout);
 }
 
-static int osc_clear_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_clear_handler(const char *path, const char *types,
+							 lo_arg **argv, int argc,
+							 lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	int mode = 0;
 
@@ -78,7 +81,9 @@ static int osc_clear_handler(const char *path, const char *types, lo_arg **argv,
 	return monome_clear(monome, mode);
 }
 
-static int osc_intensity_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_intensity_handler(const char *path, const char *types,
+								 lo_arg **argv, int argc,
+								 lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	int intensity = 0xF;
 
@@ -88,7 +93,9 @@ static int osc_intensity_handler(const char *path, const char *types, lo_arg **a
 	return monome_intensity(monome, intensity);
 }
 
-static int osc_led_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_led_handler(const char *path, const char *types,
+						   lo_arg **argv, int argc,
+						   lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 
 	if( (argc != 3 || strcmp("iii", types)) ||
@@ -103,7 +110,9 @@ static int osc_led_handler(const char *path, const char *types, lo_arg **argv, i
 		return monome_led_off(monome, argv[0]->i, argv[1]->i);
 }
 
-static int osc_led_col_row_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_led_col_row_handler(const char *path, const char *types,
+								   lo_arg **argv, int argc,
+								   lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	uint8_t buf[2];
 
@@ -141,7 +150,9 @@ static int osc_led_col_row_handler(const char *path, const char *types, lo_arg *
 	return 0;
 }
 
-static int osc_frame_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+static int osc_frame_handler(const char *path, const char *types,
+							 lo_arg **argv, int argc,
+							 lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	uint8_t buf[8];
 	uint i;
@@ -161,9 +172,11 @@ static int osc_frame_handler(const char *path, const char *types, lo_arg **argv,
 	case 10:
 		/**
 		 * okay, this isn't implemented yet.
-		 * passing 10 arguments to /frame means you want to offset it by argv[8] and argv[9]
-		 * thing is, there's no clean mapping to the serial protocol
-		 * so this is going to have to wait until v0.2 at the earliest.
+		 * passing 10 arguments to /frame means you want to offset
+		 * it by argv[8] and argv[9].
+		 * 
+		 * thing is, there's no clean mapping to the serial protocol,
+		 * so this is going to have to wait.
 		 */
 		break;
 	}
@@ -202,7 +215,8 @@ static void register_osc_methods(char *prefix, monome_t *monome) {
 	asprintf(&cmd_buf, "/%s/frame", prefix);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiii", osc_frame_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiiii", osc_frame_handler, monome);
-	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii", osc_frame_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii",
+						 osc_frame_handler, monome);
 	free(cmd_buf);
 }
 
@@ -252,7 +266,8 @@ static void monome_handle_press(const monome_event_t *e, void *data) {
 	char *prefix = data;
 
 	asprintf(&cmd, "/%s/press", prefix);
-	lo_send_from(state.outgoing, state.server, LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
+	lo_send_from(state.outgoing, state.server, LO_TT_IMMEDIATE, cmd, "iii",
+				 e->x, e->y, e->event_type);
 	free(cmd);
 }
 
@@ -262,20 +277,24 @@ static void usage(const char *app) {
 		   "  -h, --help			display this information\n"
 		   "\n"
 		   "  -d, --device <device>		the monome serial device\n"
-		   "  -p, --protocol <protocol>	which protocol to use (\"40h\" or \"series\")\n"
+		   "  -p, --protocol <protocol>	which protocol to use"
+		       "(\"40h\" or \"series\")\n"
 		   "\n"
 		   "  -s, --server-port <port>	what port to listen on\n"
 		   "  -a, --application-port <port>	what port to talk to\n"
 		   "  -o, --application-host <host> the host your application is on\n"
 		   "\n"
-		   "  -r, --orientation <direction>	one of \"left\", \"right\", \"bottom\", or \"top\"\n"
+		   "  -r, --orientation <direction>	one of "
+		       "\"left\", \"right\", \"bottom\", or \"top\"\n"
 		   "\n", app);
 }
 
 static int is_numstr(const char *s) {
 	while((48 <= *s) && (*s++ <= 57)); /* 48 is ASCII '0', 57 is '9' */
 
-	if( *s ) /* if the character we stopped on isn't a null, we didn't make it through the string */
+	/* if the character we stopped on isn't a null,
+	   we didn't make it through the string */
+	if( *s )
 		return 0; /* oh well :( */
 	return 1;
 }
@@ -327,7 +346,8 @@ int main(int argc, char *argv[]) {
 	aport  = DEFAULT_OSC_APP_PORT;
 	ahost  = DEFAULT_OSC_APP_HOST;
 
-	while( (c = getopt_long(argc, argv, "hd:p:s:a:o:r:", arguments, &i)) > 0 ) {
+	while( (c = getopt_long(argc, argv, "hd:p:s:a:o:r:",
+							arguments, &i)) > 0 ) {
 		switch( c ) {
 		case 'h':
 			usage(argv[0]);
@@ -345,7 +365,8 @@ int main(int argc, char *argv[]) {
 			if( is_numstr(optarg) )
 				sport = optarg;
 			else
-				printf("warning: \"%s\" is not a valid server port.\n", optarg);
+				printf("warning: \"%s\" is not a valid server port.\n",
+					   optarg);
 
 			break;
 
@@ -353,7 +374,8 @@ int main(int argc, char *argv[]) {
 			if( is_numstr(optarg) )
 				aport = optarg;
 			else
-				printf("warning: \"%s\" is not a valid application port.\n", optarg);
+				printf("warning: \"%s\" is not a valid application port.\n",
+					   optarg);
 
 			break;
 
