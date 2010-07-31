@@ -57,7 +57,7 @@
 typedef struct {
 	monome_t *monome;
 	lo_address *outgoing;
-	lo_server_thread *st;
+	lo_server *server;
 
 	char *lo_prefix;
 
@@ -177,72 +177,72 @@ static int osc_frame_handler(const char *path, const char *types, lo_arg **argv,
 }
 
 static void register_osc_methods(char *prefix, monome_t *monome) {
-	lo_server_thread st = state.st;
+	lo_server_thread srv = state.server;
 	char *cmd_buf;
 
 	asprintf(&cmd_buf, "/%s/clear", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "", osc_clear_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "i", osc_clear_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "", osc_clear_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "i", osc_clear_handler, monome);
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/intensity", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "", osc_intensity_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "i", osc_intensity_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "", osc_intensity_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "i", osc_intensity_handler, monome);
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "iii", osc_led_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iii", osc_led_handler, monome);
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_row", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "ii", osc_led_col_row_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iii", osc_led_col_row_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "ii", osc_led_col_row_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iii", osc_led_col_row_handler, monome);
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_col", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "ii", osc_led_col_row_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iii", osc_led_col_row_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "ii", osc_led_col_row_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iii", osc_led_col_row_handler, monome);
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/frame", prefix);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiii", osc_frame_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiii", osc_frame_handler, monome);
-	lo_server_thread_add_method(st, cmd_buf, "iiiiiiiiii", osc_frame_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iiiiiiii", osc_frame_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iiiiiiiii", osc_frame_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii", osc_frame_handler, monome);
 	free(cmd_buf);
 }
 
 static void unregister_osc_methods(char *prefix) {
-	lo_server_thread st = state.st;
+	lo_server_thread srv = state.server;
 	char *cmd_buf;
 
 	asprintf(&cmd_buf, "/%s/clear", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "");
-	lo_server_thread_del_method(st, cmd_buf, "i");
+	lo_server_del_method(srv, cmd_buf, "");
+	lo_server_del_method(srv, cmd_buf, "i");
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/intensity", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "");
-	lo_server_thread_del_method(st, cmd_buf, "i");
+	lo_server_del_method(srv, cmd_buf, "");
+	lo_server_del_method(srv, cmd_buf, "i");
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "iii");
+	lo_server_del_method(srv, cmd_buf, "iii");
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_row", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "ii");
-	lo_server_thread_del_method(st, cmd_buf, "iii");
+	lo_server_del_method(srv, cmd_buf, "ii");
+	lo_server_del_method(srv, cmd_buf, "iii");
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_col", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "ii");
-	lo_server_thread_del_method(st, cmd_buf, "iii");
+	lo_server_del_method(srv, cmd_buf, "ii");
+	lo_server_del_method(srv, cmd_buf, "iii");
 	free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/frame", prefix);
-	lo_server_thread_del_method(st, cmd_buf, "iiiiiiii");
-	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiii");
-	lo_server_thread_del_method(st, cmd_buf, "iiiiiiiiii");
+	lo_server_del_method(srv, cmd_buf, "iiiiiiii");
+	lo_server_del_method(srv, cmd_buf, "iiiiiiiii");
+	lo_server_del_method(srv, cmd_buf, "iiiiiiiiii");
 	free(cmd_buf);
 }
 
@@ -259,7 +259,7 @@ static void monome_handle_press(const monome_event_t *e, void *data) {
 	pthread_mutex_lock(&state.lock);
 
 	asprintf(&cmd, "/%s/press", prefix);
-	lo_send_from(state.outgoing, lo_server_thread_get_server(state.st), LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
+	lo_send_from(state.outgoing, state.server, LO_TT_IMMEDIATE, cmd, "iii", e->x, e->y, e->event_type);
 	free(cmd);
 
 	pthread_mutex_unlock(&state.lock);
@@ -290,17 +290,25 @@ static int is_numstr(const char *s) {
 }
 
 static void main_loop() {
-	int monome_fd = monome_get_fd(state.monome);
+	int monome_fd, lo_fd, max_fd;
 	fd_set rfds;
+
+	monome_fd = monome_get_fd(state.monome);
+	lo_fd = lo_server_get_socket_fd(state.server);
+	max_fd = ((monome_fd > lo_fd) ? monome_fd : lo_fd) + 1;
 
 	do {
 		FD_ZERO(&rfds);
 		FD_SET(monome_fd, &rfds);
+		FD_SET(lo_fd, &rfds);
 
-		select(monome_fd + 1, &rfds, NULL, NULL, NULL);
+		select(max_fd, &rfds, NULL, NULL, NULL);
 
 		if( FD_ISSET(monome_fd, &rfds) )
 			monome_event_handle_next(state.monome);
+
+		if( FD_ISSET(lo_fd, &rfds) )
+			lo_server_recv_noblock(state.server, 0);
 	} while( 1 );
 }
 
@@ -384,18 +392,16 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	if( !(state.st = lo_server_thread_new(sport, lo_error)) )
+	if( !(state.server = lo_server_new(sport, lo_error)) )
 		return -1;
+
+	state.outgoing = lo_address_new(ahost, aport);
 
 	printf("monomeserial version %s, yay!\n\n", VERSION);
 	printf("initialized device %s at %s, which is %dx%d\n",
 		   monome_get_serial(state.monome), monome_get_devpath(state.monome),
 		   monome_get_rows(state.monome), monome_get_cols(state.monome));
 	printf("running with prefix /%s\n\n", state.lo_prefix);
-
-	monome_set_orientation(state.monome, orientation);
-
-	state.outgoing = lo_address_new(ahost, aport);
 
 	monome_register_handler(state.monome, MONOME_BUTTON_DOWN,
 							monome_handle_press, state.lo_prefix);
@@ -405,9 +411,9 @@ int main(int argc, char *argv[]) {
 	register_sys_methods(state.monome);
 	register_osc_methods(state.lo_prefix, state.monome);
 
+	monome_set_orientation(state.monome, orientation);
 	monome_clear(state.monome, MONOME_CLEAR_OFF);
 
-	lo_server_thread_start(state.st);
 	main_loop();
 
 	unregister_osc_methods(state.lo_prefix);
