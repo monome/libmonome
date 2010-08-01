@@ -155,7 +155,7 @@ static int proto_series_clear(monome_t *monome, monome_clear_status_t status) {
 }
 
 static int proto_series_intensity(monome_t *monome, uint brightness) {
-	uint8_t buf = PROTO_SERIES_INTENSITY | (brightness & 0x0F );
+	uint8_t buf = PROTO_SERIES_INTENSITY | (brightness & 0x0F);
 	return monome_write(monome, &buf, sizeof(buf));
 }
 

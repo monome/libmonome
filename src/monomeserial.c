@@ -73,10 +73,7 @@ static int osc_clear_handler(const char *path, const char *types,
 							 lo_arg **argv, int argc,
 							 lo_message data, void *user_data) {
 	monome_t *monome = user_data;
-	int mode = 0;
-
-	if( argc > 0 )
-		mode = argv[0]->i & 0x01;
+	int mode = (argc) ? argv[0]->i : 0;
 
 	return monome_clear(monome, mode);
 }
@@ -85,10 +82,7 @@ static int osc_intensity_handler(const char *path, const char *types,
 								 lo_arg **argv, int argc,
 								 lo_message data, void *user_data) {
 	monome_t *monome = user_data;
-	int intensity = 0xF;
-
-	if( argc > 0 )
-		intensity = argv[0]->i & 0xF;
+	int intensity = (argc) ? argv[0]->i : 0xF;
 
 	return monome_intensity(monome, intensity);
 }
@@ -114,40 +108,15 @@ static int osc_led_col_row_handler(const char *path, const char *types,
 								   lo_arg **argv, int argc,
 								   lo_message data, void *user_data) {
 	monome_t *monome = user_data;
-	uint8_t buf[2];
+	uint8_t buf[2] = {argv[1]->i};
 
-	if( argv[0]->i > 15 || argv[0]->i < 0 )
-		return -1;
-
-	switch( argc ) {
-	case 2:
-		if( strncmp("ii", types, 2) )
-			return -1;
-		buf[0] = argv[1]->i;
-
-		if( strstr(path, "led_col") )
-			return monome_led_col(monome, argv[0]->i, 1, buf);
-		else
-			return monome_led_row(monome, argv[0]->i, 1, buf);
-
-		break;
-
-	case 3:
-		if( strncmp("iii", types, 3) )
-			return -1;
-
-		buf[0] = argv[1]->i;
+	if( argc == 3 )
 		buf[1] = argv[2]->i;
 
-		if( strstr(path, "led_col") )
-			return monome_led_col(monome, argv[0]->i, 2, buf);
-		else
-			return monome_led_row(monome, argv[0]->i, 2, buf);
-
-		break;
-	}
-
-	return 0;
+	if( strstr(path, "led_col") )
+		return monome_led_col(monome, argv[0]->i, argc - 1, buf);
+	else
+		return monome_led_row(monome, argv[0]->i, argc - 1, buf);
 }
 
 static int osc_frame_handler(const char *path, const char *types,
@@ -394,27 +363,20 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	if( optind == argc ) {
-		state.lo_prefix = calloc(sizeof(char), strlen(DEFAULT_OSC_PREFIX) + 1);
-		strcpy(state.lo_prefix, DEFAULT_OSC_PREFIX);
-	} else
+	if( optind == argc )
+		state.lo_prefix = strdup(DEFAULT_OSC_PREFIX);
+	else
 		state.lo_prefix = strdup(argv[optind]);
 
 	if( !(state.monome = monome_open(device)) ) {
 		printf("failed to open %s\n", device);
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	if( !(state.server = lo_server_new(sport, lo_error)) )
-		return -1;
+		return EXIT_FAILURE;
 
 	state.outgoing = lo_address_new(ahost, aport);
-
-	printf("monomeserial version %s, yay!\n\n", VERSION);
-	printf("initialized device %s at %s, which is %dx%d\n",
-		   monome_get_serial(state.monome), monome_get_devpath(state.monome),
-		   monome_get_rows(state.monome), monome_get_cols(state.monome));
-	printf("running with prefix /%s\n\n", state.lo_prefix);
 
 	monome_register_handler(state.monome, MONOME_BUTTON_DOWN,
 							monome_handle_press, state.lo_prefix);
@@ -427,11 +389,17 @@ int main(int argc, char *argv[]) {
 	monome_set_orientation(state.monome, orientation);
 	monome_clear(state.monome, MONOME_CLEAR_OFF);
 
+	printf("monomeserial version %s, yay!\n\n", VERSION);
+	printf("initialized device %s at %s, which is %dx%d\n",
+		   monome_get_serial(state.monome), monome_get_devpath(state.monome),
+		   monome_get_rows(state.monome), monome_get_cols(state.monome));
+	printf("running with prefix /%s\n\n", state.lo_prefix);
+
 	main_loop();
 
 	unregister_osc_methods(state.lo_prefix);
 	monome_close(state.monome);
 	free(state.lo_prefix);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
