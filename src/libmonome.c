@@ -126,6 +126,7 @@ monome_t *monome_open(const char *dev, ...) {
 	int error;
 
 	assert(dev);
+	serial = NULL;
 
 	/* first let's figure out which protocol to use */
 	if( *dev == '/' ) {
@@ -154,7 +155,7 @@ monome_t *monome_open(const char *dev, ...) {
 	va_end(arguments);
 
 	if( error )
-		goto err_open;
+		goto err_init;
 
 	/* if we have a physical device, make sure we've got the device and
 	   serial in the structure.  the OSC device will have this populated
@@ -168,12 +169,12 @@ monome_t *monome_open(const char *dev, ...) {
 	}
 
 	if( !(monome->device = strdup(dev)) )
-		goto err_open;
+		goto err_nomem;
 
 	monome->orientation = MONOME_CABLE_LEFT;
 	return monome;
 
-err_open:
+err_nomem:
 	monome->free(monome);
 
 err_init:
