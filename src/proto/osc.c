@@ -83,7 +83,9 @@ static int proto_osc_intensity(monome_t *monome, uint brightness) {
 
 static int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 	SELF_FROM(monome);
-	return LO_SEND_MSG(mode, "i", mode);
+
+	/* sys message?  why? */
+	return lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, "/sys/mode", "i", mode);
 }
 
 static int proto_osc_led_on(monome_t *monome, uint x, uint y) {

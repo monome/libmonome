@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
 	test_led_on_off(monome);
 	test_led_frame(monome);
 
-	chill(1);
+	chill(2);
 	test_mode(monome);
 
 	fade_out(monome);
