@@ -224,8 +224,18 @@ static void unregister_osc_methods(char *prefix) {
 	free(cmd_buf);
 }
 
+static int sys_mode_handler(const char *path, const char *types,
+							 lo_arg **argv, int argc,
+							 lo_message data, void *user_data) {
+	monome_t *monome = user_data;
+
+	return monome_mode(monome, argv[0]->i);
+}
+
 static void register_sys_methods(monome_t *monome) {
-	/* XXX: uh */
+	lo_server_thread srv = state.server;
+
+	lo_server_add_method(srv, "/sys/mode", "i", sys_mode_handler, monome);
 
 	return;
 }
