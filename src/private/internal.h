@@ -71,6 +71,8 @@ struct monome_rotspec {
 };
 
 struct monome {
+	void *dl_handle;
+
 	char *serial;
 	char *device;
 	int rows, cols;

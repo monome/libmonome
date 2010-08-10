@@ -83,12 +83,19 @@ static monome_devmap_t *map_serial_to_device(const char *serial) {
 	return NULL;
 }
 
+static void monome_free(monome_t *monome) {
+	void *dl_handle = monome->dl_handle;
+
+	monome->free(monome);
+	dlclose(dl_handle);
+}
+
 /**
  * public
  */
 
 monome_t *monome_init(const char *proto) {
-	void *protocol_lib;
+	void *dl_handle;
 	monome_t *(*monome_protocol_new)();
 	monome_t *monome;
 	char *buf;
@@ -96,30 +103,35 @@ monome_t *monome_init(const char *proto) {
 	if( asprintf(&buf, "%s/monome/protocol_%s%s", LIBDIR, proto, LIBSUFFIX) < 0 )
 		return NULL;
 
-	protocol_lib = dlopen(buf, RTLD_NOW);
+	dl_handle = dlopen(buf, RTLD_LAZY);
 	free(buf);
 	
-	if( !protocol_lib ) {
+	if( !dl_handle ) {
 		fprintf(stderr, "couldn't load monome protocol module.  dlopen said:\n\t%s\n\n"
 				"please make sure that libmonome is installed correctly!\n", dlerror());
 		return NULL;
 	}
 	
-	monome_protocol_new = dlsym(protocol_lib, "monome_protocol_new");
+	monome_protocol_new = dlsym(dl_handle, "monome_protocol_new");
 	
 	if( !monome_protocol_new ) {
 		fprintf(stderr, "couldn't initialize monome protocol module. dlopen said:\n\t%s\n\n"
 				"please make sure you're using a valid protocol library!\n"
 				"if this is a protocol library you wrote, make sure you're providing a \e[1mmonome_protocol_new\e[0m function.\n", dlerror());
-		return NULL;
+		goto err;
 	}
 	
 	monome = (*monome_protocol_new)();
 	
 	if( !monome )
-		return NULL;
+		goto err;
 
+	monome->dl_handle = dl_handle;
 	return monome;
+
+err:
+	dlclose(dl_handle);
+	return NULL;
 }
 
 monome_t *monome_open(const char *dev, ...) {
@@ -197,7 +209,7 @@ void monome_close(monome_t *monome) {
 		free(monome->device);
 
 	monome->close(monome);
-	monome->free(monome);
+	monome_free(monome);
 }
 
 const char *monome_get_serial(monome_t *monome) {
