@@ -398,6 +398,7 @@ int main(int argc, char *argv[]) {
 
 	monome_set_orientation(state.monome, orientation);
 	monome_clear(state.monome, MONOME_CLEAR_OFF);
+	monome_mode(state.monome, MONOME_MODE_NORMAL);
 
 	printf("monomeserial version %s, yay!\n\n", VERSION);
 	printf("initialized device %s at %s, which is %dx%d\n",
