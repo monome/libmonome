@@ -415,8 +415,12 @@ int main(int argc, char *argv[]) {
 		printf("%s disconnected, monomeserial exiting.\nsee you later!\n\n", monome_get_devpath(state.monome));
 
 	monome_close(state.monome);
+
 	unregister_osc_methods(state.lo_prefix);
 	free(state.lo_prefix);
+
+	lo_address_free(state.outgoing);
+	lo_server_free(state.server);
 
 	return EXIT_SUCCESS;
 }
