@@ -274,10 +274,6 @@ cdef class Monome(object):
 
 			monome_set_orientation(self.monome, <monome_cable_t> cable)
 
-	property intensity:
-		def __set__(self, uint intensity):
-			monome_intensity(self.monome, intensity)
-
 	property serial:
 		def __get__(self):
 			return self.serial
@@ -294,9 +290,6 @@ cdef class Monome(object):
 	@property
 	def columns(self):
 		return monome_get_cols(self.monome)
-
-	def clear(self, uint status=CLEAR_OFF):
-		monome_clear(self.monome, <monome_clear_status_t> status)
 
 	#
 	# event functions
@@ -341,6 +334,17 @@ cdef class Monome(object):
 	#
 	# led functions
 	#
+
+	def clear(self, uint status=CLEAR_OFF):
+		monome_clear(self.monome, <monome_clear_status_t> status)
+
+	property mode:
+		def __set__(self, uint mode):
+			monome_mode(self.monome, <monome_mode_t> mode)
+
+	property intensity:
+		def __set__(self, uint intensity):
+			monome_intensity(self.monome, intensity)
 
 	def led_on(self, uint x, uint y):
 		monome_led_on(self.monome, x, y)
