@@ -31,8 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <poll.h>
 
 #include <getopt.h>
 #include <lo/lo.h>
@@ -278,26 +277,31 @@ static int is_numstr(const char *s) {
 	return 1;
 }
 
-static void main_loop() {
-	int monome_fd, lo_fd, max_fd;
-	fd_set rfds;
+static int main_loop() {
+	struct pollfd fds[2];
 
-	monome_fd = monome_get_fd(state.monome);
-	lo_fd = lo_server_get_socket_fd(state.server);
-	max_fd = ((monome_fd > lo_fd) ? monome_fd : lo_fd) + 1;
+	fds[0].fd = monome_get_fd(state.monome);
+	fds[1].fd = lo_server_get_socket_fd(state.server);
+
+	fds[0].events = fds[1].events = 
+		POLLIN;
 
 	do {
-		FD_ZERO(&rfds);
-		FD_SET(monome_fd, &rfds);
-		FD_SET(lo_fd, &rfds);
+		/* block until either the monome or liblo have data */
+		poll(fds, 2, -1);
 
-		select(max_fd, &rfds, NULL, NULL, NULL);
+		/* is the monome still connected? */
+		if( fds[0].revents & (POLLHUP | POLLERR) )
+			return 1;
 
-		if( FD_ISSET(monome_fd, &rfds) )
+		/* is there data available for reading from the monome? */
+		if( fds[0].revents & POLLIN )
 			monome_event_handle_next(state.monome);
 
-		if( FD_ISSET(lo_fd, &rfds) )
+		/* how about from OSC? */
+		if( fds[1].revents & POLLIN )
 			lo_server_recv_noblock(state.server, 0);
+
 	} while( 1 );
 }
 
@@ -406,10 +410,11 @@ int main(int argc, char *argv[]) {
 		   monome_get_rows(state.monome), monome_get_cols(state.monome));
 	printf("running with prefix /%s\n\n", state.lo_prefix);
 
-	main_loop();
+	/* main_loop() returns 1 if the monome was disconnected */
+	if( !main_loop() )
+		monome_close(state.monome);
 
 	unregister_osc_methods(state.lo_prefix);
-	monome_close(state.monome);
 	free(state.lo_prefix);
 
 	return EXIT_SUCCESS;
