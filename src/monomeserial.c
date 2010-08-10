@@ -413,6 +413,8 @@ int main(int argc, char *argv[]) {
 	/* main_loop() returns 1 if the monome was disconnected */
 	if( !main_loop() )
 		monome_close(state.monome);
+	else
+		printf("%s disconnected, monomeserial exiting.\nsee you later!\n\n", monome_get_devpath(state.monome));
 
 	unregister_osc_methods(state.lo_prefix);
 	free(state.lo_prefix);
