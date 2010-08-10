@@ -229,6 +229,11 @@ cdef class Monome(object):
 		"right": CABLE_RIGHT,
 		"top": CABLE_TOP}
 
+	rev_mode_map = {
+		"normal": MODE_NORMAL,
+		"shutdown": MODE_SHUTDOWN,
+		"test": MODE_TEST}
+
 	def __init__(self, device, port=None, clear=True):
 		cdef char *portstr
 		cdef const_char_p ser
@@ -339,8 +344,15 @@ cdef class Monome(object):
 		monome_clear(self.monome, <monome_clear_status_t> status)
 
 	property mode:
-		def __set__(self, uint mode):
-			monome_mode(self.monome, <monome_mode_t> mode)
+		def __set__(self, mode):
+			if isinstance(mode, str):
+				try:
+					monome_mode(self.monome,
+						<monome_mode_t> Monome.rev_mode_map[mode])
+				except KeyError:
+					raise TypeError("'%s' is not a valid mode." % mode)
+			else:
+				monome_mode(self.monome, <monome_mode_t> mode)
 
 	property intensity:
 		def __set__(self, uint intensity):
