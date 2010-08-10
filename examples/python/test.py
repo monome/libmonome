@@ -41,7 +41,7 @@ def str_to_frame(str):
 
 
 class CommandTest(monome.Monome):
-    def test_led_on_off(self, func):
+    def test_led(self, func):
         for i in xrange(0, 16):
             for j in xrange(0, 16):
                 func(j, i)
@@ -72,15 +72,25 @@ class CommandTest(monome.Monome):
 
             on |= on << 1
 
-    def test_frame(self, inverted=False, *rest):
+    def test_frame(self, *rest):
         def invert_frame(frame):
             return [x ^ 0xFF for x in frame]
 
         comp = [str_to_frame(x) or 0 for x in rest]
 
-        for i in xrange(4):
-            self.led_frame(i, invert_frame(comp[i]) if inverted else comp[i])
+        for i in xrange(len(rest)):
+            self.led_frame(i, comp[i])
             time.sleep(0.5)
+            self.led_frame(i, invert_frame(comp[i]))
+            time.sleep(0.5)
+
+    def test_mode(self):
+        self.mode = monome.MODE_SHUTDOWN
+        time.sleep(0.5)
+        self.mode = monome.MODE_TEST
+        time.sleep(0.5)
+        self.mode = monome.MODE_NORMAL
+        time.sleep(0.5)
 
     def fade_out(self):
         for i in reversed(xrange(16)):
@@ -99,12 +109,13 @@ class CommandTest(monome.Monome):
             self.test_width_16(1, self.led_col)
 
         self.test_width_16(0, self.led_col)
-        self.test_led_on_off(self.led_on)
 
-        time.sleep(.25)
-        self.test_frame(True, Y, E, A, H)
-        self.test_frame(False, Y, E, A, H)
+        self.test_led(self.led_on)
+        self.test_led(self.led_off)
 
+        self.test_frame(Y, E, A, H)
+
+        self.test_mode()
         self.fade_out()
 
         self.clear()
