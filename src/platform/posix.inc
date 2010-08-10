@@ -84,9 +84,7 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 }
 
 int monome_platform_close(monome_t *monome) {
-	if( tcsetattr(monome->fd, TCSANOW, &monome->ot) < 0 )
-		perror("libmonome: could not restore terminal attributes");
-
+	tcsetattr(monome->fd, TCSANOW, &monome->ot);
 	return close(monome->fd);
 }
 

@@ -411,11 +411,10 @@ int main(int argc, char *argv[]) {
 	printf("running with prefix /%s\n\n", state.lo_prefix);
 
 	/* main_loop() returns 1 if the monome was disconnected */
-	if( !main_loop() )
-		monome_close(state.monome);
-	else
+	if( main_loop() )
 		printf("%s disconnected, monomeserial exiting.\nsee you later!\n\n", monome_get_devpath(state.monome));
 
+	monome_close(state.monome);
 	unregister_osc_methods(state.lo_prefix);
 	free(state.lo_prefix);
 

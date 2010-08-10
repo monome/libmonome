@@ -190,14 +190,13 @@ err_init:
 void monome_close(monome_t *monome) {
 	assert(monome);
 
-	monome->close(monome);
-
 	if( monome->serial )
 		free(monome->serial);
 
 	if( monome->device )
 		free(monome->device);
 
+	monome->close(monome);
 	monome->free(monome);
 }
 
