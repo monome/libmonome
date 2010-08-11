@@ -59,7 +59,7 @@ static void usage(const char *app) {
 
 int main(int argc, char **argv) {
 	char c, *device;
-	uint8_t buf[2];
+	uint8_t buf[1];
 	int grids, i;
 
 	monome_t mk;
