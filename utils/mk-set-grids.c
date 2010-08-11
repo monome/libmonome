@@ -26,6 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -58,10 +59,10 @@ static void usage(const char *app) {
 
 int main(int argc, char **argv) {
 	char c, *device;
-	uint8_t buf[1];
+	uint8_t buf[2];
 	int grids, i;
 
-	monome_t *mk;
+	monome_t mk;
 
 	struct option arguments[] = {
 		{"help",         no_argument,       0, 'h'},
@@ -93,13 +94,13 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	mk = calloc(1, sizeof(monome_t));
-	if( monome_platform_open(mk, device) )
+	memset(&mk, '\0', sizeof(monome_t));
+	if( monome_platform_open(&mk, device) )
 		exit(EXIT_FAILURE);
 
 	buf[0] = (PROTO_MK_GRIDS << 4) | (grids & 0xF);
-	monome_platform_write(mk, buf, 1);
+	monome_platform_write(&mk, buf, 1);
 
-	monome_platform_close(mk);
-	return 0;
+	monome_platform_close(&mk);
+	return EXIT_SUCCESS;
 }
