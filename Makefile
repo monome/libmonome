@@ -11,17 +11,21 @@ SUBDIRS = src bindings examples
 .SILENT:
 .SUFFIXES:
 .SUFFIXES: .c .o
-.PHONY: all clean mrproper distclean install test config.mk
+.PHONY: all clean mrproper distclean install test config.mk utils
 
 all:
 	cd src; $(MAKE)
 	cd bindings; $(MAKE)
 	cd examples; $(MAKE)
 
+utils: all
+	cd utils; $(MAKE)
+
 clean:
 	cd src; $(MAKE) clean
 	cd bindings; $(MAKE) clean
 	cd examples; $(MAKE) clean
+	cd utils; $(MAKE) clean
 
 mrproper: clean
 	cd bindings; $(MAKE) mrproper
