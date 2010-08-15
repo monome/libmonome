@@ -4,6 +4,7 @@ libmonome.pc
 *.o
 *.so*
 *.dylib
+*.pyc
 
 # temporary stuff
 *.swp
