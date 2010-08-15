@@ -134,7 +134,9 @@ static int proto_osc_next_event(monome_t *monome, monome_event_t *e) {
 	return self->have_event;
 }
 
-static int proto_osc_open(monome_t *monome, const char *dev, va_list args) {
+static int proto_osc_open(monome_t *monome, const char *dev,
+						  const char *serial, const monome_devmap_t *m,
+						  va_list args) {
 	SELF_FROM(monome);
 	char *port, *buf;
 

@@ -40,14 +40,17 @@
  * private
  */
 
-static int monome_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
+static int monome_write(monome_t *monome, const uint8_t *buf,
+						ssize_t bufsize) {
     if( monome_platform_write(monome, buf, bufsize) == bufsize )
 		return 0;
 
 	return -1;
 }
 
-static int proto_series_led_col_row_8(monome_t *monome, proto_series_message_t mode, uint address, const uint8_t *data) {
+static int proto_series_led_col_row_8(monome_t *monome,
+									  proto_series_message_t mode,
+									  uint address, const uint8_t *data) {
 	uint8_t buf[2] = {0, 0};
 	uint xaddress = address;
 
@@ -226,7 +229,13 @@ static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 	return 0;
 }
 
-static int proto_series_open(monome_t *monome, const char *dev, va_list args) {
+static int proto_series_open(monome_t *monome, const char *dev,
+							 const char *serial, const monome_devmap_t *m,
+							 va_list args) {
+	monome->rows   = m->dimensions.rows;
+	monome->cols   = m->dimensions.cols;
+	monome->serial = serial;
+
 	return monome_platform_open(monome, dev);
 }
 

@@ -191,7 +191,13 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	return 0;
 }
 
-static int proto_40h_open(monome_t *monome, const char *dev, va_list args) {
+static int proto_40h_open(monome_t *monome, const char *dev,
+						  const char *serial, const monome_devmap_t *m,
+						  va_list args) {
+	monome->rows   = m->dimensions.rows;
+	monome->cols   = m->dimensions.cols;
+	monome->serial = serial;
+
 	return monome_platform_open(monome, dev);
 }
 

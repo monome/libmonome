@@ -144,6 +144,7 @@ monome_t *monome_open(const char *dev, ...) {
 
 	assert(dev);
 	serial = NULL;
+	m = NULL;
 
 	/* first let's figure out which protocol to use */
 	if( *dev == '/' ) {
@@ -168,22 +169,11 @@ monome_t *monome_open(const char *dev, ...) {
 		goto err_init;
 
 	va_start(arguments, dev);
-	error = monome->open(monome, dev, arguments);
+	error = monome->open(monome, dev, serial, m, arguments);
 	va_end(arguments);
 
 	if( error )
 		goto err_init;
-
-	/* if we have a physical device, make sure we've got the device and
-	   serial in the structure.  the OSC device will have this populated
-	   by now.
-	 
-	   TODO: make the OSC protocol get this stuff over the network */
-	if( *dev == '/' ) {
-		monome->rows   = m->dimensions.rows;
-		monome->cols   = m->dimensions.cols;
-		monome->serial = serial;
-	}
 
 	if( !(monome->device = strdup(dev)) )
 		goto err_nomem;
@@ -203,10 +193,10 @@ void monome_close(monome_t *monome) {
 	assert(monome);
 
 	if( monome->serial )
-		free(monome->serial);
+		free((char *) monome->serial);
 
 	if( monome->device )
-		free(monome->device);
+		free((char *) monome->device);
 
 	monome->close(monome);
 	monome_free(monome);

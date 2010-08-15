@@ -42,7 +42,8 @@ typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
 
 typedef void (*monome_coord_cb)(monome_t *, uint *x, uint *y);
-typedef void (*monome_frame_cb)(monome_t *, uint *quadrant, uint8_t *frame_data);
+typedef void (*monome_frame_cb)(monome_t *, uint *quadrant,
+								uint8_t *frame_data);
 
 struct monome_callback {
 	monome_event_callback_t cb;
@@ -73,8 +74,8 @@ struct monome_rotspec {
 struct monome {
 	void *dl_handle;
 
-	char *serial;
-	char *device;
+	const char *serial;
+	const char *device;
 	int rows, cols;
 
 	struct termios ot;
@@ -83,7 +84,8 @@ struct monome {
 	monome_callback_t handlers[3];
 	monome_cable_t orientation;
 
-	int  (*open)(monome_t *monome, const char *dev, va_list args);
+	int  (*open)(monome_t *monome, const char *dev, const char *serial,
+				 const monome_devmap_t *, va_list args);
 	int  (*close)(monome_t *monome);
 	void (*free)(monome_t *monome);
 
