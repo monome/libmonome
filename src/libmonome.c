@@ -107,17 +107,22 @@ monome_t *monome_init(const char *proto) {
 	free(buf);
 	
 	if( !dl_handle ) {
-		fprintf(stderr, "couldn't load monome protocol module.  dlopen said:\n\t%s\n\n"
-				"please make sure that libmonome is installed correctly!\n", dlerror());
+		fprintf(stderr, "couldn't load monome protocol module.  "
+				"dlopen said: \n\t%s\n\n"
+				"please make sure that libmonome is installed correctly!\n",
+				dlerror());
 		return NULL;
 	}
 	
 	monome_protocol_new = dlsym(dl_handle, "monome_protocol_new");
 	
 	if( !monome_protocol_new ) {
-		fprintf(stderr, "couldn't initialize monome protocol module. dlopen said:\n\t%s\n\n"
+		fprintf(stderr, "couldn't initialize monome protocol module.  "
+				"dlopen said:\n\t%s\n\n"
 				"please make sure you're using a valid protocol library!\n"
-				"if this is a protocol library you wrote, make sure you're providing a \e[1mmonome_protocol_new\e[0m function.\n", dlerror());
+				"if this is a protocol library you wrote, make sure you're"
+				"providing a \e[1mmonome_protocol_new\e[0m function.\n",
+				dlerror());
 		goto err;
 	}
 	
@@ -327,14 +332,17 @@ int monome_led_off(monome_t *monome, uint x, uint y) {
 	return monome->led_off(monome, x, y);
 }
 
-int monome_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
+int monome_led_col(monome_t *monome, uint col,
+				   size_t count, const uint8_t *data) {
 	return monome->led_col(monome, col, count, data);
 }
 
-int monome_led_row(monome_t *monome, uint row, size_t count, const uint8_t *data) {
+int monome_led_row(monome_t *monome, uint row,
+				   size_t count, const uint8_t *data) {
 	return monome->led_row(monome, row, count, data);
 }
 
-int monome_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
+int monome_led_frame(monome_t *monome,
+					 uint quadrant, const uint8_t *frame_data) {
 	return monome->led_frame(monome, quadrant, frame_data);
 }
