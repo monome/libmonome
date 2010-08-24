@@ -157,7 +157,7 @@ monome_t *monome_open(const char *dev, ...) {
 		if( (m = map_serial_to_device(serial)) )
 			proto = m->proto;
 		else
-			proto = DEFAULT_PROTOCOL;
+			return NULL;
 	} else
 		/* otherwise, we'll assume that what we have is an OSC URL.
 
