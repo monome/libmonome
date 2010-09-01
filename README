@@ -8,6 +8,6 @@ libmonome v0.3:
 	and provides OSC control of the monome (loosely) according to the 
 	monome OSC specification.
 
-	libmonome was written by will light (visinin on the monome forums).
-	you can contact him at <will@visinin.com>.
+	libmonome was written by william light (visinin on the monome forums).
+	you can contact him at <wrl@visinin.com>.
 	feedback of all sorts is welcomed!
