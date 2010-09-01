@@ -1,0 +1,54 @@
+.TH monomeserial "1" "August 2010" "libmonome 0.3"
+
+.SH NAME
+monomeserial \- an OSC router for monome devices
+
+.SH SYNOPSIS
+.PP
+.B monomeserial
+[\-h]
+[\-d \fIdevice\fP]
+[\-s \fIport\fP]
+[\-a \fIport\fP]
+[\-o \fIhost\fP]
+[\-r \fIorientation\fP]
+[\fIprefix\fP]
+
+.SH DESCRIPTION
+.PP
+.B monomeserial
+is an implementation of the Monome OSC specification, running as a UDP OSC server and translating commands between OSC and the native Monome protocol.
+
+.PP
+monome devices use an efficient serial protocol to communicate with the host system, but interacting with serial devices from higher level applications can be unwieldy.  OSC is a well supported protocol between multimedia applications and programming envionments, and an OSC router such as
+.B monomeserial
+bridges the gap.
+
+.SH OPTIONS
+
+.TP
+.BI "-h, --help"
+display a help/usage message.
+
+.TP
+.BI "-d, --device="DEVICE
+.I DEVICE
+specifies the path to the monome
+
+.TP
+.BI "-s, --server-port="PORT
+specifies the port on which
+.B monomeserial
+listens for outgoing OSC messages
+
+.TP
+.BI "-a, --application-port="PORT
+specifies the port on which your application is listening for OSC messages
+
+.TP
+.BI "-o, --application-host="HOST
+specifies the host on which your application is running
+
+.SH AUTHOR
+.PP
+Originally written by William Light <wrl@illest.net>
