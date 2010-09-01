@@ -250,21 +250,29 @@ static void monome_handle_press(const monome_event_t *e, void *data) {
 }
 
 static void usage(const char *app) {
-	printf("usage: %s [options...] [prefix]\n"
-		   "\n"
-		   "  -h, --help			display this information\n"
-		   "\n"
-		   "  -d, --device <device>		the monome serial device\n"
-		   "  -p, --protocol <protocol>	which protocol to use"
-		       "(\"40h\" or \"series\")\n"
-		   "\n"
-		   "  -s, --server-port <port>	what port to listen on\n"
-		   "  -a, --application-port <port>	what port to talk to\n"
-		   "  -o, --application-host <host> the host your application is on\n"
-		   "\n"
-		   "  -r, --orientation <direction>	one of "
-		       "\"left\", \"right\", \"bottom\", or \"top\"\n"
-		   "\n", app);
+	printf(
+		"usage: %s [options...] [prefix]\n"
+		"\n"
+		"  -h, --help			display this information\n"
+		"\n"
+		"  -d, --device <device>		the monome serial device\n"
+
+		/*
+		 * protocol cannot currently be explicitly specified.
+		 * this functionality will be re-added at a later date.
+		 *
+
+		"  -p, --protocol <protocol>	which protocol to use"
+			"(\"40h\" or \"series\")\n" */
+
+		"\n"
+		"  -s, --server-port <port>	what port to listen on\n"
+		"  -a, --application-port <port>	what port to talk to\n"
+		"  -o, --application-host <host> the host your application is on\n"
+		"\n"
+		"  -r, --orientation <direction>	one of "
+			"\"left\", \"right\", \"bottom\", or \"top\"\n"
+		"\n", app);
 }
 
 static int is_numstr(const char *s) {
