@@ -49,8 +49,8 @@ static int monome_write(monome_t *monome, const uint8_t *buf,
 }
 
 static int proto_series_led_col_row_8(monome_t *monome,
-									  proto_series_message_t mode,
-									  uint address, const uint8_t *data) {
+                                      proto_series_message_t mode,
+                                      uint address, const uint8_t *data) {
 	uint8_t buf[2] = {0, 0};
 	uint xaddress = address;
 
@@ -176,15 +176,51 @@ static int proto_series_led_off(monome_t *monome, uint x, uint y) {
 }
 
 static int proto_series_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
-	if( count == 1 )
-		return proto_series_led_col_row_8(monome, PROTO_SERIES_LED_COL_8, col, data);
-	return proto_series_led_col_row_16(monome, PROTO_SERIES_LED_COL_16, col, data);
+	uint16_t sdata;
+
+	switch( ((monome->cols > 8) << 1) | (count > 1)) {
+	case 0x0: /* 1-byte monome, 1-byte message */
+	case 0x1: /* 1-byte monome, 2-byte message */
+		return proto_series_led_col_row_8(
+			monome, PROTO_SERIES_LED_COL_8, col, data);
+
+	case 0x2: /* 2-byte monome, 1-byte message */
+		sdata = *data;
+
+		return proto_series_led_col_row_16(
+			monome, PROTO_SERIES_LED_COL_16, col,
+			((const uint8_t *) &sdata));
+
+	case 0x3: /* 2-byte monome, 2-byte message */
+		return proto_series_led_col_row_16(
+			monome, PROTO_SERIES_LED_COL_16, col, data);
+	}
+
+	return -1;
 }
 
 static int proto_series_led_row(monome_t *monome, uint row, size_t count, const uint8_t *data) {
-	if( count == 1 )
-		return proto_series_led_col_row_8(monome, PROTO_SERIES_LED_ROW_8, row, data);
-	return proto_series_led_col_row_16(monome, PROTO_SERIES_LED_ROW_16, row, data);
+	uint16_t sdata;
+
+	switch( ((monome->rows > 8) << 1) | (count > 1)) {
+	case 0x0: /* 1-byte monome, 1-byte message */
+	case 0x1: /* 1-byte monome, 2-byte message */
+		return proto_series_led_col_row_8(
+			monome, PROTO_SERIES_LED_ROW_8, row, data);
+
+	case 0x2: /* 2-byte monome, 1-byte message */
+		sdata = *data;
+
+		return proto_series_led_col_row_16(
+			monome, PROTO_SERIES_LED_ROW_16, row,
+			((const uint8_t *) &sdata));
+
+	case 0x3: /* 2-byte monome, 2-byte message */
+		return proto_series_led_col_row_16(
+			monome, PROTO_SERIES_LED_ROW_16, row, data);
+	}
+
+	return -1;
 }
 
 static int proto_series_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
