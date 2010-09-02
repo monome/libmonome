@@ -1,54 +1,69 @@
-.TH monomeserial "1" "August 2010" "libmonome 0.3"
-
-.SH NAME
-monomeserial \- an OSC router for monome devices
-
-.SH SYNOPSIS
-.PP
-.B monomeserial
-[\-h]
-[\-d \fIdevice\fP]
-[\-s \fIport\fP]
-[\-a \fIport\fP]
-[\-o \fIhost\fP]
-[\-r \fIorientation\fP]
-[\fIprefix\fP]
-
-.SH DESCRIPTION
-.PP
-.B monomeserial
+.\"
+.\" Copyright (c) 2010 William Light <wrl@illest.net>
+.\"
+.\" Permission to use, copy, modify, and/or distribute this software for any
+.\" purpose with or without fee is hereby granted, provided that the above
+.\" copyright notice and this permission notice appear in all copies.
+.\"
+.\" THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+.\" WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+.\" ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\" OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"
+.Dd $Mdocdate$
+.Dt MONOMESERIAL 1
+.Os
+.Sh NAME
+.Nm monomeserial
+.Nd an OSC router for monome devices
+.Sh SYNPOSIS
+.Nm monomeserial
+.Op Fl h
+.Op Fl d Ar device
+.Op Fl s Ar port
+.Op Fl a Ar port
+.Op Fl o Ar host
+.Op Fl r Ar orientation
+.Op Ar prefix
+.Sh DESCRIPTION
+.Nm monomeserial
 is an implementation of the Monome OSC specification, running as a UDP OSC server and translating commands between OSC and the native Monome protocol.
-
-.PP
+.Pp
 monome devices use an efficient serial protocol to communicate with the host system, but interacting with serial devices from higher level applications can be unwieldy.  OSC is a well supported protocol between multimedia applications and programming envionments, and an OSC router such as
-.B monomeserial
+.Nm monomeserial
 bridges the gap.
-
-.SH OPTIONS
-
-.TP
-.BI "-h, --help"
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl h\&, Fl -help
 display a help/usage message.
-
-.TP
-.BI "-d, --device="DEVICE
-.I DEVICE
+.It Fl d\&, Fl -device Ar DEVICE
 specifies the path to the monome
-
-.TP
-.BI "-s, --server-port="PORT
+.It Fl s\&, Fl -server-port Ar PORT
 specifies the port on which
-.B monomeserial
-listens for outgoing OSC messages
-
-.TP
-.BI "-a, --application-port="PORT
+.Nm monomeserial
+listens for incoming OSC messages
+.It Fl a\&, Fl -application-port Ar PORT
 specifies the port on which your application is listening for OSC messages
-
-.TP
-.BI "-o, --application-host="HOST
+.It Fl o\&, Fl -application-host Ar HOST
 specifies the host on which your application is running
-
-.SH AUTHOR
-.PP
-Originally written by William Light <wrl@illest.net>
+.It Fl r\&, Fl -orientation Ar DIRECTION
+one of
+.Ar left , right , bottom
+or
+.Ar top .
+.It Ar prefix
+specifies the OSC path prefix.  defaults to /monome.
+.El
+.Sh SEE ALSO
+.Bl -ohang
+.It libmonome homepage
+.Em http://illest.net/libmonome/
+.It monome homepage
+.Em http://monome.org/
+.El
+.Sh AUTHORS
+libmonome was written by
+.An William Light Aq wrl@illest.net
