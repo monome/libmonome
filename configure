@@ -35,6 +35,7 @@ PKGCONFIG_VERSION=;
 PLATFORM=;
 PLATFORM_VERSION=;
 PREFIX="/usr/local";
+MANDIR=;
 PROTOCOLS="series 40h";
 LIBUDEV_VERSION=;
 
@@ -323,6 +324,19 @@ check_macports() {
 	return 0;
 }
 
+determine_mandir() {
+	TRY_MANPATHS=$PREFIX/share/man:$PREFIX/man
+
+	for PATH in `echo $TRY_MANPATHS | tr ':' ' '`; do
+		if [ -d $PATH ]; then
+			MANDIR=$PATH;
+			return 0;
+		fi
+	done
+
+	return 1;
+}
+
 fail_if_not_dir () {
 	if [ ! -d $* ]; then
 		echo_n "  "
@@ -382,6 +396,10 @@ LDFLAGS="$LDFLAGS -L$PREFIX/lib"
 
 LO_CFLAGS="-I$LO_PREFIX/include $LO_CFLAGS"
 LO_LDFLAGS="-L$LO_PREFIX/lib $LO_LDFLAGS"
+
+determine_mandir;
+echo $MANDIR
+exit 0
 
 #
 # main course
@@ -553,6 +571,7 @@ export PREFIX     = $PREFIX
 export BINDIR     = $PREFIX/bin
 export LIBDIR     = $PREFIX/lib
 export INCDIR     = $PREFIX/include
+export MANDIR     = $MANDIR
 export PKGCONFIGDIR = \$(LIBDIR)/pkgconfig
 
 export CC         = $CC
@@ -587,7 +606,7 @@ includedir=\${prefix}/include
 
 Name: libmonome
 Description: C library for accessing Monome user interface devices.
-Version: 0.3
+Version: $VERSION
 Libs: -L\${libdir} -lmonome
 Cflags: -I\${includedir}
 EOF

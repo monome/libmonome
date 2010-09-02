@@ -29,17 +29,20 @@ clean:
 
 mrproper: clean
 	cd bindings; $(MAKE) mrproper
+	cd doc; $(MAKE) mrproper
 
 distclean: clean
 	rm -f config.mk libmonome.pc
 
 dist: mrproper
 	cd bindings; $(MAKE) dist
+	cd doc; $(MAKE) dist
 
 install:
 	cd public; $(MAKE) install
 	cd src; $(MAKE) install
 	cd bindings; $(MAKE) install
+	cd doc; $(MAKE) install
 
 	echo "  INSTALL $(PKGCONFIGDIR)/libmonome.pc"
 	$(INSTALL) -d $(PKGCONFIGDIR)
