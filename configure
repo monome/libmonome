@@ -327,9 +327,9 @@ check_macports() {
 determine_mandir() {
 	TRY_MANPATHS=$PREFIX/share/man:$PREFIX/man
 
-	for PATH in `echo $TRY_MANPATHS | tr ':' ' '`; do
-		if [ -d $PATH ]; then
-			MANDIR=$PATH;
+	for DIR in `echo $TRY_MANPATHS | tr ':' ' '`; do
+		if [ -d $DIR ]; then
+			MANDIR=$DIR;
 			return 0;
 		fi
 	done
@@ -398,8 +398,6 @@ LO_CFLAGS="-I$LO_PREFIX/include $LO_CFLAGS"
 LO_LDFLAGS="-L$LO_PREFIX/lib $LO_LDFLAGS"
 
 determine_mandir;
-echo $MANDIR
-exit 0
 
 #
 # main course

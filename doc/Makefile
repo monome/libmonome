@@ -3,7 +3,7 @@ TARGETS = monomeserial.1
 all: $(TARGETS)
 
 install: $(TARGETS)
-	if [ -n $(MANDIR) ]; then \
+	if [ -n "$(MANDIR)" ]; then \
 		echo "  INSTALL $(MANDIR)/man1/monomeserial.1"; \
 		$(INSTALL) -d $(MANDIR); \
 		$(INSTALL) monomeserial.1 $(MANDIR)/man1/monomeserial.1; \
