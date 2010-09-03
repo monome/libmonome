@@ -4,6 +4,7 @@ all: $(TARGETS)
 
 install: $(TARGETS)
 	if [ -n "$(MANDIR)" ]; then \
+		mkdir -p $(MANDIR)/man1 \
 		echo "  INSTALL $(MANDIR)/man1/monomeserial.1"; \
 		$(INSTALL) -d $(MANDIR); \
 		$(INSTALL) monomeserial.1 $(MANDIR)/man1/monomeserial.1; \
