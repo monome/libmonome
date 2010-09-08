@@ -66,8 +66,16 @@ typedef void (*monome_event_callback_t)
 struct monome_event {
 	monome_t *monome;
 	monome_event_type_t event_type;
-	uint x;
-	uint y;
+
+	union {
+		uint x;
+		uint address;
+	};
+
+	union {
+		uint y;
+		uint data;
+	};
 };
 
 monome_t *monome_open(const char *monome_device, ...);
