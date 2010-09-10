@@ -39,19 +39,14 @@ static void chill(int speed) {
 }
 
 void test_led_on_off(monome_t *monome) {
-	uint i, j;
+	uint i, j, s = 2;
 
-	for( i = 0; i < 16; i++ )
-		for( j = 0; j < 16; j++ ) {
-			monome_led_on(monome, j, i);
-			chill(128);
-		}
-
-	for( i = 0; i < 16; i++ )
-		for( j = 0; j < 16; j++ ) {
-			monome_led_off(monome, j, i);
-			chill(128);
-		}
+	while( s-- )
+		for( i = 0; i < 16; i++ )
+			for( j = 0; j < 16; j++ ) {
+				monome_led(monome, j, i, s);
+				chill(128);
+			}
 }
 
 void test_led_row_8(monome_t *monome, uint8_t on) {

@@ -76,14 +76,9 @@ static int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 	return lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, "/sys/mode", "i", mode);
 }
 
-static int proto_osc_led_on(monome_t *monome, uint x, uint y) {
+static int proto_osc_led(monome_t *monome, uint x, uint y, uint on) {
 	SELF_FROM(monome);
-	return LO_SEND_MSG(led, "iii", x, y, 1);
-}
-
-static int proto_osc_led_off(monome_t *monome, uint x, uint y) {
-	SELF_FROM(monome);
-	return LO_SEND_MSG(led, "iii", x, y, 0);
+	return LO_SEND_MSG(led, "iii", x, y, !!on);
 }
 
 static int proto_osc_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
@@ -204,8 +199,7 @@ monome_t *monome_protocol_new() {
 	monome->intensity  = proto_osc_intensity;
 	monome->mode       = proto_osc_mode;
 	
-	monome->led_on     = proto_osc_led_on;
-	monome->led_off    = proto_osc_led_off;
+	monome->led        = proto_osc_led;
 	monome->led_col    = proto_osc_led_col;
 	monome->led_row    = proto_osc_led_row;
 	monome->led_frame  = proto_osc_led_frame;

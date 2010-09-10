@@ -83,8 +83,7 @@ struct monome {
 	int  (*intensity)(monome_t *monome, uint brightness);
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
 
-	int  (*led_on)(monome_t *monome, uint x, uint y);
-	int  (*led_off)(monome_t *monome, uint x, uint y);
+	int  (*led)(monome_t *monome, uint x, uint y, uint on);
 	int  (*led_col)(monome_t *monome, uint col, size_t count, const uint8_t *data);
 	int  (*led_row)(monome_t *monome, uint row, size_t count, const uint8_t *data);
 	int  (*led_frame)(monome_t *monome, uint quadrant, const uint8_t *frame_data);

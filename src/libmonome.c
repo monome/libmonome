@@ -312,12 +312,16 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 	return monome->mode(monome, mode);
 }
 
+int monome_led(monome_t *monome, uint x, uint y, uint on) {
+	return monome->led(monome, x, y, on);
+}
+
 int monome_led_on(monome_t *monome, uint x, uint y) {
-	return monome->led_on(monome, x, y);
+	return monome_led(monome, x, y, 1);
 }
 
 int monome_led_off(monome_t *monome, uint x, uint y) {
-	return monome->led_off(monome, x, y);
+	return monome_led(monome, x, y, 0);
 }
 
 int monome_led_col(monome_t *monome, uint col,

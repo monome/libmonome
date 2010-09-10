@@ -102,6 +102,7 @@ int monome_clear(monome_t *monome, monome_clear_status_t status);
 int monome_intensity(monome_t *monome, uint brightness);
 int monome_mode(monome_t *monome, monome_mode_t mode);
 
+int monome_led(monome_t *monome, uint x, uint y, uint on);
 int monome_led_on(monome_t *monome, uint x, uint y);
 int monome_led_off(monome_t *monome, uint x, uint y);
 int monome_led_col(monome_t *monome, uint col, size_t count,

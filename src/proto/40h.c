@@ -72,20 +72,6 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_40h_led(monome_t *monome, uint status, uint x, uint y) {
-	uint8_t buf[2];
-
-	ROTATE_COORDS(monome, x, y);
-
-	x &= 0x7;
-	y &= 0x7;
-
-	buf[0] = status;
-	buf[1] = (x << 4) | y;
-
-	return monome_write(monome, buf, sizeof(buf));
-}
-
 /**
  * public
  */
@@ -117,12 +103,18 @@ static int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
 	return 0;
 }
 
-static int proto_40h_led_on(monome_t *monome, uint x, uint y) {
-	return proto_40h_led(monome, PROTO_40h_LED_ON, x, y);
-}
+static int proto_40h_led(monome_t *monome, uint x, uint y, uint on) {
+	uint8_t buf[2];
 
-static int proto_40h_led_off(monome_t *monome, uint x, uint y) {
-	return proto_40h_led(monome, PROTO_40h_LED_OFF, x, y);
+	ROTATE_COORDS(monome, x, y);
+
+	x &= 0x7;
+	y &= 0x7;
+
+	buf[0] = PROTO_40h_LED_OFF + !!on;
+	buf[1] = (x << 4) | y;
+
+	return monome_write(monome, buf, sizeof(buf));
 }
 
 static int proto_40h_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
@@ -214,8 +206,7 @@ monome_t *monome_protocol_new() {
 	monome->intensity  = proto_40h_intensity;
 	monome->mode       = proto_40h_mode;
 
-	monome->led_on     = proto_40h_led_on;
-	monome->led_off    = proto_40h_led_off;
+	monome->led        = proto_40h_led;
 	monome->led_col    = proto_40h_led_col;
 	monome->led_row    = proto_40h_led_row;
 	monome->led_frame  = proto_40h_led_frame;
