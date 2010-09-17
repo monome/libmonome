@@ -29,14 +29,15 @@
 #define MONOME_SERIAL "/dev/ttyUSB0"
 
 #define WIDTH  16
-#define HEIGHT 8
+#define HEIGHT 16
 
 
 typedef unsigned int uint_t;
 
 int main(int argc, char **argv) {
 	monome_t *monome;
-	uint_t w, h, x, y;
+	uint_t w, h, y, s;
+	uint16_t buf;
 
 	if( !(monome = monome_open(MONOME_OSC, "8000")) ) {
 		fprintf(stderr, "couldn't open monome\n");
@@ -46,8 +47,9 @@ int main(int argc, char **argv) {
 	w = WIDTH;
 	h = HEIGHT;
 
-	for(;;)
-		for( x = 0; x < w; x++ )
-			for( y = 0; y < h; y++ )
-				monome_led(monome, x, y, random() & 1);
+	for(s = 0;; s = !s)
+		for( y = 0; y < h; y++ ) {
+			buf = ((1 << y)) - s;
+			monome_led_row(monome, y, w / 8, (uint8_t *) &buf);
+		}
 }
