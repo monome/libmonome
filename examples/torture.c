@@ -25,7 +25,7 @@
 #include <monome.h>
 
 
-#define MONOME_OSC "osc.udp://127.0.0.1:8080/rove"
+#define MONOME_OSC "osc.udp://127.0.0.1:8080/monome"
 #define MONOME_SERIAL "/dev/ttyUSB0"
 
 #define WIDTH  16
