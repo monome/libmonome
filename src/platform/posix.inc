@@ -36,8 +36,8 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	nt = ot;
 
 	/* baud rate */
-	cfsetispeed(&nt, B115200);
-	cfsetospeed(&nt, B115200);
+	cfsetispeed(&nt, B9600);
+	cfsetospeed(&nt, B9600);
 
 	/* parity (8N1) */
 	nt.c_cflag &= ~(PARENB | CSTOPB | CSIZE);
@@ -79,8 +79,14 @@ int monome_platform_close(monome_t *monome) {
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
 	ssize_t ret = write(monome->fd, buf, bufsize);
 
+	if( ret < bufsize )
+		perror("libmonome: write is missing bytes");
+
 	if( ret < 0 )
 		perror("libmonome: error in write");
+
+	if( tcdrain(monome->fd) < 0 )
+		perror("libmonome: error in tcdrain");
 
 	return ret;
 }
