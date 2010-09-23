@@ -385,6 +385,9 @@ while [ -n "$1" ]; do
 		--disable-osc)
 			WANT_OSC=;;
 
+		--enable-python)
+			WANT_PYBIND=ohyeah;;
+
 		--disable-python)
 			WANT_PYBIND=;;
 	esac

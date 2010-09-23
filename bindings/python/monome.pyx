@@ -258,14 +258,14 @@ cdef class Monome(object):
 			o = <uint> monome_get_rotation(self.monome)
 			return Monome.rotation_map[o]
 
-		def __set__(self, cable):
-			if isinstance(cable, str):
+		def __set__(self, uint rotation):
+			if rotation > 3:
 				try:
-					cable = Monome.rev_rotation_map[cable]
+					rotation = Monome.rev_rotation_map[rotation]
 				except KeyError:
-					raise TypeError("'%s' is not a valid cable rotation." % cable)
+					raise TypeError("'%s' is not a valid rotation." % rotation)
 
-			monome_set_rotation(self.monome, <monome_rotate_t> cable)
+			monome_set_rotation(self.monome, <monome_rotate_t> rotation)
 
 	property serial:
 		def __get__(self):
