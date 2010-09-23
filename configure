@@ -51,7 +51,8 @@ LO_LDFLAGS="-llo -lpthread";
 
 BINDINGS=;
 
-WANT_PYBIND=probably;
+#WANT_PYBIND=probably;
+WANT_PYBIND=;
 HAVE_PYTHON=;
 HAVE_CYTHON=;
 CYTHON_VERSION=;
