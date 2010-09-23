@@ -19,6 +19,7 @@
  * write a ton of data to a monome
  */
 
+#include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -33,6 +34,15 @@
 
 
 typedef unsigned int uint_t;
+
+void random_chill() {
+	struct timespec rem, req;
+
+	req.tv_sec = 0;
+	req.tv_nsec = (random() % 100000) + 100;
+
+	nanosleep(&req, &rem);
+}
 
 int main(int argc, char **argv) {
 	monome_t *monome;
@@ -51,5 +61,7 @@ int main(int argc, char **argv) {
 		for( y = 0; y < h; y++ ) {
 			buf = ((1 << y)) - s;
 			monome_led_row(monome, y, w / 8, (uint8_t *) &buf);
+			monome_led(monome, w - 1, y, random() & 1);
+			random_chill();
 		}
 }
