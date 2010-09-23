@@ -1,4 +1,4 @@
-libmonome v0.3:
+libmonome v0.5:
 
 	libmonome is a simple C library that wraps around the monome serial
 	protocol.  there is an included simple application to demonstrate
