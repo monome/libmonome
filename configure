@@ -228,17 +228,15 @@ EOF
 	if [ $RET -ne 0 ]; then
 		return $RET;
 	fi
-	
-	HAVE_LO=1;
-	
+
 	if [ $PKGCONFIG_VERSION ]; then
 		CMD="pkg-config --modversion libudev"
 		try_command $CMD;
-		
+
 		if [ $? -ne 0 ]; then
 			return 0;
 		fi
-		
+
 		LIBUDEV_VERSION=`$CMD`;
 	fi
 
@@ -308,6 +306,24 @@ check_cython() {
 	HAVE_CYTHON=1;
 	CYTHON_VERSION=`expr "$(cython --version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
 
+	return 0;
+}
+
+check_python_dev() {
+	cat <<EOF > .conftests/python.c
+#include <Python.h>
+
+int main(int argc, char **argv) {
+	Py_Initialize();
+	Py_Finalize();
+	return 0;
+}
+EOF
+
+	compile_and_run python $PYBIND_CFLAGS $PYBIND_LDFLAGS;
+	RET=$?;
+
+	[ $? -ne 0 ] && return $RET;
 	return 0;
 }
 
@@ -522,34 +538,48 @@ if [ $WANT_OSC ]; then
 	conf_liblo;
 fi
 
+echo
+
 conf_python_bindings() {
 	echo_n "    checking for python:          ";
-	if check_python; then
-		PYTHON_VERSION_SHORT=`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`
-		PYTHON_INSTALL_DIR="`python -c "import sys; print sys.prefix;"`/lib/python$PYTHON_VERSION_SHORT/site-packages"
-		PYBIND_CFLAGS="-I/usr/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
-		PYBIND_LDFLAGS="-lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
-
-		if [ $PLATFORM = "darwin" ]; then
-			PYBIND_CFLAGS="-I/opt/local/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/include/python$PYTHON_VERSION_SHORT -I/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
-			PYBIND_LDFLAGS="-L/opt/local/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/lib -L/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/lib -lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
-		fi
-
-		if check_cython; then
-			style_success "python $PYTHON_VERSION and cython $CYTHON_VERSION";
-		else
-			if [ -f bindings/python/monome.c ]; then
-				style_success "python $PYTHON_VERSION";
-			else
-				style_warning "python $PYTHON_VERSION, no cython";
-				return
-			fi
-		fi
-
-		BINDINGS="python $BINDINGS";
-	else
+	if check_python; then true; else
 		style_warning "no python :(";
+		return 1;
 	fi
+
+	PYTHON_VERSION_SHORT=`expr "$PYTHON_VERSION" : "\([0-9.]\{3\}\)"`
+	PYTHON_INSTALL_DIR="`python -c "import sys; print sys.prefix;"`/lib/python$PYTHON_VERSION_SHORT/site-packages"
+	PYBIND_CFLAGS="-I/usr/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
+	PYBIND_LDFLAGS="-lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
+
+	if [ $PLATFORM = "darwin" ]; then
+		PYBIND_CFLAGS="-I/opt/local/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/include/python$PYTHON_VERSION_SHORT -I/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/include/python$PYTHON_VERSION_SHORT $PYBIND_CFLAGS"
+		PYBIND_LDFLAGS="-L/opt/local/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/lib -L/Library/Frameworks/Python.framework/Versions/$PYTHON_VERSION_SHORT/lib -lpython$PYTHON_VERSION_SHORT $PYBIND_LDFLAGS"
+	fi
+
+	if check_cython; then
+		style_success "python $PYTHON_VERSION and cython $CYTHON_VERSION";
+	else
+		if [ -f bindings/python/monome.c ]; then
+			style_success "python $PYTHON_VERSION";
+		else
+			style_warning "python $PYTHON_VERSION, no cython";
+			return
+		fi
+	fi
+
+	echo_n "    checking for python headers:  ";
+
+	if check_python_dev; then true; else
+		style_error "no :(";
+		echo "";
+		echo "  if you want python bindings, make sure you have the python"
+		echo "  development files (on ubuntu, the package is python-dev)."
+		return
+	fi
+
+	style_success "yes";
+	BINDINGS="python $BINDINGS";
 }
 
 if [ $WANT_PYBIND ]; then
