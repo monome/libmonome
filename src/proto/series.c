@@ -55,7 +55,7 @@ static int proto_series_led_col_row_8(monome_t *monome,
 	case PROTO_SERIES_LED_ROW_8:
 		address = xaddress;
 
-		if( ORIENTATION(monome).flags & ROW_REVBITS )
+		if( ROTSPEC(monome).flags & ROW_REVBITS )
 			buf[1] = REVERSE_BYTE(*data);
 		else
 			buf[1] = *data;
@@ -63,7 +63,7 @@ static int proto_series_led_col_row_8(monome_t *monome,
 		break;
 
 	case PROTO_SERIES_LED_COL_8:
-		if( ORIENTATION(monome).flags & COL_REVBITS )
+		if( ROTSPEC(monome).flags & COL_REVBITS )
 			buf[1] = REVERSE_BYTE(*data);
 		else
 			buf[1] = *data;
@@ -74,7 +74,7 @@ static int proto_series_led_col_row_8(monome_t *monome,
 		return -1;
 	}
 
-	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
 		mode = (!(mode - PROTO_SERIES_LED_ROW_8) << 4) + PROTO_SERIES_LED_ROW_8;
 
 	buf[0] = mode | (address & 0x0F );
@@ -92,7 +92,7 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 	case PROTO_SERIES_LED_ROW_16:
 		address = xaddress;
 
-		if( ORIENTATION(monome).flags & ROW_REVBITS ) {
+		if( ROTSPEC(monome).flags & ROW_REVBITS ) {
 			buf[1] = REVERSE_BYTE(data[1]);
 			buf[2] = REVERSE_BYTE(data[0]);
 		} else {
@@ -103,7 +103,7 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 		break;
 
 	case PROTO_SERIES_LED_COL_16:
-		if( ORIENTATION(monome).flags & COL_REVBITS ) {
+		if( ROTSPEC(monome).flags & COL_REVBITS ) {
 			buf[1] = REVERSE_BYTE(data[1]);
 			buf[2] = REVERSE_BYTE(data[0]);
 		} else {
@@ -117,7 +117,7 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 		return -1;
 	}
 
-	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
 		mode = (!(mode - PROTO_SERIES_LED_ROW_16) << 4) + PROTO_SERIES_LED_ROW_16;
 
 	buf[0] = mode | (address & 0x0F );
@@ -215,7 +215,7 @@ static int proto_series_led_frame(monome_t *monome, uint quadrant, const uint8_t
 	*((uint32_t *) &buf[5]) = *(((uint32_t *) frame_data) + 1);
 #endif
 
-	ORIENTATION(monome).frame_cb(monome, &quadrant, &buf[1]);
+	ROTSPEC(monome).frame_cb(monome, &quadrant, &buf[1]);
 	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
 
 	return monome_write(monome, buf, sizeof(buf));

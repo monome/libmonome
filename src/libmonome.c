@@ -171,7 +171,7 @@ monome_t *monome_open(const char *dev, ...) {
 	if( !(monome->device = strdup(dev)) )
 		goto err_nomem;
 
-	monome->orientation = MONOME_CABLE_LEFT;
+	monome->rotation = MONOME_ROTATE_0;
 	return monome;
 
 err_nomem:
@@ -204,25 +204,25 @@ const char *monome_get_devpath(monome_t *monome) {
 }
 
 int monome_get_rows(monome_t *monome) {
-	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
 		return monome->cols;
 	else
 		return monome->rows;
 }
 
 int monome_get_cols(monome_t *monome) {
-	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
 		return monome->rows;
 	else
 		return monome->cols;
 }
 
-monome_cable_t monome_get_orientation(monome_t *monome) {
-	return monome->orientation;
+monome_rotate_t monome_get_rotation(monome_t *monome) {
+	return monome->rotation;
 }
 
-void monome_set_orientation(monome_t *monome, monome_cable_t cable) {
-	monome->orientation = cable & 3;
+void monome_set_rotation(monome_t *monome, monome_rotate_t rotation) {
+	monome->rotation = rotation & 3;
 }
 
 int monome_register_handler(monome_t *monome, monome_event_type_t event_type,

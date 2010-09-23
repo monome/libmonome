@@ -258,8 +258,8 @@ static void usage(const char *app) {
 		"  -a, --application-port <port>	what port to talk to\n"
 		"  -o, --application-host <host> the host your application is on\n"
 		"\n"
-		"  -r, --orientation <direction>	one of "
-			"\"left\", \"right\", \"bottom\", or \"top\"\n"
+		"  -r, --rotation <degrees>	rotate the monome. "
+			"degrees can only be one of 0, 90, 180, or 270.\n"
 		"\n", app);
 }
 
@@ -303,7 +303,7 @@ static int main_loop() {
 
 int main(int argc, char *argv[]) {
 	char c, *device, *sport, *aport, *ahost, *proto;
-	monome_cable_t orientation = MONOME_CABLE_LEFT;
+	monome_rotate_t rotate = MONOME_ROTATE_0;
 	int i;
 
 	struct option arguments[] = {
@@ -316,7 +316,7 @@ int main(int argc, char *argv[]) {
 		{"application-port", required_argument, 0, 'a'},
 		{"application-host", required_argument, 0, 'o'},
 
-		{"orientation",      required_argument, 0, 'r'}
+		{"rotation",         required_argument, 0, 'r'}
 	};
 
 	device = DEFAULT_MONOME_DEVICE;
@@ -364,10 +364,10 @@ int main(int argc, char *argv[]) {
 
 		case 'r':
 			switch(*optarg) {
-			case 'l': orientation = MONOME_CABLE_LEFT;   break;
-			case 'b': orientation = MONOME_CABLE_BOTTOM; break;
-			case 'r': orientation = MONOME_CABLE_RIGHT;  break;
-			case 't': orientation = MONOME_CABLE_TOP;    break;
+			case 'l': case '0': rotate = MONOME_ROTATE_0;   break;
+			case 't': case '9': rotate = MONOME_ROTATE_90;  break;
+			case 'r': case '1': rotate = MONOME_ROTATE_180; break;
+			case 'b': case '2': rotate = MONOME_ROTATE_270; break;
 			}
 			break;
 		}
@@ -396,7 +396,7 @@ int main(int argc, char *argv[]) {
 	register_sys_methods(state.monome);
 	register_osc_methods(state.lo_prefix, state.monome);
 
-	monome_set_orientation(state.monome, orientation);
+	monome_set_rotation(state.monome, rotate);
 	monome_clear(state.monome, MONOME_CLEAR_OFF);
 	monome_mode(state.monome, MONOME_MODE_NORMAL);
 

@@ -26,7 +26,7 @@
 .Op Fl s Ar port
 .Op Fl a Ar port
 .Op Fl o Ar host
-.Op Fl r Ar orientation
+.Op Fl r Ar rotation
 .Op Ar prefix
 .Sh DESCRIPTION
 .Nm monomeserial
@@ -49,11 +49,11 @@ listens for incoming OSC messages
 specifies the port on which your application is listening for OSC messages
 .It Fl o\&, Fl -application-host Ar HOST
 specifies the host on which your application is running
-.It Fl r\&, Fl -orientation Ar DIRECTION
+.It Fl r\&, Fl -rotation Ar DEGREES
 one of
-.Ar left , right , bottom
+.Ar 0, 90, 180
 or
-.Ar top .
+.Ar 270 .
 .It Ar prefix
 specifies the OSC path prefix.  defaults to /monome.
 .El

@@ -45,7 +45,7 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 	case PROTO_40h_LED_ROW:
 		address = xaddress;
 
-		if( ORIENTATION(monome).flags & ROW_REVBITS )
+		if( ROTSPEC(monome).flags & ROW_REVBITS )
 			buf[1] = REVERSE_BYTE(*data);
 		else
 			buf[1] = *data;
@@ -53,7 +53,7 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 		break;
 
 	case PROTO_40h_LED_COL:
-		if( ORIENTATION(monome).flags & COL_REVBITS )
+		if( ROTSPEC(monome).flags & COL_REVBITS )
 			buf[1] = REVERSE_BYTE(*data);
 		else
 			buf[1] = *data;
@@ -64,7 +64,7 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 		return -1;
 	}
 
-	if( ORIENTATION(monome).flags & ROW_COL_SWAP )
+	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
 		mode = (!(mode - PROTO_40h_LED_ROW) << 4) + PROTO_40h_LED_ROW;
 
 	buf[0] = mode | (address & 0x7 );
@@ -139,7 +139,7 @@ static int proto_40h_led_frame(monome_t *monome, uint quadrant, const uint8_t *f
 	*((uint32_t *) &buf[5]) = *(((uint32_t *) frame_data) + 1);
 #endif
 
-	ORIENTATION(monome).frame_cb(monome, &quadrant, buf);
+	ROTSPEC(monome).frame_cb(monome, &quadrant, buf);
 
 	for( i = 0; i < 8; i++ )
 		ret += proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, &buf[i]);

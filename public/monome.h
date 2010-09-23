@@ -48,15 +48,15 @@ typedef enum {
 	MONOME_MODE_SHUTDOWN = 0x02
 } monome_mode_t;
 
-/* cable orientation */
+/* grid rotation */
 
 typedef enum {
-	MONOME_CABLE_LEFT    = 0,
-	MONOME_CABLE_BOTTOM  = 1,
-	MONOME_CABLE_RIGHT   = 2,
-	MONOME_CABLE_TOP     = 3
-} monome_cable_t;
-	
+	MONOME_ROTATE_0    = 0,
+	MONOME_ROTATE_90   = 1,
+	MONOME_ROTATE_180  = 2,
+	MONOME_ROTATE_270  = 3
+} monome_rotate_t;
+
 typedef struct monome_event monome_event_t;
 typedef struct monome monome_t; /* opaque data type */
 
@@ -81,8 +81,8 @@ struct monome_event {
 monome_t *monome_open(const char *monome_device, ...);
 void monome_close(monome_t *monome);
 
-void monome_set_orientation(monome_t *monome, monome_cable_t cable);
-monome_cable_t monome_get_orientation(monome_t *monome);
+void monome_set_rotation(monome_t *monome, monome_rotate_t cable);
+monome_rotate_t monome_get_rotation(monome_t *monome);
 
 const char *monome_get_serial(monome_t *monome);
 const char *monome_get_devpath(monome_t *monome);

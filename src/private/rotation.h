@@ -16,10 +16,10 @@
 
 #include "internal.h"
 
-extern monome_rotspec_t rotation[4];
+extern monome_rotspec_t rotspec[4];
 
-#define ORIENTATION(monome) (rotation[monome->orientation])
-#define ROTATE_COORDS(monome, x, y) (ORIENTATION(monome).output_cb(monome, &x, &y))
-#define UNROTATE_COORDS(monome, x, y) (ORIENTATION(monome).input_cb(monome, &x, &y))
+#define ROTSPEC(monome) (rotspec[monome->rotation])
+#define ROTATE_COORDS(monome, x, y) (ROTSPEC(monome).output_cb(monome, &x, &y))
+#define UNROTATE_COORDS(monome, x, y) (ROTSPEC(monome).input_cb(monome, &x, &y))
 
 #define REVERSE_BYTE(x) ((uint) (((x * 0x0802) & 0x22110) | ((x * 0x8020) & 0x88440)) * 0x10101 >> 16)

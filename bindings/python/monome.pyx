@@ -36,7 +36,7 @@ cdef extern from "monome.h":
 		MONOME_MODE_TEST,
 		MONOME_MODE_SHUTDOWN
 	
-	ctypedef enum monome_cable_t:
+	ctypedef enum monome_rotate_t:
 		MONOME_CABLE_LEFT,
 		MONOME_CABLE_BOTTOM,
 		MONOME_CABLE_RIGHT,
@@ -55,8 +55,8 @@ cdef extern from "monome.h":
 	monome_t *monome_open(char *monome_device, ...)
 	void monome_close(monome_t *monome)
 
-	void monome_set_orientation(monome_t *monome, monome_cable_t cable)
-	monome_cable_t monome_get_orientation(monome_t *monome)
+	void monome_set_rotation(monome_t *monome, monome_rotate_t cable)
+	monome_rotate_t monome_get_rotation(monome_t *monome)
 
 	# more const hackery
 	ctypedef char * const_char_p "const char *"
@@ -121,10 +121,10 @@ MODE_NORMAL = 0
 MODE_TEST = 1
 MODE_SHUTDOWN = 2
 
-CABLE_LEFT = 0
-CABLE_BOTTOM = 1
-CABLE_RIGHT = 2
-CABLE_TOP = 3
+ROTATE_0 = 0
+ROTATE_90 = 1
+ROTATE_180 = 2
+ROTATE_270 = 3
 
 
 cdef uint list_to_bitmap(l) except *:
@@ -205,17 +205,17 @@ cdef class Monome(object):
 	cdef int fd
 	cdef list handlers
 
-	orientation_map = {
-		CABLE_LEFT: "left",
-		CABLE_BOTTOM: "bottom",
-		CABLE_RIGHT: "right",
-		CABLE_TOP: "top"}
+	rotation_map = {
+		ROTATE_0: 0,
+		ROTATE_90: 90,
+		ROTATE_180: 180,
+		ROTATE_270: 270}
 
-	rev_orientation_map = {
-		"left": CABLE_LEFT,
-		"bottom": CABLE_BOTTOM,
-		"right": CABLE_RIGHT,
-		"top": CABLE_TOP}
+	rev_rotation_map = {
+		0: ROTATE_0,
+		90: ROTATE_90,
+		180: ROTATE_180,
+		270: ROTATE_270}
 
 	rev_mode_map = {
 		"normal": MODE_NORMAL,
@@ -253,19 +253,19 @@ cdef class Monome(object):
 	def __dealloc__(self):
 		monome_close(self.monome)
 
-	property orientation:
+	property rotation:
 		def __get__(self):
-			o = <uint> monome_get_orientation(self.monome)
-			return Monome.orientation_map[o]
+			o = <uint> monome_get_rotation(self.monome)
+			return Monome.rotation_map[o]
 
 		def __set__(self, cable):
 			if isinstance(cable, str):
 				try:
-					cable = Monome.rev_orientation_map[cable]
+					cable = Monome.rev_rotation_map[cable]
 				except KeyError:
-					raise TypeError("'%s' is not a valid cable orientation." % cable)
+					raise TypeError("'%s' is not a valid cable rotation." % cable)
 
-			monome_set_orientation(self.monome, <monome_cable_t> cable)
+			monome_set_rotation(self.monome, <monome_rotate_t> cable)
 
 	property serial:
 		def __get__(self):

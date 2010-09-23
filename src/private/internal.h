@@ -70,7 +70,7 @@ struct monome {
 	int fd;
 
 	monome_callback_t handlers[3];
-	monome_cable_t orientation;
+	monome_rotate_t rotation;
 
 	int  (*open)(monome_t *monome, const char *dev, const char *serial,
 				 const monome_devmap_t *, va_list args);
