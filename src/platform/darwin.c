@@ -38,4 +38,4 @@ char *monome_platform_get_dev_serial(const char *path) {
 	return strdup(serial + 1);
 }
 
-#include "posix.inc"
+#include "posix.c"

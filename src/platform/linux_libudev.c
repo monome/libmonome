@@ -80,4 +80,4 @@ err:
 	return serial;
 }
 
-#include "posix.inc"
+#include "posix.c"

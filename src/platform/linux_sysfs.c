@@ -85,4 +85,4 @@ char *monome_platform_get_dev_serial(const char *path) {
 	return NULL;
 }
 
-#include "posix.inc"
+#include "posix.c"
