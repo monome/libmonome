@@ -354,6 +354,19 @@ determine_mandir() {
 	return 1;
 }
 
+determine_pkgconfigdir() {
+	TRY_PKGCONFIGPATHS=$PREFIX/lib/pkgconfig:/usr/lib/pkgconfig:$PKG_CONFIG_PATH
+
+	for DIR in `echo $TRY_PKGCONFIGPATHS | tr ':' ' '`; do
+		if [ -d $DIR ]; then
+			PKGCONFIGDIR=$DIR;
+			return 0;
+		fi
+	done
+
+	return 1;
+}
+
 fail_if_not_dir () {
 	if [ ! -d $* ]; then
 		echo_n "  "
@@ -418,6 +431,7 @@ LO_CFLAGS="-I$LO_PREFIX/include $LO_CFLAGS"
 LO_LDFLAGS="-L$LO_PREFIX/lib $LO_LDFLAGS"
 
 determine_mandir;
+determine_pkgconfigdir;
 
 #
 # main course
@@ -604,7 +618,7 @@ export BINDIR     = $PREFIX/bin
 export LIBDIR     = $PREFIX/lib
 export INCDIR     = $PREFIX/include
 export MANDIR     = $MANDIR
-export PKGCONFIGDIR = \$(LIBDIR)/pkgconfig
+export PKGCONFIGDIR = $PKGCONFIGDIR
 
 export CC         = $CC
 export LD         = $LD
