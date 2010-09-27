@@ -552,8 +552,6 @@ if [ $WANT_OSC ]; then
 	conf_liblo;
 fi
 
-echo
-
 conf_python_bindings() {
 	echo_n "    checking for python:          ";
 	if check_python; then true; else
@@ -597,6 +595,7 @@ conf_python_bindings() {
 }
 
 if [ $WANT_PYBIND ]; then
+	echo
 	conf_python_bindings;
 fi
 
