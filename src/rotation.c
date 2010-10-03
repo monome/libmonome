@@ -31,9 +31,9 @@ static uint r270_quad_map[] = {1, 3, 0, 2};
 /* you may notice the gratituous use of modulo when translating input
    coordinates...this is because it's possible to translate into negatives
    when pretending a bigger monome (say, a 256) is a smaller monome (say,
-   a 128).  because we're using unsigned integers, this will cause a
-   wrap-around into some very big numbers, which makes several of the example
-   programs segfault (simple.c, in particular).
+   a 128). because we're using unsigned integers, this will cause a wrap-around
+   into some very big numbers, which makes several of the example programs
+   segfault (simple.c, in particular).
 
    while this bug is arguably contrived, I'd rather pay the minute
    computational cost here and avoid causing trouble in application code. */
@@ -61,7 +61,20 @@ static void r90_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void r90_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
-	/* see bottom_frame_cb for a brief explanation */
+	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
+	   in the case of r270_frame_cb, the rotation is clockwise, in the case
+	   of r90_frame_cb it is counter-clockwise.
+
+	   the matrix is made up of an array of 8 bytes, which, laid out
+	   contiguously in memory, can be treated as a 64 bit integer, which I've
+	   opted to do here. this allows rotation to be accomplished solely with
+	   bitwise operations.
+
+	   on 64 bit architectures, we treat frame_data as a 64 bit integer, on 32
+	   bit architectures we treat it as two 32 bit integers.
+
+	   inspired by "hacker's delight" by henry s. warren
+	   see section 7-3 "transposing a bit matrix" */
 
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) frame_data);
@@ -174,20 +187,7 @@ static void r270_input_cb(monome_t *monome, uint *x, uint *y) {
 }
 
 static void r270_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
-	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
-	   in the case of r270_frame_cb, the rotation is clockwise, in the case
-	   of top_frame_cb it is counter-clockwise.
-
-	   the matrix is made up of an array of 8 bytes, which, laid out
-	   contiguously in memory, can be treated as a 64 bit integer, which I've
-	   opted to do here.  this allows rotation to be accomplished solely with
-	   bitwise operations.
-
-	   on 64 bit architectures, we treat frame_data as a 64 bit integer, on 32
-	   bit architectures we treat it as two 32 bit integers.
-
-	   inspired by "hacker's delight" by henry s. warren
-	   see section 7-3 "transposing a bit matrix" */
+	/* see r90_frame_cb for a brief explanation */
 
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) frame_data);
