@@ -143,9 +143,7 @@ cleanup () {
 # feature test commands
 
 try_command () {
-	$* > /dev/null 2> /dev/null;
-
-	if [ $? ]; then
+	if $* > /dev/null 2> /dev/null; then
 		return 0;
 	else
 		return 1;
@@ -164,7 +162,7 @@ compile_and_run() {
 
 	[ $RET -ne 0 ] && return 1;
 
-	CMD="./.conftests/$1";
+	CMD="./.conftests/$FILE";
 	try_command $CMD;
 	RET=$?;
 
@@ -217,15 +215,15 @@ check_poll () {
 int main(int argc, char **argv) {
 	struct pollfd fds[1];
 
-	fds[0].fd = open("/dev/null");
+	fds[0].fd = open("/dev/null", 1);
 	fds[0].events = POLLIN;
 
 	if( poll(fds, 1, 0) < 0 || fds[0].revents & POLLNVAL )
-		return EXIT_FAILURE;
-	return EXIT_SUCCESS;
+		exit(1);
+	exit(0);
 }
 EOF
-	compile_and_run poll "" "";
+	compile_and_run poll;
 	RET=$?;
 
 	[ $RET -ne 0 ] && return $RET;
@@ -271,6 +269,8 @@ check_lo () {
 #include <lo/lo.h>
 
 int main(int argc, char **argv) {
+	lo_address a = lo_address_new(NULL, "42424");
+	lo_address_free(a);
 	return 0;
 }
 EOF
