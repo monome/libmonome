@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <poll.h>
 
 #include <getopt.h>
@@ -273,6 +274,9 @@ static int is_numstr(const char *s) {
 	return 1;
 }
 
+/* on OSX, poll() does not work with devices (i.e. ttys). */
+
+#ifndef HAVE_BROKEN_POLL
 static int main_loop() {
 	struct pollfd fds[2];
 
@@ -297,9 +301,42 @@ static int main_loop() {
 		/* how about from OSC? */
 		if( fds[1].revents & POLLIN )
 			lo_server_recv_noblock(state.server, 0);
-
 	} while( 1 );
 }
+#else
+static int main_loop() {
+	fd_set rfds, efds;
+	int maxfd, mfd, lofd;
+
+	mfd  = monome_get_fd(state.monome);
+	lofd = lo_server_get_socket_fd(state.server);
+	maxfd = ((lofd > mfd) ? lofd : mfd) + 1;
+
+	do {
+		FD_ZERO(&rfds);
+		FD_SET(mfd, &rfds);
+		FD_SET(lofd, &rfds);
+
+		FD_ZERO(&efds);
+		FD_SET(mfd, &efds);
+
+		/* block until either the monome or liblo have data */
+		select(maxfd, &rfds, NULL, &efds, NULL);
+
+		/* is the monome still connected? */
+		if( FD_ISSET(mfd, &efds) )
+			return 1;
+
+		/* is there data available for reading from the monome? */
+		if( FD_ISSET(mfd, &rfds) )
+			monome_event_handle_next(state.monome);
+
+		/* how about from OSC? */
+		if( FD_ISSET(lofd, &rfds) )
+			lo_server_recv_noblock(state.server, 0);
+	} while( 1 );
+}
+#endif
 
 int main(int argc, char *argv[]) {
 	char c, *device, *sport, *aport, *ahost, *proto;

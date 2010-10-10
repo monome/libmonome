@@ -210,6 +210,32 @@ check_gcc () {
 	return 1;
 }
 
+check_poll () {
+	# ganked from glib's poll test
+
+	cat <<EOF > .conftests/poll.c
+#include <stdlib.h>
+#include <poll.h>
+
+int main(int argc, char **argv) {
+	struct pollfd fds[1];
+
+	fds[0].fd = open("/dev/null");
+	fds[0].events = POLLIN;
+
+	if( poll(fds, 1, 0) < 0 || fds[0].revents & POLLNVAL )
+		return EXIT_FAILURE;
+	return EXIT_SUCCESS;
+}
+EOF
+	compile_and_run poll "" "";
+	RET=$?;
+
+	[ $RET -ne 0 ] && return $RET;
+
+	return 0;
+}
+
 check_libudev () {
 	cat <<EOF > .conftests/libudev.c
 #include <libudev.h>
@@ -498,6 +524,18 @@ else
 	cleanup;
 	exit 1;
 fi
+
+conf_poll() {
+echo_n "    checking for poll:            ";
+	if check_poll; then
+		style_success "poll works"
+	else
+		echo "poll is janky"
+		CFLAGS="$CFLAGS -DHAVE_BROKEN_POLL"
+	fi
+}
+
+conf_poll;
 
 if [ $PLATFORM = "linux" ]; then
 	echo_n "    checking for libudev:         ";
