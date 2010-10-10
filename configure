@@ -450,6 +450,7 @@ get_platform;
 
 case $PLATFORM in 
 	Linux)
+		LDFLAGS="$LDFLAGS -Wl,-rpath,$PREFIX/lib"
 		LM_LDFLAGS="$LM_LDFLAGS -ldl";
 		LIBSUFFIX=so;
 		LM_SUFFIX=so.$VERSION;

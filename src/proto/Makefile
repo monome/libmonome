@@ -31,7 +31,7 @@ protocol_series.so: series.o
 
 protocol_series.dylib: series.o
 	echo "  LD      src/proto/$@"
-	$(LD) -dynamiclib -Wl,-dylib_install_name,$@ $(LDFLAGS) -o $@ $<
+	$(LD) -dynamiclib -Wl,-install_name,$@ $(LDFLAGS) -o $@ $<
 
 protocol_40h.so: 40h.o
 	echo "  LD      src/proto/$@"
@@ -39,7 +39,7 @@ protocol_40h.so: 40h.o
 
 protocol_40h.dylib: 40h.o
 	echo "  LD      src/proto/$@"
-	$(LD) -dynamiclib -Wl,-dylib_install_name,$@ $(LDFLAGS) -o $@ $<
+	$(LD) -dynamiclib -Wl,-install_name,$@ $(LDFLAGS) -o $@ $<
 
 protocol_osc.so: osc.o
 	echo "  LD      src/proto/$@"
@@ -47,7 +47,7 @@ protocol_osc.so: osc.o
 
 protocol_osc.dylib: osc.o
 	echo "  LD      src/proto/$@"
-	$(LD) -dynamiclib -Wl,-dylib_install_name,$@ $(LDFLAGS) $(LO_LDFLAGS) -o $@ $<
+	$(LD) -dynamiclib -Wl,-install_name,$@ $(LDFLAGS) $(LO_LDFLAGS) -o $@ $<
 
 .c.o:
 	echo "  CC      src/proto/$@"

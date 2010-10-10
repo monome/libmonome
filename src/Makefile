@@ -38,7 +38,7 @@ libmonome.so.$(VERSION): $(LMOBJS)
 
 libmonome.dylib: $(LMOBJS)
 	echo "  LD      src/libmonome.dylib"
-	$(LD) $(LDFLAGS) -dynamiclib -Wl,-dylib_install_name,libmonome.dylib $(LM_LDFLAGS) -o $@ $(LMOBJS)
+	$(LD) $(LDFLAGS) -dynamiclib -Wl,-install_name,libmonome.dylib $(LM_LDFLAGS) -o $@ $(LMOBJS)
 
 platform.o: platform/$(PLATFORM).c
 	echo "  CC      src/$@"

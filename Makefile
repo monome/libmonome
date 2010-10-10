@@ -3,7 +3,6 @@ SHELL = /bin/sh
 include config.mk
 
 export CFLAGS  += -Wall -Werror -fPIC -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\"
-export LDFLAGS += -L$(LIBDIR) -Wl,-rpath,$(LIBDIR)
 export INSTALL = install
 
 SUBDIRS = src bindings examples
