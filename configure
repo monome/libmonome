@@ -2,11 +2,11 @@
 
 #
 # Copyright (c) 2010 William Light <wrl@illest.net>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -103,7 +103,7 @@ att() {
 			bold)      C=1;;
 			underline) C=4;;
 			hidden)    C=8;;
-			
+
 			black)     C=30;;
 			red)       C=31;;
 			green)     C=32;;
@@ -112,18 +112,18 @@ att() {
 			magenta)   C=35;;
 			cyan)      C=36;;
 			white)     C=37;;
-			
+
 			reset)
 				echo -ne "0m";
 				return 0;
 		esac
-		
+
 		echo -ne "$C"
-		
+
 		if [ $# -ge 2 ]; then
 			echo -ne ";";
 		fi
-		
+
 		shift;
 	done;
 	echo -ne "m";
@@ -143,7 +143,9 @@ cleanup () {
 # feature test commands
 
 try_command () {
-	if $* > /dev/null 2> /dev/null; then
+	$* > /dev/null 2> /dev/null;
+
+	if [ $? ]; then
 		return 0;
 	else
 		return 1;
@@ -153,33 +155,28 @@ try_command () {
 compile_and_run() {
 	FILE=$1
 	shift;
-	
+
 	CMD="$CC $CFLAGS $LDFLAGS $* .conftests/$FILE.c -o .conftests/$FILE"
 	try_command $CMD;
-	
-	if [ $? -ne 0 ]; then
-		rm -f .conftests/$FILE.c;
-		rm -f .conftests/$FILE;
-	
-		return 1;
-	fi
-	
+	RET=$?;
+
+	rm -f .conftests/$FILE.c;
+
+	[ $RET -ne 0 ] && return 1;
+
 	CMD="./.conftests/$1";
 	try_command $CMD;
-	
-	rm -f .conftests/$FILE.c;
+	RET=$?;
+
 	rm -f .conftests/$FILE;
-	
-	if [ $? -ne 0 ]; then
-		return 2;
-	fi
-	
+
+	[ $RET -ne 0 ] && return 2;
 	return 0;
 }
 
 check_pkgconfig () {
 	CMD="pkg-config --version";
-	
+
 	if try_command $CMD; then
 		PKGCONFIG_VERSION=`$CMD`;
 	fi
@@ -200,7 +197,7 @@ get_platform () {
 check_gcc () {
 	CMD="$CC -dumpversion";
 	try_command $CMD;
-	
+
 	if [ $? -eq 0 ]; then
 		CC_VERSION=`$CMD`;
 		return 0;
@@ -274,12 +271,6 @@ check_lo () {
 #include <lo/lo.h>
 
 int main(int argc, char **argv) {
-	lo_address a = lo_address_new(NULL, NULL);
-	
-	if( !a )
-		return 1;
-	
-	lo_address_free(a);
 	return 0;
 }
 EOF
@@ -287,20 +278,18 @@ EOF
 	compile_and_run lo $LO_CFLAGS $LO_LDFLAGS;
 	RET=$?;
 
-	if [ $RET -ne 0 ]; then
-		return $RET;
-	fi
-	
+	[ $RET -ne 0 ] && return $RET
+
 	HAVE_LO=1;
-	
+
 	if [ $PKGCONFIG_VERSION ]; then
 		CMD="pkg-config --modversion liblo"
 		try_command $CMD;
-		
+
 		if [ $? -ne 0 ]; then
 			return 0;
 		fi
-		
+
 		LO_VERSION=`$CMD`;
 	fi
 
@@ -424,7 +413,7 @@ usage () {
 while [ -n "$1" ]; do
 	arg=`expr "$1" : "[^=]*=\(.*\)"`
 
-	case $1 in 
+	case $1 in
 		--help|-h)
 			usage;
 			exit 1;;
@@ -471,10 +460,10 @@ att bold;
 echo_n "  configuring "; style_package -n $PROJECT; att; att bold; echo " ${VERSION}:";
 att;
 
-echo_n "    checking platform:            "; 
+echo_n "    checking platform:            ";
 get_platform;
 
-case $PLATFORM in 
+case $PLATFORM in
 	Linux)
 		LDFLAGS="$LDFLAGS -Wl,-rpath,$PREFIX/lib"
 		LM_LDFLAGS="$LM_LDFLAGS -ldl";
