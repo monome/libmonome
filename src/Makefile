@@ -23,10 +23,15 @@ install: all
 	echo "  INSTALL src/$(LIBMONOME) -> $(LIBDIR)/$(LIBMONOME)"
 	$(INSTALL) $(LIBMONOME) $(LIBDIR)/$(LIBMONOME)
 
-	if `which ldconfig > /dev/null`; then \
-		echo "  LDCONFIG"; \
-		ldconfig -n $(LIBDIR); \
-	fi
+	case $(PLATFORM) in	\
+		linux*)	\
+			echo "  LDCONFIG";	\
+			ldconfig -n $(LIBDIR);;	\
+		\
+		darwin)	\
+			echo "  LN      $(LIBDIR)/$(LIBMONOME) -> $(LIBDIR)/libmonome.dylib";	\
+			ln -sf $(LIBDIR)/$(LIBMONOME) $(LIBDIR)/libmonome.dylib;;	\
+	esac
 
 	echo "  INSTALL src/$(MONOMESERIAL) -> $(BINDIR)/$(MONOMESERIAL)"
 	$(INSTALL) $(MONOMESERIAL) $(BINDIR)/$(MONOMESERIAL)
@@ -36,9 +41,10 @@ libmonome.so.$(VERSION): $(LMOBJS)
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,libmonome.so $(LM_LDFLAGS) -o $@ $(LMOBJS)
 	ln -sf $@ libmonome.so
 
-libmonome.dylib: $(LMOBJS)
+libmonome.$(VERSION).dylib: $(LMOBJS)
 	echo "  LD      src/libmonome.dylib"
 	$(LD) $(LDFLAGS) -dynamiclib -Wl,-install_name,libmonome.dylib $(LM_LDFLAGS) -o $@ $(LMOBJS)
+	ln -sf $@ libmonome.dylib
 
 platform.o: platform/$(PLATFORM).c
 	echo "  CC      src/$@"

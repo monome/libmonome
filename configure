@@ -460,7 +460,7 @@ case $PLATFORM in
 	Darwin)
 		LM_LDFLAGS="$LM_LDFLAGS -ldl";
 		LIBSUFFIX=dylib;
-		LM_SUFFIX=dylib;
+		LM_SUFFIX=$VERSION.dylib;
 		PLATFORM_VERSION=`expr "$(sw_vers 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
 		export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH
 		;;
