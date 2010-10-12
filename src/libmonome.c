@@ -135,7 +135,9 @@ monome_t *monome_open(const char *dev, ...) {
 	char *serial, *proto;
 	int error;
 
-	assert(dev);
+	if( !dev )
+		return NULL;
+
 	serial = NULL;
 	m = NULL;
 
