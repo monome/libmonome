@@ -2,7 +2,7 @@ CFLAGS  := -I./private -I../public $(CFLAGS)
 LDFLAGS := -L. $(LDFLAGS)
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
-LMOBJS = libmonome.o platform.o rotation.o
+LMOBJS = libmonome.o rotation.o platform/$(PLATFORM).o
 
 MONOMESERIAL = monomeserial
 MSOBJS = monomeserial.o $(LIBMONOME)
@@ -36,6 +36,10 @@ install: all
 	echo "  INSTALL src/$(MONOMESERIAL) -> $(BINDIR)/$(MONOMESERIAL)"
 	$(INSTALL) $(MONOMESERIAL) $(BINDIR)/$(MONOMESERIAL)
 
+#
+# libmonome shared library
+#
+
 libmonome.so.$(VERSION): $(LMOBJS)
 	echo "  LD      src/libmonome.so"
 	$(LD) $(LDFLAGS) -shared -Wl,-soname,libmonome.so $(LM_LDFLAGS) -o $@ $(LMOBJS)
@@ -46,9 +50,17 @@ libmonome.$(VERSION).dylib: $(LMOBJS)
 	$(LD) $(LDFLAGS) -dynamiclib -Wl,-install_name,libmonome.dylib $(LM_LDFLAGS) -o $@ $(LMOBJS)
 	ln -sf $@ libmonome.dylib
 
-platform.o: platform/$(PLATFORM).c
+#
+# platform module
+#
+
+platform/$(PLATFORM).o: platform/$(PLATFORM).c
 	echo "  CC      src/$@"
 	$(CC) $(CFLAGS) -c $< -o $@
+
+#
+# other things
+#
 
 $(MONOMESERIAL): $(MSOBJS)
 	echo "  LD      src/monomeserial"
