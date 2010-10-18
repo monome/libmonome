@@ -23,8 +23,6 @@
 #include <monome.h>
 #include "internal.h"
 
-static struct udev *udev;
-
 static char *get_monome_information(struct udev_device *d) {
 	const char *serial, *tty;
 
@@ -37,7 +35,8 @@ static char *get_monome_information(struct udev_device *d) {
 	return strdup(serial);
 }
 
-static char *get_monome_information_from_syspath(const char *syspath) {
+static char *get_monome_information_from_syspath(struct udev *udev,
+                                                 const char *syspath) {
 	struct udev_device *d = NULL;
 	char *serial;
 
@@ -52,6 +51,7 @@ static char *get_monome_information_from_syspath(const char *syspath) {
 }
 
 char *monome_platform_get_dev_serial(const char *device) {
+	struct udev *udev;
 	struct udev_enumerate *ue;
 	struct udev_list_entry *c;
 	const char *syspath;
@@ -65,17 +65,19 @@ char *monome_platform_get_dev_serial(const char *device) {
 	udev_enumerate_add_match_property(ue, "DEVNAME", device);
 
 	if( udev_enumerate_scan_devices(ue) )
-		return NULL;
+		goto err_scan;
 
 	c = udev_enumerate_get_list_entry(ue);
 
 	if( !(syspath = udev_list_entry_get_name(c)) )
-		goto err; /* should NOT happen ever but whatever... */
+		goto err_nodevs; /* should NOT happen ever but whatever... */
 
-	serial = get_monome_information_from_syspath(syspath);
+	serial = get_monome_information_from_syspath(udev, syspath);
 
-err:
+err_nodevs:
 	udev_enumerate_unref(ue);
+err_scan:
 	udev_unref(udev);
+
 	return serial;
 }
