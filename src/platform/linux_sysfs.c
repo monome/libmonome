@@ -26,8 +26,7 @@
 #include <glob.h>
 #include <assert.h>
 
-#include <monome.h>
-#include "internal.h"
+#include "platform.h"
 
 #define FTDI_PATH "/sys/bus/usb/drivers/ftdi_sio"
 #define MAX_LENGTH 128

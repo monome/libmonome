@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 
+#include <monome.h>
 #include "internal.h"
 
 #warning "using the \"dummy\" platform, please make sure this is what you want!"

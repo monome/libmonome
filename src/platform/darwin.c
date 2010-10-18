@@ -18,8 +18,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <monome.h>
-#include "internal.h"
 #include "platform.h"
 
 char *monome_platform_get_dev_serial(const char *path) {

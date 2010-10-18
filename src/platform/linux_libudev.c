@@ -20,8 +20,7 @@
 #include <assert.h>
 #include <libudev.h>
 
-#include <monome.h>
-#include "internal.h"
+#include "platform.h"
 
 static char *get_monome_information(struct udev_device *d) {
 	const char *serial, *tty;

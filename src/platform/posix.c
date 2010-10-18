@@ -20,8 +20,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "monome.h"
+#include <monome.h>
 #include "internal.h"
+#include "platform.h"
 
 int monome_platform_open(monome_t *monome, const char *dev) {
 	struct termios nt, ot;
