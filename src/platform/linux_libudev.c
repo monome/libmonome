@@ -79,5 +79,3 @@ err:
 	udev_unref(udev);
 	return serial;
 }
-
-#include "posix.c"
