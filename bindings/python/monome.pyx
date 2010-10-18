@@ -14,6 +14,8 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
 
+from cpython cimport bool
+
 cdef extern from "stdint.h":
 	ctypedef unsigned int uint
 	ctypedef char uint8_t
