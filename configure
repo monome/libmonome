@@ -402,7 +402,7 @@ usage () {
 	echo "    --python-install-dir=DIR    the directory in which the python binding will be installed [python's site-packages dir by default]"
 	echo ""
 	echo "    --disable-osc               disable OSC/liblo support [enabled by default]"
-	echo "    --disable-python            disable python binding [enabled by default]"
+	echo "    --enable-python             enable python binding [disabled by default]"
 	echo ""
 }
 
