@@ -89,6 +89,8 @@ int main(int argc, char **argv) {
 	buf[0] = (PROTO_MK_GRIDS << 4) | (grids & 0xF);
 	monome_platform_write(&mk, buf, 1);
 
+	printf("successfully set active grids on %s\n", device);
+
 	monome_platform_close(&mk);
 	return EXIT_SUCCESS;
 }
