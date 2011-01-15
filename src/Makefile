@@ -51,6 +51,9 @@ libmonome.$(VERSION).dylib: $(LMOBJS)
 	$(LD) $(LDFLAGS) -dynamiclib -Wl,-install_name,libmonome.dylib $(LM_LDFLAGS) -o $@ $(LMOBJS)
 	ln -sf $@ libmonome.dylib
 
+libmonome.dll: $(LMOBJS)
+	$(LD) $(LDFLAGS) $(LM_LDFLAGS) -shared $(LMOBJS) -o $@
+
 $(MONOMESERIAL): $(MSOBJS)
 	echo "  LD      src/monomeserial"
 	$(LD) $(LDFLAGS) -L. -lmonome $(LO_LDFLAGS) -o $@ $<
