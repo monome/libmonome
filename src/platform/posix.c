@@ -28,9 +28,16 @@
 #include "internal.h"
 #include "platform.h"
 
+
+/* stops gcc from complaining when compiled with -pedantic */
+typedef union {
+	void *vptr;
+	monome_t *(*func)();
+} func_vptr_t;
+
 monome_t *monome_platform_load_protocol(const char *proto) {
 	void *dl_handle;
-	monome_t *(*monome_protocol_new)();
+	func_vptr_t protocol_new;
 	monome_t *monome;
 	char *buf;
 
@@ -48,19 +55,19 @@ monome_t *monome_platform_load_protocol(const char *proto) {
 		return NULL;
 	}
 
-	monome_protocol_new = dlsym(dl_handle, "monome_protocol_new");
+	protocol_new.vptr = dlsym(dl_handle, "monome_protocol_new");
 
-	if( !monome_protocol_new ) {
+	if( !protocol_new.func ) {
 		fprintf(stderr, "couldn't initialize monome protocol module.  "
 				"dlopen said:\n\t%s\n\n"
 				"please make sure you're using a valid protocol library!\n"
 				"if this is a protocol library you wrote, make sure you're"
-				"providing a \e[1mmonome_protocol_new\e[0m function.\n",
+				"providing a \033[1mmonome_protocol_new\033[0m function.\n",
 				dlerror());
 		goto err;
 	}
 
-	monome = (*monome_protocol_new)();
+	monome = (*protocol_new.func)();
 
 	if( !monome )
 		goto err;

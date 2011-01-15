@@ -2,7 +2,7 @@ SHELL = /bin/sh
 
 include config.mk
 
-export CFLAGS  += -Wall -Werror -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\" -std=c99
+export CFLAGS  += -Wall -Werror -DVERSION=\"$(VERSION)\" -DLIBSUFFIX=\".$(LIBSUFFIX)\" -DLIBDIR=\"$(LIBDIR)\" -std=c99 -pedantic
 export INSTALL = install
 
 SUBDIRS = src bindings examples
