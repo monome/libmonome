@@ -18,6 +18,9 @@
 
 char *monome_platform_get_dev_serial(const char *device);
 
+monome_t *monome_platform_load_protocol(const char *proto);
+void monome_platform_free(monome_t *monome);
+
 int monome_platform_open(monome_t *monome, const char *dev);
 int monome_platform_close(monome_t *monome);
 

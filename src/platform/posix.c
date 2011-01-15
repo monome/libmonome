@@ -14,15 +14,71 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/* for asprintf */
+#define _GNU_SOURCE
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dlfcn.h>
 
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
+
+monome_t *monome_platform_load_protocol(const char *proto) {
+	void *dl_handle;
+	monome_t *(*monome_protocol_new)();
+	monome_t *monome;
+	char *buf;
+
+	if( asprintf(&buf, "%s/monome/protocol_%s%s", LIBDIR, proto, LIBSUFFIX) < 0 )
+		return NULL;
+
+	dl_handle = dlopen(buf, RTLD_LAZY);
+	free(buf);
+
+	if( !dl_handle ) {
+		fprintf(stderr, "couldn't load monome protocol module.  "
+				"dlopen said: \n\t%s\n\n"
+				"please make sure that libmonome is installed correctly!\n",
+				dlerror());
+		return NULL;
+	}
+
+	monome_protocol_new = dlsym(dl_handle, "monome_protocol_new");
+
+	if( !monome_protocol_new ) {
+		fprintf(stderr, "couldn't initialize monome protocol module.  "
+				"dlopen said:\n\t%s\n\n"
+				"please make sure you're using a valid protocol library!\n"
+				"if this is a protocol library you wrote, make sure you're"
+				"providing a \e[1mmonome_protocol_new\e[0m function.\n",
+				dlerror());
+		goto err;
+	}
+
+	monome = (*monome_protocol_new)();
+
+	if( !monome )
+		goto err;
+
+	monome->dl_handle = dl_handle;
+	return monome;
+
+err:
+	dlclose(dl_handle);
+	return NULL;
+}
+
+void monome_platform_free(monome_t *monome) {
+	void *dl_handle = monome->dl_handle;
+
+	monome->free(monome);
+	dlclose(dl_handle);
+}
 
 int monome_platform_open(monome_t *monome, const char *dev) {
 	struct termios nt, ot;
