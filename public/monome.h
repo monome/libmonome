@@ -26,6 +26,8 @@ extern "C" {
 
 #include <sys/types.h>
 
+typedef unsigned int uint_t;
+
 typedef enum {
 	MONOME_BUTTON_UP     = 0x00,
 	MONOME_BUTTON_DOWN   = 0x01,
@@ -56,8 +58,8 @@ typedef enum {
 	MONOME_ROTATE_270  = 3
 } monome_rotate_t;
 
-typedef struct monome_event monome_event_t;
 typedef struct monome monome_t; /* opaque data type */
+typedef struct monome_event monome_event_t;
 
 typedef void (*monome_event_callback_t)
 	(const monome_event_t *event, void *data);
@@ -66,15 +68,8 @@ struct monome_event {
 	monome_t *monome;
 	monome_event_type_t event_type;
 
-	union {
-		uint x;
-		uint address;
-	};
-
-	union {
-		uint y;
-		uint data;
-	};
+	unsigned int x;
+	unsigned int y;
 };
 
 monome_t *monome_open(const char *monome_device, ...);
@@ -98,17 +93,18 @@ void monome_event_loop(monome_t *monome);
 int monome_get_fd(monome_t *monome);
 
 int monome_clear(monome_t *monome, monome_clear_status_t status);
-int monome_intensity(monome_t *monome, uint brightness);
+int monome_intensity(monome_t *monome, unsigned int brightness);
 int monome_mode(monome_t *monome, monome_mode_t mode);
 
-int monome_led(monome_t *monome, uint x, uint y, uint on);
-int monome_led_on(monome_t *monome, uint x, uint y);
-int monome_led_off(monome_t *monome, uint x, uint y);
-int monome_led_col(monome_t *monome, uint col, size_t count,
+int monome_led(monome_t *monome, unsigned int x, unsigned int y,
+			   unsigned int on);
+int monome_led_on(monome_t *monome, unsigned int x, unsigned int y);
+int monome_led_off(monome_t *monome, unsigned int x, unsigned int y);
+int monome_led_col(monome_t *monome, unsigned int col, size_t count,
 				   const uint8_t *col_data);
-int monome_led_row(monome_t *monome, uint row, size_t count,
+int monome_led_row(monome_t *monome, unsigned int row, size_t count,
 				   const uint8_t *row_data);
-int monome_led_frame(monome_t *monome, uint quadrant,
+int monome_led_frame(monome_t *monome, unsigned int quadrant,
 					 const uint8_t *frame_data);
 
 #ifdef __cplusplus

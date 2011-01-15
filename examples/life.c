@@ -19,6 +19,8 @@
  * conway's game of life
  */
 
+#define _XOPEN_SOURCE 600
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,14 +34,14 @@
 typedef struct cell cell_t;
 
 struct cell {
-	uint alive;
-	uint mod_next;
+	uint_t alive;
+	uint_t mod_next;
 
-	uint x;
-	uint y;
+	uint_t x;
+	uint_t y;
 
 	cell_t *neighbors[8];
-	uint nnum;
+	uint_t nnum;
 };
 
 cell_t world[ROWS][COLUMNS];
@@ -71,7 +73,7 @@ static void exit_on_signal(int s) {
 }
 
 static void init_world() {
-	uint x, y;
+	uint_t x, y;
 	cell_t *c;
 
 	for( x = 0; x < COLUMNS; x++ ) {
@@ -104,7 +106,7 @@ static void close_monome() {
 }
 
 int main(int argc, char **argv) {
-	uint x, y;
+	uint_t x, y;
 	int tick = 0;
 
 	cell_t *c;

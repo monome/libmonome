@@ -19,6 +19,8 @@
  * write a ton of data to a monome
  */
 
+#define _XOPEN_SOURCE 600
+
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,9 +33,6 @@
 
 #define WIDTH  16
 #define HEIGHT 16
-
-
-typedef unsigned int uint_t;
 
 void random_chill() {
 	struct timespec rem, req;

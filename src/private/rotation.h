@@ -22,4 +22,4 @@ extern monome_rotspec_t rotspec[4];
 #define ROTATE_COORDS(monome, x, y) (ROTSPEC(monome).output_cb(monome, &x, &y))
 #define UNROTATE_COORDS(monome, x, y) (ROTSPEC(monome).input_cb(monome, &x, &y))
 
-#define REVERSE_BYTE(x) ((uint) (((x * 0x0802) & 0x22110) | ((x * 0x8020) & 0x88440)) * 0x10101 >> 16)
+#define REVERSE_BYTE(x) ((uint_t) (((x * 0x0802) & 0x22110) | ((x * 0x8020) & 0x88440)) * 0x10101 >> 16)

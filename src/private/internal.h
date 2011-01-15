@@ -29,8 +29,8 @@ typedef struct monome_callback monome_callback_t;
 typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
 
-typedef void (*monome_coord_cb)(monome_t *, uint *x, uint *y);
-typedef void (*monome_frame_cb)(monome_t *, uint *quadrant,
+typedef void (*monome_coord_cb)(monome_t *, uint_t *x, uint_t *y);
+typedef void (*monome_frame_cb)(monome_t *, uint_t *quadrant,
 								uint8_t *frame_data);
 
 struct monome_callback {
@@ -80,13 +80,13 @@ struct monome {
 	int  (*next_event)(monome_t *monome, monome_event_t *event);
 
 	int  (*clear)(monome_t *monome, monome_clear_status_t status);
-	int  (*intensity)(monome_t *monome, uint brightness);
+	int  (*intensity)(monome_t *monome, uint_t brightness);
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
 
-	int  (*led)(monome_t *monome, uint x, uint y, uint on);
-	int  (*led_col)(monome_t *monome, uint col, size_t count, const uint8_t *data);
-	int  (*led_row)(monome_t *monome, uint row, size_t count, const uint8_t *data);
-	int  (*led_frame)(monome_t *monome, uint quadrant, const uint8_t *frame_data);
+	int  (*led)(monome_t *monome, uint_t x, uint_t y, uint_t on);
+	int  (*led_col)(monome_t *monome, uint_t col, size_t count, const uint8_t *data);
+	int  (*led_row)(monome_t *monome, uint_t row, size_t count, const uint8_t *data);
+	int  (*led_frame)(monome_t *monome, uint_t quadrant, const uint8_t *frame_data);
 };
 
 #endif

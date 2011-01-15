@@ -14,6 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#define _GNU_SOURCE
+
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -22,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/select.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -251,7 +254,7 @@ int monome_clear(monome_t *monome, monome_clear_status_t status) {
 	return monome->clear(monome, status);
 }
 
-int monome_intensity(monome_t *monome, uint brightness) {
+int monome_intensity(monome_t *monome, uint_t brightness) {
 	return monome->intensity(monome, brightness);
 }
 
@@ -259,29 +262,29 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 	return monome->mode(monome, mode);
 }
 
-int monome_led(monome_t *monome, uint x, uint y, uint on) {
+int monome_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return monome->led(monome, x, y, on);
 }
 
-int monome_led_on(monome_t *monome, uint x, uint y) {
+int monome_led_on(monome_t *monome, uint_t x, uint_t y) {
 	return monome_led(monome, x, y, 1);
 }
 
-int monome_led_off(monome_t *monome, uint x, uint y) {
+int monome_led_off(monome_t *monome, uint_t x, uint_t y) {
 	return monome_led(monome, x, y, 0);
 }
 
-int monome_led_col(monome_t *monome, uint col,
+int monome_led_col(monome_t *monome, uint_t col,
 				   size_t count, const uint8_t *data) {
 	return monome->led_col(monome, col, count, data);
 }
 
-int monome_led_row(monome_t *monome, uint row,
+int monome_led_row(monome_t *monome, uint_t row,
 				   size_t count, const uint8_t *data) {
 	return monome->led_row(monome, row, count, data);
 }
 
 int monome_led_frame(monome_t *monome,
-					 uint quadrant, const uint8_t *frame_data) {
+					 uint_t quadrant, const uint8_t *frame_data) {
 	return monome->led_frame(monome, quadrant, frame_data);
 }

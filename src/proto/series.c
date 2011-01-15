@@ -38,9 +38,9 @@ static int monome_write(monome_t *monome, const uint8_t *buf,
 
 static int proto_series_led_col_row_8(monome_t *monome,
                                       proto_series_message_t mode,
-                                      uint address, const uint8_t *data) {
+                                      uint_t address, const uint8_t *data) {
 	uint8_t buf[2] = {0, 0};
-	uint xaddress = address;
+	uint_t xaddress = address;
 
 	/* I guess this is a bit of a hack...but damn does it work well!
 
@@ -82,9 +82,9 @@ static int proto_series_led_col_row_8(monome_t *monome,
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t mode, uint address, const uint8_t *data) {
+static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t mode, uint_t address, const uint8_t *data) {
 	uint8_t buf[3] = {0, 0, 0};
-	uint xaddress = address;
+	uint_t xaddress = address;
 
 	ROTATE_COORDS(monome, xaddress, address);
 
@@ -134,7 +134,7 @@ static int proto_series_clear(monome_t *monome, monome_clear_status_t status) {
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
-static int proto_series_intensity(monome_t *monome, uint brightness) {
+static int proto_series_intensity(monome_t *monome, uint_t brightness) {
 	uint8_t buf = PROTO_SERIES_INTENSITY | (brightness & 0x0F);
 	return monome_write(monome, &buf, sizeof(buf));
 }
@@ -144,7 +144,7 @@ static int proto_series_mode(monome_t *monome, monome_mode_t mode) {
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
-static int proto_series_led(monome_t *monome, uint x, uint y, uint on) {
+static int proto_series_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	uint8_t buf[2];
 
 	ROTATE_COORDS(monome, x, y);
@@ -155,7 +155,7 @@ static int proto_series_led(monome_t *monome, uint x, uint y, uint on) {
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_series_led_col(monome_t *monome, uint col, size_t count, const uint8_t *data) {
+static int proto_series_led_col(monome_t *monome, uint_t col, size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
 	switch( ((monome->cols > 8) << 1) | (count > 1)) {
@@ -179,7 +179,7 @@ static int proto_series_led_col(monome_t *monome, uint col, size_t count, const 
 	return -1;
 }
 
-static int proto_series_led_row(monome_t *monome, uint row, size_t count, const uint8_t *data) {
+static int proto_series_led_row(monome_t *monome, uint_t row, size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
 	switch( ((monome->rows > 8) << 1) | (count > 1)) {
@@ -203,7 +203,7 @@ static int proto_series_led_row(monome_t *monome, uint row, size_t count, const 
 	return -1;
 }
 
-static int proto_series_led_frame(monome_t *monome, uint quadrant, const uint8_t *frame_data) {
+static int proto_series_led_frame(monome_t *monome, uint_t quadrant, const uint8_t *frame_data) {
 	uint8_t buf[9];
 
 	/* by treating frame_data as a bigger integer, we can copy it in

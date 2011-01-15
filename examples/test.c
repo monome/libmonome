@@ -19,6 +19,8 @@
  * basic program to test all of the output commands to the monome.
  */
 
+#define _XOPEN_SOURCE 600
+
 #include <time.h>
 #include <monome.h>
 
@@ -34,12 +36,16 @@ uint8_t pattern[4][8] = {
 };
 
 static void chill(int speed) {
-	struct timespec rem, req = {0, ((60000 / (BPM * speed)) * 1000000)};
+	struct timespec rem, req;
+
+	req.tv_sec  = 0;
+	req.tv_nsec = ((60000 / (BPM * speed)) * 1000000);
+
 	nanosleep(&req, &rem);
 }
 
 void test_led_on_off(monome_t *monome) {
-	uint i, j, s = 2;
+	uint_t i, j, s = 2;
 
 	while( s-- )
 		for( i = 0; i < 16; i++ )
@@ -50,7 +56,7 @@ void test_led_on_off(monome_t *monome) {
 }
 
 void test_led_row_8(monome_t *monome, uint8_t on) {
-	uint i;
+	uint_t i;
 
 	for( i = 0; i < 8; i++ ) {
 		monome_led_row(monome, i, 1, (uint8_t *) &on);
@@ -68,7 +74,7 @@ void test_led_row_8(monome_t *monome, uint8_t on) {
 }
 
 void test_led_col_8(monome_t *monome, uint8_t on) {
-	uint i;
+	uint_t i;
 
 	for( i = 0; i < 8; i++ ) {
 		monome_led_col(monome, i, 1, (uint8_t *) &on);
@@ -86,7 +92,7 @@ void test_led_col_8(monome_t *monome, uint8_t on) {
 }
 
 void test_led_row_16(monome_t *monome, uint16_t on) {
-	uint i;
+	uint_t i;
 
 	for( i = 0; i < 16; i++ ) {
 		monome_led_row(monome, i, 2, (uint8_t *) &on);
@@ -97,7 +103,7 @@ void test_led_row_16(monome_t *monome, uint16_t on) {
 }
 
 void test_led_col_16(monome_t *monome, uint16_t on) {
-	uint i;
+	uint_t i;
 
 	for( i = 0; i < 16; i++ ) {
 		monome_led_col(monome, i, 2, (uint8_t *) &on);
@@ -108,7 +114,7 @@ void test_led_col_16(monome_t *monome, uint16_t on) {
 }
 
 void test_led_frame(monome_t *monome) {
-	uint i, q, l;
+	uint_t i, q, l;
 
 	for( l = 0, q = 0; l < 8; l++ ) {
 		monome_led_frame(monome, q, pattern[q]);
@@ -133,7 +139,7 @@ void test_mode(monome_t *monome) {
 }
 
 void fade_out(monome_t *monome) {
-	uint i = 0x10;
+	uint_t i = 0x10;
 
 	while( i-- ) {
 		monome_intensity(monome, i);

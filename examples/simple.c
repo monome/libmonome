@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <monome.h>
 
-uint grid[16][16];
+uint_t grid[16][16];
 
 #define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
 
@@ -31,7 +31,7 @@ uint grid[16][16];
  * it gets called whenever a button is pressed
  */
 void handle_press(const monome_event_t *e, void *data) {
-	uint x, y;
+	uint_t x, y;
 
 	x = e->x;
 	y = e->y;
@@ -47,7 +47,7 @@ void handle_press(const monome_event_t *e, void *data) {
 
 int main(int argc, char *argv[]) {
 	monome_t *monome;
-	uint x, y;
+	uint_t x, y;
 
 	/* open the monome device */
 	if( !(monome = monome_open(MONOME_DEVICE, "8000")) )

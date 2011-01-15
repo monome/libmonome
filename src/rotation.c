@@ -25,8 +25,8 @@
 #define ROWS(monome) (monome->rows - 1)
 #define COLS(monome) (monome->cols - 1)
 
-static uint r90_quad_map[]  = {2, 0, 3, 1};
-static uint r270_quad_map[] = {1, 3, 0, 2};
+static uint_t r90_quad_map[]  = {2, 0, 3, 1};
+static uint_t r270_quad_map[] = {1, 3, 0, 2};
 
 /* you may notice the gratituous use of modulo when translating input
    coordinates...this is because it's possible to translate into negatives
@@ -38,29 +38,29 @@ static uint r270_quad_map[] = {1, 3, 0, 2};
    while this bug is arguably contrived, I'd rather pay the minute
    computational cost here and avoid causing trouble in application code. */
 
-static void r0_cb(monome_t *monome, uint *x, uint *y) {
+static void r0_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	return;
 }
 
-static void r0_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void r0_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
 	return;
 }
 
-static void r90_output_cb(monome_t *monome, uint *x, uint *y) {
-	uint t = *x;
+static void r90_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
+	uint_t t = *x;
 
 	*x = *y;
 	*y = ROWS(monome) - t;
 }
 
-static void r90_input_cb(monome_t *monome, uint *x, uint *y) {
-	uint t = *x;
+static void r90_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
+	uint_t t = *x;
 
 	*x = (ROWS(monome) - *y) % (ROWS(monome) + 1);
 	*y = t;
 }
 
-static void r90_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void r90_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
 	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
 	   in the case of r270_frame_cb, the rotation is clockwise, in the case
 	   of r90_frame_cb it is counter-clockwise.
@@ -123,17 +123,17 @@ static void r90_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) 
 	*quadrant = r90_quad_map[*quadrant & 0x3];
 }
 
-static void r180_output_cb(monome_t *monome, uint *x, uint *y) {
+static void r180_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*x = ROWS(monome) - *x;
 	*y = COLS(monome) - *y;
 }
 
-static void r180_input_cb(monome_t *monome, uint *x, uint *y) {
+static void r180_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*x = (ROWS(monome) - *x) % (ROWS(monome) + 1);
 	*y = (COLS(monome) - *y) % (COLS(monome) + 1);
 }
 
-static void r180_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void r180_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
 	/* integer reversal. */
 
 #ifdef __LP64__
@@ -172,21 +172,21 @@ static void r180_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data)
 	*quadrant = (3 - *quadrant) & 0x3;
 }
 
-static void r270_output_cb(monome_t *monome, uint *x, uint *y) {
-	uint t = *x;
+static void r270_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
+	uint_t t = *x;
 
 	*x = COLS(monome) - *y;
 	*y = t;
 }
 
-static void r270_input_cb(monome_t *monome, uint *x, uint *y) {
-	uint t = *x;
+static void r270_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
+	uint_t t = *x;
 
 	*x = *y;
 	*y = (COLS(monome) - t) % (COLS(monome) + 1);
 }
 
-static void r270_frame_cb(monome_t *monome, uint *quadrant, uint8_t *frame_data) {
+static void r270_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
 	/* see r90_frame_cb for a brief explanation */
 
 #ifdef __LP64__
