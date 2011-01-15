@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/select.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -216,34 +215,6 @@ int monome_event_handle_next(monome_t *monome) {
 
 	handler->cb(&e, handler->data);
 	return 1;
-}
-
-void monome_event_loop(monome_t *monome) {
-	monome_callback_t *handler;
-	monome_event_t e;
-
-	fd_set fds;
-
-	e.monome = monome;
-
-	do {
-		FD_ZERO(&fds);
-		FD_SET(monome->fd, &fds);
-
-		if( select(monome->fd + 1, &fds, NULL, NULL, NULL) < 0 ) {
-			perror("libmonome: error in select()");
-			break;
-		}
-
-		if( !monome->next_event(monome, &e) )
-			continue;
-
-		handler = &monome->handlers[e.event_type];
-		if( !handler->cb )
-			continue;
-
-		handler->cb(&e, handler->data);
-	} while( 1 );
 }
 
 int monome_get_fd(monome_t *monome) {
