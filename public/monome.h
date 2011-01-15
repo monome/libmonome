@@ -23,7 +23,6 @@ extern "C" {
 
 #include <stddef.h>
 #include <stdint.h>
-#include <termios.h>
 
 #include <sys/types.h>
 
