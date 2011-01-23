@@ -24,6 +24,16 @@ series: protocol_series.$(LIBSUFFIX)
 	true
 osc: protocol_osc.$(LIBSUFFIX)
 	true
+mext: protocol_mext.$(LIBSUFFIX)
+	true
+
+protocol_mext.so: mext.o
+	echo "  LD      src/proto/$@"
+	$(LD) -shared -Wl,-soname,$@ $(LDFLAGS) -o $@ $<
+
+protocol_mext.dylib: mext.o
+	echo "  LD      src/proto/$@"
+	$(LD) -dynamiclib -Wl,-install_name,$@ $(LDFLAGS) -o $@ $<
 
 protocol_series.so: series.o
 	echo "  LD      src/proto/$@"

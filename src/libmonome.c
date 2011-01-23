@@ -52,6 +52,10 @@ static monome_devmap_t mapping[] = {
 
 	{"m40h%d",  "40h",    {8, 8},   "monome 40h"},
 	{"a40h-%d", "40h",    {8, 8},   "arduinome" },
+
+	/* determine device dimensions in initialization */
+	{"m%d",     "mext",   {0, 0},   "monome i2c"},
+
 	{NULL}
 };
 
