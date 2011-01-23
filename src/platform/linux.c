@@ -14,17 +14,22 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "internal.h"
+#include <poll.h>
 
-char *monome_platform_get_dev_serial(const char *device);
+#include <monome.h>
+#include "platform.h"
 
-monome_t *monome_platform_load_protocol(const char *proto);
-void monome_platform_free(monome_t *monome);
+int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
+	struct pollfd fds[1];
 
-int monome_platform_open(monome_t *monome, const char *dev);
-int monome_platform_close(monome_t *monome);
+	if( !msec )
+		return 1;
 
-ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize);
-ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t bufsize);
+	fds->fd = monome_get_fd(monome);
+	fds->events = POLLIN;
 
-int monome_platform_wait_for_input(monome_t *monome, uint_t msec);
+	if( !poll(fds, 1, msec) )
+		return 1;
+
+	return 0;
+}

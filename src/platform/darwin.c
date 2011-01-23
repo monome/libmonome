@@ -19,6 +19,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/select.h>
 
 #include "platform.h"
 
@@ -36,4 +37,23 @@ char *monome_platform_get_dev_serial(const char *path) {
 		return NULL;
 
 	return strdup(serial + 1);
+}
+
+int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
+	struct timeval timeout[1];
+	fd_set rfds[1];
+	int fd;
+
+	fd = monome_get_fd(monome);
+
+	timeout->tv_sec  = msec / 1000;
+	timeout->tv_usec = (msec - (timeout->tv_sec * 1000)) * 1000;
+
+	FD_ZERO(rfds);
+	FD_SET(fd, rfds);
+
+	if( !select(fd + 1, rfds, NULL, NULL, timeout) )
+		return 1;
+
+	return 0;
 }

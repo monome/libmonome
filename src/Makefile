@@ -2,8 +2,8 @@ CFLAGS  := -I./private -I../public $(CFLAGS)
 LDFLAGS := -L. $(LDFLAGS)
 
 # haaaack
-PLATFORM_linux_libudev_OBJS = platform/linux_libudev.o platform/posix.o
-PLATFORM_linux_sysfs_OBJS = platform/linux_sysfs.o platform/posix.o
+PLATFORM_linux_libudev_OBJS = platform/linux_libudev.o platform/linux.o platform/posix.o
+PLATFORM_linux_sysfs_OBJS = platform/linux_sysfs.o platform/linux.o platform/posix.o
 PLATFORM_darwin_OBJS = platform/darwin.o platform/posix.o
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
