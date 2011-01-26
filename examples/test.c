@@ -117,7 +117,7 @@ void test_led_frame(monome_t *monome) {
 	uint_t i, q, l;
 
 	for( l = 0, q = 0; l < 8; l++ ) {
-		monome_led_frame(monome, q, pattern[q]);
+		monome_led_frame(monome, (q & 1) * 8, (q & 2) * 4, pattern[q]);
 
 		for( i = 0; i < 8; i++ )
 			pattern[q][i] ^= 0xFF;
@@ -156,6 +156,8 @@ int main(int argc, char **argv) {
 		return -1;
 
 	monome_clear(monome, MONOME_CLEAR_OFF);
+
+	test_led_frame(monome);
 
 	for( i = 0; i < 2; i++ ) {
 		test_led_row_8(monome, 1);

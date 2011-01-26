@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MONOME_INTERNAL_H
-#define _MONOME_INTERNAL_H
+#ifndef MONOME_INTERNAL_H
+#define MONOME_INTERNAL_H
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -84,7 +84,7 @@ struct monome {
 	int  (*led)(monome_t *monome, uint_t x, uint_t y, uint_t on);
 	int  (*led_col)(monome_t *monome, uint_t col, size_t count, const uint8_t *data);
 	int  (*led_row)(monome_t *monome, uint_t row, size_t count, const uint8_t *data);
-	int  (*led_frame)(monome_t *monome, uint_t quadrant, const uint8_t *frame_data);
+	int  (*led_frame)(monome_t *monome, uint_t x_off, uint_t y_off, const uint8_t *frame_data);
 };
 
-#endif
+#endif /* defined MONOME_INTERNAL_H */

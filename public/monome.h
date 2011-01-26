@@ -84,9 +84,9 @@ int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 
 int monome_register_handler(monome_t *monome, monome_event_type_t event_type,
-							monome_event_callback_t, void *user_data);
+                            monome_event_callback_t, void *user_data);
 int monome_unregister_handler(monome_t *monome,
-							  monome_event_type_t event_type);
+                              monome_event_type_t event_type);
 int monome_event_next(monome_t *monome, monome_event_t *event_buf);
 int monome_event_handle_next(monome_t *monome);
 void monome_event_loop(monome_t *monome);
@@ -97,15 +97,15 @@ int monome_intensity(monome_t *monome, unsigned int brightness);
 int monome_mode(monome_t *monome, monome_mode_t mode);
 
 int monome_led(monome_t *monome, unsigned int x, unsigned int y,
-			   unsigned int on);
+               unsigned int on);
 int monome_led_on(monome_t *monome, unsigned int x, unsigned int y);
 int monome_led_off(monome_t *monome, unsigned int x, unsigned int y);
 int monome_led_col(monome_t *monome, unsigned int col, size_t count,
-				   const uint8_t *col_data);
+                   const uint8_t *col_data);
 int monome_led_row(monome_t *monome, unsigned int row, size_t count,
-				   const uint8_t *row_data);
-int monome_led_frame(monome_t *monome, unsigned int quadrant,
-					 const uint8_t *frame_data);
+                   const uint8_t *row_data);
+int monome_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
+                     const uint8_t *frame_data);
 
 #ifdef __cplusplus
 } /* extern "C" */

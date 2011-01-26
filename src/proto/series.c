@@ -203,8 +203,10 @@ static int proto_series_led_row(monome_t *monome, uint_t row, size_t count, cons
 	return -1;
 }
 
-static int proto_series_led_frame(monome_t *monome, uint_t quadrant, const uint8_t *frame_data) {
+static int proto_series_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
+                                  const uint8_t *frame_data) {
 	uint8_t buf[9];
+	uint_t quadrant;
 
 	/* by treating frame_data as a bigger integer, we can copy it in
 	   one or two operations (instead of 8) */
@@ -214,6 +216,8 @@ static int proto_series_led_frame(monome_t *monome, uint_t quadrant, const uint8
 	*((uint32_t *) &buf[1]) = *((uint32_t *) frame_data);
 	*((uint32_t *) &buf[5]) = *(((uint32_t *) frame_data) + 1);
 #endif
+
+	quadrant = (x_off / 8) + ((y_off / 8) * 2);
 
 	ROTSPEC(monome).frame_cb(monome, &quadrant, &buf[1]);
 	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);

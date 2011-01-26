@@ -115,27 +115,14 @@ static int osc_frame_handler(const char *path, const char *types,
 	uint i;
 
 	for( i = 0; i < 8; i++ )
-		buf[i] = argv[i]->i;
+		buf[i] = argv[i + (argc - 8)]->i;
 
 	switch( argc ) {
 	case 8:
-		return monome_led_frame(monome, 0, buf);
-		break;
-
-	case 9:
-		return monome_led_frame(monome, argv[8]->i, buf);
-		break;
+		return monome_led_frame(monome, 0, 0, buf);
 
 	case 10:
-		/**
-		 * okay, this isn't implemented yet.
-		 * passing 10 arguments to /frame means you want to offset
-		 * it by argv[8] and argv[9].
-		 * 
-		 * thing is, there's no clean mapping to the serial protocol,
-		 * so this is going to have to wait.
-		 */
-		break;
+		return monome_led_frame(monome, argv[0]->i, argv[1]->i, buf);
 	}
 
 	return -1;
@@ -171,7 +158,6 @@ static void register_osc_methods(char *prefix, monome_t *monome) {
 
 	asprintf(&cmd_buf, "/%s/frame", prefix);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiii", osc_frame_handler, monome);
-	lo_server_add_method(srv, cmd_buf, "iiiiiiiii", osc_frame_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii",
 						 osc_frame_handler, monome);
 	free(cmd_buf);
@@ -207,7 +193,6 @@ static void unregister_osc_methods(char *prefix) {
 
 	asprintf(&cmd_buf, "/%s/frame", prefix);
 	lo_server_del_method(srv, cmd_buf, "iiiiiiii");
-	lo_server_del_method(srv, cmd_buf, "iiiiiiiii");
 	lo_server_del_method(srv, cmd_buf, "iiiiiiiiii");
 	free(cmd_buf);
 }

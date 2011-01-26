@@ -259,7 +259,7 @@ int monome_led_row(monome_t *monome, uint_t row,
 	return monome->led_row(monome, row, count, data);
 }
 
-int monome_led_frame(monome_t *monome,
-					 uint_t quadrant, const uint8_t *frame_data) {
-	return monome->led_frame(monome, quadrant, frame_data);
+int monome_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
+                     const uint8_t *frame_data) {
+	return monome->led_frame(monome, x_off, y_off, frame_data);
 }
