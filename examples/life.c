@@ -34,14 +34,14 @@
 typedef struct cell cell_t;
 
 struct cell {
-	uint_t alive;
-	uint_t mod_next;
+	unsigned int alive;
+	unsigned int mod_next;
 
-	uint_t x;
-	uint_t y;
+	unsigned int x;
+	unsigned int y;
 
 	cell_t *neighbors[8];
-	uint_t nnum;
+	unsigned int nnum;
 };
 
 cell_t world[ROWS][COLUMNS];
@@ -73,7 +73,7 @@ static void exit_on_signal(int s) {
 }
 
 static void init_world() {
-	uint_t x, y;
+	unsigned int x, y;
 	cell_t *c;
 
 	for( x = 0; x < COLUMNS; x++ ) {
@@ -106,7 +106,7 @@ static void close_monome() {
 }
 
 int main(int argc, char **argv) {
-	uint_t x, y;
+	unsigned int x, y;
 	int tick = 0;
 
 	cell_t *c;

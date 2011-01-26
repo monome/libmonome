@@ -45,7 +45,7 @@ static void chill(int speed) {
 }
 
 void test_led_on_off(monome_t *monome) {
-	uint_t i, j, s = 2;
+	unsigned int i, j, s = 2;
 
 	while( s-- )
 		for( i = 0; i < 16; i++ )
@@ -56,7 +56,7 @@ void test_led_on_off(monome_t *monome) {
 }
 
 void test_led_row_8(monome_t *monome, uint8_t on) {
-	uint_t i;
+	unsigned int i;
 
 	for( i = 0; i < 8; i++ ) {
 		monome_led_row(monome, i, 1, (uint8_t *) &on);
@@ -74,7 +74,7 @@ void test_led_row_8(monome_t *monome, uint8_t on) {
 }
 
 void test_led_col_8(monome_t *monome, uint8_t on) {
-	uint_t i;
+	unsigned int i;
 
 	for( i = 0; i < 8; i++ ) {
 		monome_led_col(monome, i, 1, (uint8_t *) &on);
@@ -92,7 +92,7 @@ void test_led_col_8(monome_t *monome, uint8_t on) {
 }
 
 void test_led_row_16(monome_t *monome, uint16_t on) {
-	uint_t i;
+	unsigned int i;
 
 	for( i = 0; i < 16; i++ ) {
 		monome_led_row(monome, i, 2, (uint8_t *) &on);
@@ -103,7 +103,7 @@ void test_led_row_16(monome_t *monome, uint16_t on) {
 }
 
 void test_led_col_16(monome_t *monome, uint16_t on) {
-	uint_t i;
+	unsigned int i;
 
 	for( i = 0; i < 16; i++ ) {
 		monome_led_col(monome, i, 2, (uint8_t *) &on);
@@ -114,7 +114,7 @@ void test_led_col_16(monome_t *monome, uint16_t on) {
 }
 
 void test_led_frame(monome_t *monome) {
-	uint_t i, q, l;
+	unsigned int i, q, l;
 
 	for( l = 0, q = 0; l < 8; l++ ) {
 		monome_led_frame(monome, (q & 1) * 8, (q & 2) * 4, pattern[q]);
@@ -139,7 +139,7 @@ void test_mode(monome_t *monome) {
 }
 
 void fade_out(monome_t *monome) {
-	uint_t i = 0x10;
+	unsigned int i = 0x10;
 
 	while( i-- ) {
 		monome_intensity(monome, i);

@@ -27,7 +27,6 @@
 
 #include <monome.h>
 
-
 #define MONOME_OSC "osc.udp://127.0.0.1:8080/monome"
 #define MONOME_SERIAL "/dev/ttyUSB0"
 
@@ -45,7 +44,7 @@ void random_chill() {
 
 int main(int argc, char **argv) {
 	monome_t *monome;
-	uint_t w, h, y, s;
+	unsigned int w, h, y, s;
 	uint16_t buf;
 
 	if( !(monome = monome_open(MONOME_OSC, "8000")) ) {

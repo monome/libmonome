@@ -26,8 +26,6 @@ extern "C" {
 
 #include <sys/types.h>
 
-typedef unsigned int uint_t;
-
 typedef enum {
 	MONOME_BUTTON_UP     = 0x00,
 	MONOME_BUTTON_DOWN   = 0x01,
@@ -104,7 +102,7 @@ int monome_led_col(monome_t *monome, unsigned int col, size_t count,
                    const uint8_t *col_data);
 int monome_led_row(monome_t *monome, unsigned int row, size_t count,
                    const uint8_t *row_data);
-int monome_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
+int monome_led_frame(monome_t *monome, unsigned int x_off, unsigned int y_off,
                      const uint8_t *frame_data);
 
 #ifdef __cplusplus

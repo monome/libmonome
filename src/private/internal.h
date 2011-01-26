@@ -24,6 +24,8 @@
 
 #include <monome.h>
 
+typedef unsigned int uint_t;
+
 typedef struct monome_callback monome_callback_t;
 typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
