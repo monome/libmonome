@@ -19,7 +19,6 @@
 
 #include <stdarg.h>
 #include <stdint.h>
-#include <termios.h>
 
 #include <sys/types.h>
 
@@ -66,7 +65,6 @@ struct monome {
 	const char *device;
 	int rows, cols;
 
-	struct termios ot;
 	int fd;
 
 	monome_callback_t handlers[3];

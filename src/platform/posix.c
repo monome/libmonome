@@ -24,10 +24,13 @@
 #include <unistd.h>
 #include <dlfcn.h>
 #include <sys/select.h>
+#include <termios.h>
 
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
+
+#define MONOME_BAUD_RATE B115200
 
 /* stops gcc from complaining when compiled with -pedantic */
 typedef union {
@@ -100,8 +103,8 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	nt = ot;
 
 	/* baud rate */
-	cfsetispeed(&nt, B115200);
-	cfsetospeed(&nt, B115200);
+	cfsetispeed(&nt, MONOME_BAUD_RATE);
+	cfsetospeed(&nt, MONOME_BAUD_RATE);
 
 	/* parity (8N1) */
 	nt.c_cflag &= ~(PARENB | CSTOPB | CSIZE);
@@ -122,21 +125,22 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	nt.c_cc[VMIN]  = 1;
 	nt.c_cc[VTIME] = 0;
 
-	if( tcsetattr(fd, TCSANOW, &nt) < 0 ) {
-		perror("libmonome: could not set terminal attributes");
-		return 1;
-	}
+	if( tcsetattr(fd, TCSANOW, &nt) < 0 )
+		goto err_tcsetattr;
 
 	tcflush(fd, TCIOFLUSH);
 
 	monome->fd = fd;
-	monome->ot = ot;
-
 	return 0;
+
+err_tcsetattr:
+	perror("libmonome: could not set terminal attributes");
+
+	close(fd);
+	return 1;
 }
 
 int monome_platform_close(monome_t *monome) {
-	tcsetattr(monome->fd, TCSANOW, &monome->ot);
 	return close(monome->fd);
 }
 
