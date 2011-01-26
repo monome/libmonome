@@ -37,7 +37,9 @@ static int msg_lengths[] = {
 	[CMD_LED_INTENSITY] = 1
 };
 
-/* private */
+/**
+ * protocol internal
+ */
 
 static int mext_write_msg(monome_t *monome, mext_msg_t *msg) {
 	monome_platform_write(monome, (uint8_t *) msg, msg_lengths[msg->header.cmd]);
@@ -45,7 +47,9 @@ static int mext_write_msg(monome_t *monome, mext_msg_t *msg) {
 	return 0;
 }
 
-/* public */
+/**
+ * led functions
+ */
 
 static int mext_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	mext_msg_t msg = {
@@ -62,6 +66,32 @@ static int mext_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 
 	return mext_write_msg(monome, &msg);
 }
+
+static int mext_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
+                          const uint8_t *frame_data) {
+	mext_msg_t msg = {
+		.header = {
+			.addr = SS_LED_GRID,
+			.cmd  = CMD_LED_FRAME
+		}
+	};
+
+#ifdef __LP64__
+	*((uint64_t *) msg.cmd.frame.data) = *((uint64_t *) frame_data);
+#else
+	*((uint32_t *) msg.cmd.frame.data) = *((uint32_t *) frame_data);
+	*((uint32_t *) msg.cmd.frame.data + 4) = *(((uint32_t *) frame_data) + 1);
+#endif
+
+	/* XXX: rotation needs to take offsets instead of quadrant */
+	/* ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, msg.cmd.frame.data); */
+
+	return mext_write_msg(monome, &msg);
+}
+
+/**
+ * device control functions
+ */
 
 static int mext_open(monome_t *monome, const char *dev, const char *serial,
                      const monome_devmap_t *m, va_list args) {
@@ -101,7 +131,7 @@ monome_t *monome_protocol_new() {
 	monome->led        = mext_led;
 	monome->led_col    = NULL;
 	monome->led_row    = NULL;
-	monome->led_frame  = NULL;
+	monome->led_frame  = mext_led_frame;
 
 	return NULL;
 }
