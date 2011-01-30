@@ -14,12 +14,22 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifdef __STRICT_ANSI__
+#undef __STRICT_ANSI__
+#endif
+
+#include <stdlib.h>
+#include <malloc.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <io.h>
 #include <stdio.h>
 
 #include <monome.h>
 #include "internal.h"
-
-#warning "using the \"dummy\" platform, please make sure this is what you want!"
+#include "platform.h"
 
 monome_t *monome_platform_load_protocol(const char *proto) {
 	return NULL;
@@ -29,11 +39,15 @@ void monome_platform_free(monome_t *monome) {
 	return;
 }
 
-int monome_platform_open(monome_t *monome) {
-	printf("libmonome was compiled with the dummy platform and, hence, effectively does nothing.\n"
-		   "please recompile for any functionality!\n");
-	
-	return 1;
+int monome_platform_open(monome_t *monome, const char *dev) {
+	int fd;
+
+	if( (fd = _open(dev, _O_RDWR)) < 0 ) {
+		perror("libmonome: could not open monome device");
+		return 1;
+	}
+
+	return 0;
 }
 
 int monome_platform_close(monome_t *monome) {
@@ -50,4 +64,24 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
 
 char *monome_platform_get_dev_serial(const char *path) {
 	return NULL;
+}
+
+void monome_event_loop(monome_t *monome) {
+	return;
+}
+
+void *m_malloc(size_t size) {
+	return malloc(size);
+}
+
+void *m_calloc(size_t nmemb, size_t size) {
+	return calloc(nmemb, size);
+}
+
+void *m_strdup(const char *s) {
+	return _strdup(s);
+}
+
+void m_free(void *ptr) {
+	free(ptr);
 }

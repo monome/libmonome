@@ -39,7 +39,7 @@ MANDIR=;
 PROTOCOLS="mext series 40h";
 LIBUDEV_VERSION=;
 
-LM_LDFLAGS="-lc";
+LM_LDFLAGS="";
 LM_SUFFIX=;
 
 WANT_OSC=probably;
@@ -48,6 +48,7 @@ LO_VERSION=;
 LO_PREFIX=$PREFIX;
 LO_CFLAGS="";
 LO_LDFLAGS="-llo -lpthread";
+SO_LDFLAGS="";
 
 BINDINGS=;
 
@@ -467,6 +468,7 @@ case $PLATFORM in
 	Linux)
 		CFLAGS="$CFLAGS -fPIC";
 		LDFLAGS="$LDFLAGS -Wl,-rpath,$PREFIX/lib";
+		SO_LDFLAGS="-lc";
 		LM_LDFLAGS="$LM_LDFLAGS -ldl";
 		LIBSUFFIX=so;
 		LM_SUFFIX=so.$VERSION;
@@ -475,6 +477,7 @@ case $PLATFORM in
 
 	Darwin)
 		CFLAGS="$CFLAGS -fPIC";
+		SO_LDFLAGS="-lc";
 		LM_LDFLAGS="$LM_LDFLAGS -ldl";
 		LIBSUFFIX=dylib;
 		LM_SUFFIX=$VERSION.dylib;
@@ -657,7 +660,8 @@ export LDFLAGS    = $LDFLAGS
 export PLATFORM   = $PLATFORM
 export LIBSUFFIX  = $LIBSUFFIX
 export LM_SUFFIX  = $LM_SUFFIX
-export LM_LDFLAGS = $LM_LDFLAGS
+export SO_LDFLAGS = $SO_LDFLAGS
+export LM_LDFLAGS = \$(SO_LDFLAGS) $LM_LDFLAGS
 
 export PROTOCOLS  = $PROTOCOLS
 

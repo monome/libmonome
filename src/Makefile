@@ -5,6 +5,7 @@ LDFLAGS := -L. $(LDFLAGS)
 PLATFORM_linux_libudev_OBJS = platform/linux_libudev.o platform/linux.o platform/posix.o
 PLATFORM_linux_sysfs_OBJS = platform/linux_sysfs.o platform/linux.o platform/posix.o
 PLATFORM_darwin_OBJS = platform/darwin.o platform/posix.o
+PLATFORM_windows_OBJS = platform/windows.o
 
 LIBMONOME = libmonome.$(LM_SUFFIX)
 LMOBJS = libmonome.o rotation.o $(PLATFORM_$(PLATFORM)_OBJS)
@@ -52,6 +53,7 @@ libmonome.$(VERSION).dylib: $(LMOBJS)
 	ln -sf $@ libmonome.dylib
 
 libmonome.dll: $(LMOBJS)
+	echo "  LD      src/$@"
 	$(LD) $(LDFLAGS) $(LM_LDFLAGS) -shared $(LMOBJS) -o $@
 
 $(MONOMESERIAL): $(MSOBJS)
