@@ -26,6 +26,7 @@
 #include <lo/lo.h>
 
 #include <monome.h>
+#include "platform.h"
 
 #define DEFAULT_MONOME_DEVICE   "/dev/ttyUSB0"
 #define DEFAULT_MONOME_PROTOCOL "series"
@@ -135,32 +136,32 @@ static void register_osc_methods(char *prefix, monome_t *monome) {
 	asprintf(&cmd_buf, "/%s/clear", prefix);
 	lo_server_add_method(srv, cmd_buf, "", osc_clear_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "i", osc_clear_handler, monome);
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/intensity", prefix);
 	lo_server_add_method(srv, cmd_buf, "", osc_intensity_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "i", osc_intensity_handler, monome);
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led", prefix);
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_handler, monome);
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_row", prefix);
 	lo_server_add_method(srv, cmd_buf, "ii", osc_led_col_row_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_col_row_handler, monome);
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_col", prefix);
 	lo_server_add_method(srv, cmd_buf, "ii", osc_led_col_row_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_col_row_handler, monome);
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/frame", prefix);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiii", osc_frame_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii",
 						 osc_frame_handler, monome);
-	free(cmd_buf);
+	m_free(cmd_buf);
 }
 
 static void unregister_osc_methods(char *prefix) {
@@ -170,31 +171,31 @@ static void unregister_osc_methods(char *prefix) {
 	asprintf(&cmd_buf, "/%s/clear", prefix);
 	lo_server_del_method(srv, cmd_buf, "");
 	lo_server_del_method(srv, cmd_buf, "i");
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/intensity", prefix);
 	lo_server_del_method(srv, cmd_buf, "");
 	lo_server_del_method(srv, cmd_buf, "i");
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led", prefix);
 	lo_server_del_method(srv, cmd_buf, "iii");
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_row", prefix);
 	lo_server_del_method(srv, cmd_buf, "ii");
 	lo_server_del_method(srv, cmd_buf, "iii");
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_col", prefix);
 	lo_server_del_method(srv, cmd_buf, "ii");
 	lo_server_del_method(srv, cmd_buf, "iii");
-	free(cmd_buf);
+	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/frame", prefix);
 	lo_server_del_method(srv, cmd_buf, "iiiiiiii");
 	lo_server_del_method(srv, cmd_buf, "iiiiiiiiii");
-	free(cmd_buf);
+	m_free(cmd_buf);
 }
 
 static int sys_mode_handler(const char *path, const char *types,
@@ -220,7 +221,7 @@ static void monome_handle_press(const monome_event_t *e, void *data) {
 	asprintf(&cmd, "/%s/press", prefix);
 	lo_send_from(state.outgoing, state.server, LO_TT_IMMEDIATE, cmd, "iii",
 				 e->x, e->y, e->event_type);
-	free(cmd);
+	m_free(cmd);
 }
 
 static void usage(const char *app) {
@@ -396,9 +397,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	if( optind == argc )
-		state.lo_prefix = strdup(DEFAULT_OSC_PREFIX);
+		state.lo_prefix = m_strdup(DEFAULT_OSC_PREFIX);
 	else
-		state.lo_prefix = strdup(argv[optind]);
+		state.lo_prefix = m_strdup(argv[optind]);
 
 	if( !(state.monome = monome_open(device)) ) {
 		printf("failed to open %s\n", device);
@@ -436,7 +437,7 @@ int main(int argc, char *argv[]) {
 	monome_close(state.monome);
 
 	unregister_osc_methods(state.lo_prefix);
-	free(state.lo_prefix);
+	m_free(state.lo_prefix);
 
 	lo_address_free(state.outgoing);
 	lo_server_free(state.server);

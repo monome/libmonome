@@ -119,7 +119,7 @@ monome_t *monome_open(const char *dev, ...) {
 	if( error )
 		goto err_init;
 
-	if( !(monome->device = strdup(dev)) )
+	if( !(monome->device = m_strdup(dev)) )
 		goto err_nomem;
 
 	monome->rotation = MONOME_ROTATE_0;
@@ -129,7 +129,7 @@ err_nomem:
 	monome->free(monome);
 
 err_init:
-	if( serial ) free(serial);
+	if( serial ) m_free(serial);
 	return NULL;
 }
 
@@ -137,10 +137,10 @@ void monome_close(monome_t *monome) {
 	assert(monome);
 
 	if( monome->serial )
-		free((char *) monome->serial);
+		m_free((char *) monome->serial);
 
 	if( monome->device )
-		free((char *) monome->device);
+		m_free((char *) monome->device);
 
 	monome->close(monome);
 	monome_platform_free(monome);

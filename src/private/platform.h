@@ -28,3 +28,8 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufs
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t bufsize);
 
 int monome_platform_wait_for_input(monome_t *monome, uint_t msec);
+
+void *m_malloc(size_t size);
+void *m_calloc(size_t nmemb, size_t size);
+void *m_strdup(const char *s);
+void m_free(void *ptr);

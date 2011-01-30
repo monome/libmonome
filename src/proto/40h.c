@@ -190,11 +190,11 @@ static int proto_40h_close(monome_t *monome) {
 
 static void proto_40h_free(monome_t *monome) {
 	monome_40h_t *m40h = (monome_40h_t *) monome;
-	free(m40h);
+	m_free(m40h);
 }
 
 monome_t *monome_protocol_new() {
-	monome_t *monome = calloc(1, sizeof(monome_40h_t));
+	monome_t *monome = m_calloc(1, sizeof(monome_40h_t));
 
 	if( !monome )
 		return NULL;

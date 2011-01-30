@@ -276,11 +276,11 @@ static int mext_close(monome_t *monome) {
 static void mext_free(monome_t *monome) {
 	SELF_FROM(monome);
 
-	free(self);
+	m_free(self);
 }
 
 monome_t *monome_protocol_new() {
-	mext_t *self = calloc(1, sizeof(mext_t));
+	mext_t *self = m_calloc(1, sizeof(mext_t));
 	monome_t *monome = MONOME_T(self);
 
 	if( !monome )

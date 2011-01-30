@@ -190,3 +190,19 @@ void monome_event_loop(monome_t *monome) {
 		handler->cb(&e, handler->data);
 	} while( 1 );
 }
+
+void *m_malloc(size_t size) {
+	return malloc(size);
+}
+
+void *m_calloc(size_t nmemb, size_t size) {
+	return calloc(nmemb, size);
+}
+
+void *m_strdup(const char *s) {
+	return strdup(s);
+}
+
+void m_free(void *ptr) {
+	free(ptr);
+}

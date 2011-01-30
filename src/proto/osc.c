@@ -147,7 +147,7 @@ static int proto_osc_open(monome_t *monome, const char *dev,
 
 	asprintf(&buf, "%s/press", self->prefix);
 	lo_server_add_method(self->server, buf, "iii", proto_osc_press_handler, self);
-	free(buf);
+	m_free(buf);
 
 #define cache_osc_path(base) asprintf(&self->base##_str, "%s/" #base, self->prefix)
 	cache_osc_path(clear);
@@ -169,7 +169,7 @@ static int proto_osc_close(monome_t *monome) {
 static void proto_osc_free(monome_t *monome) {
 	SELF_FROM(monome);
 
-#define clear_osc_path(base) free(self->base##_str);
+#define clear_osc_path(base) m_free(self->base##_str);
 	clear_osc_path(clear);
 	clear_osc_path(intensity);
 	clear_osc_path(mode);
@@ -179,7 +179,7 @@ static void proto_osc_free(monome_t *monome) {
 	clear_osc_path(frame);
 #undef clear_osc_path
 
-	free(self->prefix);
+	m_free(self->prefix);
 	lo_server_free(self->server);
 	lo_address_free(self->outgoing);
 
@@ -187,11 +187,11 @@ static void proto_osc_free(monome_t *monome) {
 	self->server   = NULL;
 	self->outgoing = NULL;
 
-	free(self);
+	m_free(self);
 }
 
 monome_t *monome_protocol_new() {
-	monome_osc_t *self = calloc(1, sizeof(monome_osc_t));
+	monome_osc_t *self = m_calloc(1, sizeof(monome_osc_t));
 	monome_t *monome = (monome_t *) self;
 	
 	if( !monome )

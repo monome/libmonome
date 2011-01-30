@@ -266,11 +266,11 @@ static int proto_series_close(monome_t *monome) {
 }
 
 static void proto_series_free(monome_t *monome) {
-	free(monome);
+	m_free(monome);
 }
 
 monome_t *monome_protocol_new() {
-	monome_t *monome = calloc(1, sizeof(monome_t));
+	monome_t *monome = m_calloc(1, sizeof(monome_t));
 
 	if( !monome )
 		return NULL;
