@@ -24,14 +24,65 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <io.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <io.h>
+
+/* THIS WAY LIES MADNESS */
+#include <windows.h>
 
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
 
+static char *m_asprintf(const char *fmt, ...) {
+	va_list args;
+	char *buf;
+	int len;
+
+	va_start(args, fmt);
+
+	len = _vscprintf(fmt, args) + 1;
+	if( !(buf = m_calloc(sizeof(char), len)) )
+		return NULL;
+
+	vsprintf(buf, fmt, args);
+	va_end(args);
+
+	return buf;
+}
+
 monome_t *monome_platform_load_protocol(const char *proto) {
+	typedef monome_t *(*proto_init_t)();
+	proto_init_t protocol_new;
+
+	monome_t *monome;
+	HMODULE proto_mod;
+	char *modname;
+
+	if( !(modname = m_asprintf("protocol_%s.dll")) )
+		goto err_loadlibrary;
+
+	proto_mod = LoadLibrary(modname);
+	m_free(modname);
+
+	if( !proto_mod )
+		goto err_loadlibrary;
+
+	protocol_new = (proto_init_t) GetProcAddress(proto_mod, "monome_protocol_new");
+
+	if( !protocol_new )
+		goto err_protocol_new;
+
+	if( !(monome = protocol_new()) )
+		goto err_protocol_new;
+
+	monome->dl_handle = proto_mod;
+	return monome;
+
+err_protocol_new:
+	FreeLibrary(proto_mod);
+err_loadlibrary:
 	return NULL;
 }
 
