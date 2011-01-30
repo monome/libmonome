@@ -6,7 +6,7 @@ LDFLAGS += -L.. -lmonome
 all: $(PROTOCOLS)
 
 clean:
-	rm -f *.o *.so
+	rm -f *.o *.so *.dylib *.dll
 
 install:
 	$(INSTALL) -d $(LIBDIR)/monome
