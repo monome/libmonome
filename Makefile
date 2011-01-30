@@ -15,7 +15,7 @@ SUBDIRS = src bindings examples
 all:
 	cd src; $(MAKE)
 	cd bindings; $(MAKE)
-	cd examples; $(MAKE)
+	# cd examples; $(MAKE)
 
 utils: all
 	cd utils; $(MAKE)
