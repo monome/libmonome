@@ -42,7 +42,7 @@ void monome_platform_free(monome_t *monome) {
 int monome_platform_open(monome_t *monome, const char *dev) {
 	int fd;
 
-	if( (fd = _open(dev, _O_RDWR)) < 0 ) {
+	if( (fd = _open(dev, _O_RDWR | _O_BINARY)) < 0 ) {
 		perror("libmonome: could not open monome device");
 		return 1;
 	}
@@ -51,15 +51,15 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 }
 
 int monome_platform_close(monome_t *monome) {
-	return 1;
+	return !!_close(monome->fd);
 }
 
-ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-	return 1;
+ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, size_t nbyte) {
+	return _write(monome->fd, buf, nbyte);
 }
 
-ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
-	return 1;
+ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
+	return _read(monome->fd, buf, nbyte);
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
