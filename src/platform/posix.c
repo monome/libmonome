@@ -144,10 +144,10 @@ int monome_platform_close(monome_t *monome) {
 	return close(monome->fd);
 }
 
-ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufsize) {
-	ssize_t ret = write(monome->fd, buf, bufsize);
+ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, size_t nbyte) {
+	ssize_t ret = write(monome->fd, buf, nbyte);
 
-	if( ret < bufsize )
+	if( ret < nbyte )
 		perror("libmonome: write is missing bytes");
 
 	if( ret < 0 )
@@ -159,8 +159,8 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufs
 	return ret;
 }
 
-ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
-	return read(monome->fd, buf, count);
+ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
+	return read(monome->fd, buf, nbyte);
 }
 
 void monome_event_loop(monome_t *monome) {

@@ -21,6 +21,7 @@
 #include <lo/lo.h>
 
 #include <monome.h>
+#include "platform.h"
 #include "internal.h"
 
 #include "osc.h"
