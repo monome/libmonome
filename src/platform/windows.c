@@ -87,7 +87,10 @@ err_loadlibrary:
 }
 
 void monome_platform_free(monome_t *monome) {
-	return;
+	void *dl_handle = monome->dl_handle;
+
+	monome->free(monome);
+	FreeLibrary(dl_handle);
 }
 
 int monome_platform_open(monome_t *monome, const char *dev) {
