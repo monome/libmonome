@@ -485,6 +485,12 @@ case $PLATFORM in
 		export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH;
 		;;
 
+	MINGW*|mingw*)
+		LIBSUFFIX=dll;
+		LM_SUFFIX=dll;
+		PLATFORM=windows;
+		;;
+
 	*)
 		style_error $PLATFORM;
 
