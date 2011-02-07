@@ -15,7 +15,6 @@
  */
 
 #include <stdlib.h>
-#include <stdio.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -113,6 +112,16 @@ static int mext_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	msg.payload.led.y = y;
 
 	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_col(monome_t *monome, uint_t col, size_t count,
+                        const uint8_t *data) {
+	return 0;
+}
+
+static int mext_led_row(monome_t *monome, uint_t row, size_t count,
+                        const uint8_t *data) {
+	return 0;
 }
 
 static int mext_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
@@ -251,8 +260,8 @@ monome_t *monome_protocol_new() {
 	monome->mode       = mext_mode_noop;
 	
 	monome->led        = mext_led;
-	monome->led_col    = NULL;
-	monome->led_row    = NULL;
+	monome->led_col    = mext_led_row;
+	monome->led_row    = mext_led_col;
 	monome->led_frame  = mext_led_frame;
 
 	return monome;
