@@ -31,7 +31,7 @@ typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
 
 typedef void (*monome_coord_cb)(monome_t *, uint_t *x, uint_t *y);
-typedef void (*monome_frame_cb)(monome_t *, uint_t *quadrant,
+typedef void (*monome_frame_cb)(monome_t *, uint_t *x_off, uint_t *y_off,
 								uint8_t *frame_data);
 
 struct monome_callback {

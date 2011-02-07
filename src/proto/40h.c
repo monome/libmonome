@@ -129,7 +129,7 @@ static int proto_40h_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
                                const uint8_t *frame_data) {
 	uint8_t buf[8];
 	int ret = 0;
-	uint_t i, quadrant;
+	uint_t i;
 
 	/* by treating frame_data as a bigger integer, we can copy it in
 	   one or two operations (instead of 8) */
@@ -140,8 +140,7 @@ static int proto_40h_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
 	*((uint32_t *) &buf[5]) = *(((uint32_t *) frame_data) + 1);
 #endif
 
-	quadrant = (x_off / 8) + ((y_off / 8) * 2);
-	ROTSPEC(monome).frame_cb(monome, &quadrant, buf);
+	ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, buf);
 
 	for( i = 0; i < 8; i++ )
 		ret += proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, &buf[i]);

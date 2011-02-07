@@ -217,9 +217,9 @@ static int proto_series_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
 	*((uint32_t *) &buf[5]) = *(((uint32_t *) frame_data) + 1);
 #endif
 
+	ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, &buf[1]);
 	quadrant = (x_off / 8) + ((y_off / 8) * 2);
 
-	ROTSPEC(monome).frame_cb(monome, &quadrant, &buf[1]);
 	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);
 
 	return monome_write(monome, buf, sizeof(buf));

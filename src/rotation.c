@@ -25,9 +25,6 @@
 #define ROWS(monome) (monome->rows - 1)
 #define COLS(monome) (monome->cols - 1)
 
-static uint_t r90_quad_map[]  = {2, 0, 3, 1};
-static uint_t r270_quad_map[] = {1, 3, 0, 2};
-
 /* you may notice the gratituous use of modulo when translating input
    coordinates...this is because it's possible to translate into negatives
    when pretending a bigger monome (say, a 256) is a smaller monome (say,
@@ -42,7 +39,8 @@ static void r0_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	return;
 }
 
-static void r0_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
+static void r0_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                        uint8_t *frame_data) {
 	return;
 }
 
@@ -60,7 +58,8 @@ static void r90_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = t;
 }
 
-static void r90_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
+static void r90_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                         uint8_t *frame_data) {
 	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
 	   in the case of r270_frame_cb, the rotation is clockwise, in the case
 	   of r90_frame_cb it is counter-clockwise.
@@ -75,6 +74,12 @@ static void r90_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data
 
 	   inspired by "hacker's delight" by henry s. warren
 	   see section 7-3 "transposing a bit matrix" */
+
+	/* round to nearest multiple of 8 */
+	*x_off &= ~(0x7);
+	*y_off &= ~(0x7);
+
+	r90_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) frame_data);
@@ -119,8 +124,6 @@ static void r90_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data
 	*((uint32_t *) frame_data) = ((x & 0xF0F0F0F0) >> 4) | (y & 0xF0F0F0F0);
 	*(((uint32_t *) frame_data) + 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) << 4);
 #endif
-
-	*quadrant = r90_quad_map[*quadrant & 0x3];
 }
 
 static void r180_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
@@ -133,8 +136,14 @@ static void r180_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = (COLS(monome) - *y) % (COLS(monome) + 1);
 }
 
-static void r180_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
+static void r180_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                          uint8_t *frame_data) {
 	/* integer reversal. */
+
+	*x_off &= ~(0x7);
+	*y_off &= ~(0x7);
+
+	r180_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
 	uint64_t x = *((uint64_t *) frame_data);
@@ -168,8 +177,6 @@ static void r180_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_dat
 	*((uint64_t *) frame_data) = y;
 	*(((uint32_t *) frame_data) + 1) = x;
 #endif
-
-	*quadrant = (3 - *quadrant) & 0x3;
 }
 
 static void r270_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
@@ -186,8 +193,14 @@ static void r270_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = (COLS(monome) - t) % (COLS(monome) + 1);
 }
 
-static void r270_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_data) {
+static void r270_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                          uint8_t *frame_data) {
 	/* see r90_frame_cb for a brief explanation */
+
+	*x_off &= ~(0x7);
+	*y_off &= ~(0x7);
+
+	r270_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) frame_data);
@@ -232,8 +245,6 @@ static void r270_frame_cb(monome_t *monome, uint_t *quadrant, uint8_t *frame_dat
 	*((uint32_t *) frame_data) = ((x & 0x0F0F0F0F) << 4) | (y & 0x0F0F0F0F);
 	*(((uint32_t *) frame_data) + 1) = (x & 0xF0F0F0F0) | ((y & 0xF0F0F0F0) >> 4);
 #endif
-
-	*quadrant = r270_quad_map[*quadrant & 0x3];
 }
 
 monome_rotspec_t rotspec[4] = {

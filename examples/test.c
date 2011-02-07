@@ -117,7 +117,7 @@ void test_led_frame(monome_t *monome) {
 	unsigned int i, q, l;
 
 	for( l = 0, q = 0; l < 8; l++ ) {
-		monome_led_frame(monome, (q & 1) * 8, (q & 2) * 4, pattern[q]);
+		monome_led_frame(monome, ((q & 1) * 8), ((q & 2) * 4), pattern[q]);
 
 		for( i = 0; i < 8; i++ )
 			pattern[q][i] ^= 0xFF;
