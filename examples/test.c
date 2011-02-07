@@ -157,8 +157,6 @@ int main(int argc, char **argv) {
 
 	monome_clear(monome, MONOME_CLEAR_OFF);
 
-	test_led_frame(monome);
-
 	for( i = 0; i < 2; i++ ) {
 		test_led_row_8(monome, 1);
 		test_led_col_8(monome, 1);
