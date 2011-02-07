@@ -19,7 +19,7 @@
 #include <monome.h>
 #include "internal.h"
 
-#define PACKED __attribute__((packed))
+#define PACKED __attribute__((__packed__))
 #define MONOME_T(ptr) ((monome_t *) ptr)
 #define MEXT_T(ptr) ((mext_t *) ptr)
 
@@ -74,6 +74,8 @@ typedef enum {
 
 /* message lengths exclude one-byte header */
 static size_t outgoing_payload_lengths[16][16] = {
+	[0 ... 15][0 ... 15] = 0,
+
 	[SS_SYSTEM] = {
 		[CMD_SYSTEM_QUERY]       = 0,
 		[CMD_SYSTEM_GET_ID]      = 0,
@@ -88,8 +90,8 @@ static size_t outgoing_payload_lengths[16][16] = {
 	},
 
 	[SS_LED_GRID] = {
-		[CMD_LED_ON]        = 1,
-		[CMD_LED_OFF]       = 1,
+		[CMD_LED_ON]        = 2,
+		[CMD_LED_OFF]       = 2,
 		[CMD_LED_ALL_ON]    = 0,
 		[CMD_LED_ALL_OFF]   = 0,
 		[CMD_LED_FRAME]     = 10,
@@ -100,6 +102,8 @@ static size_t outgoing_payload_lengths[16][16] = {
 };
 
 static size_t incoming_payload_lengths[16][16] = {
+	[0 ... 15][0 ... 15] = 0,
+
 	[SS_SYSTEM] = {
 		[CMD_SYSTEM_QUERY_RESPONSE] = 2,
 		[CMD_SYSTEM_ID]             = 32,
@@ -117,29 +121,46 @@ static size_t incoming_payload_lengths[16][16] = {
 
 /* types */
 
-typedef monome_t mext_t;
-
+typedef struct mext mext_t;
 typedef struct mext_msg mext_msg_t;
 
-struct PACKED mext_msg {
-	struct PACKED {
-		__extension__ mext_subsystem_t addr:4;
-		__extension__ mext_cmd_t cmd:4;
-	} hdr;
+typedef int (*mext_handler_t)(mext_t *, mext_msg_t *, monome_event_t *);
 
-	union PACKED {
-		struct PACKED {
+struct mext {
+	monome_t monome;
+};
+
+struct mext_msg {
+	mext_subsystem_t addr;
+	mext_cmd_t cmd;
+
+	uint8_t header;
+
+	union {
+		uint8_t intensity;
+
+		struct {
 			uint8_t x;
 			uint8_t y;
-		} led;
+		} PACKED gridsz;
 
-		struct PACKED {
-			struct PACKED {
+		struct {
+			uint8_t x;
+			uint8_t y;
+		} PACKED led;
+
+		struct {
+			struct {
 				uint8_t x;
 				uint8_t y;
-			} offset;
+			} PACKED offset;
 
 			uint8_t data[8];
-		} frame;
-	} payload;
-};
+		} PACKED frame;
+
+		struct {
+			uint8_t x;
+			uint8_t y;
+		} PACKED key;
+	} PACKED payload;
+} PACKED;
