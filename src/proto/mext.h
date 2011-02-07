@@ -74,7 +74,7 @@ typedef enum {
 
 /* message lengths exclude one-byte header */
 static size_t outgoing_payload_lengths[16][16] = {
-	[0 ... 15] = { [0 ... 15] = 0 },
+	[0 ... 15][0 ... 15] = 0,
 
 	[SS_SYSTEM] = {
 		[CMD_SYSTEM_QUERY]       = 0,
@@ -102,7 +102,7 @@ static size_t outgoing_payload_lengths[16][16] = {
 };
 
 static size_t incoming_payload_lengths[16][16] = {
-	[0 ... 15] = { [0 ... 15] = 0 },
+	[0 ... 15][0 ... 15] = 0,
 
 	[SS_SYSTEM] = {
 		[CMD_SYSTEM_QUERY_RESPONSE] = 2,
