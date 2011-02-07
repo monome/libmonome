@@ -188,7 +188,7 @@ static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *
 }
 
 static mext_handler_t subsystem_event_handlers[16] = {
-	[0 ... 15] = mext_handler_noop,
+	[0 ... 15] = &mext_handler_noop,
 	
 	[SS_SYSTEM]   = mext_handler_system,
 	[SS_KEY_GRID] = mext_handler_key_grid
