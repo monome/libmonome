@@ -147,11 +147,11 @@ static int mext_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
  * event handlers
  */
 
-int mext_handler_noop(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_noop(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	return 1;
 }
 
-int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_SYSTEM_QUERY_RESPONSE:
 		break;
@@ -180,7 +180,7 @@ int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	return 0;
 }
 
-int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	e->event_type = ( msg->cmd == CMD_KEY_DOWN ) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
 	e->x = msg->payload.key.x;
 	e->y = msg->payload.key.y;
