@@ -20,8 +20,10 @@
 #include "internal.h"
 
 #define PACKED __attribute__((packed))
+#define MONOME_T(ptr) ((monome_t *) ptr)
+#define MEXT_T(ptr) ((mext_t *) ptr)
 
-typedef monome_t mext_t;
+/* protocol constants */
 
 typedef enum {
 	SS_SYSTEM      = 0,
@@ -37,15 +39,85 @@ typedef enum {
 } mext_subsystem_t;
 
 typedef enum {
-	CMD_LED_ON        = 0,
-	CMD_LED_OFF       = 1,
-	CMD_LED_ALL_ON    = 2,
-	CMD_LED_ALL_OFF   = 3,
-	CMD_LED_FRAME     = 4,
-	CMD_LED_ROW       = 5,
-	CMD_LED_COLUMN    = 6,
-	CMD_LED_INTENSITY = 7
+	/* outgoing */
+	CMD_SYSTEM_QUERY       = 0x0,
+	CMD_SYSTEM_GET_ID      = 0x1,
+	CMD_SYSTEM_SET_ID      = 0x2,
+	CMD_SYSTEM_GET_OFFSETS = 0x3,
+	CMD_SYSTEM_SET_OFFSET  = 0x4,
+	CMD_SYSTEM_GET_GRIDSZ  = 0x5,
+	CMD_SYSTEM_SET_GRIDSZ  = 0x6,
+	CMD_SYSTEM_GET_ADDR    = 0x7,
+	CMD_SYSTEM_SET_ADDR    = 0x8,
+	CMD_SYSTEM_GET_VERSION = 0xF,
+	/* incoming */
+	CMD_SYSTEM_QUERY_RESPONSE = 0x0,
+	CMD_SYSTEM_ID             = 0x1,
+	CMD_SYSTEM_GRID_OFFSET    = 0x2,
+	CMD_SYSTEM_GRIDSZ         = 0x3,
+	CMD_SYSTEM_ADDR           = 0x4,
+	CMD_SYSTEM_VERSION        = 0xF,
+
+	/* outgoing */
+	CMD_LED_OFF       = 0x0,
+	CMD_LED_ON        = 0x1,
+	CMD_LED_ALL_OFF   = 0x2,
+	CMD_LED_ALL_ON    = 0x3,
+	CMD_LED_FRAME     = 0x4,
+	CMD_LED_ROW       = 0x5,
+	CMD_LED_COLUMN    = 0x6,
+	CMD_LED_INTENSITY = 0x7,
+	/* incoming */
+	CMD_KEY_UP        = 0x0,
+	CMD_KEY_DOWN      = 0x1
 } mext_cmd_t;
+
+/* message lengths exclude one-byte header */
+static size_t outgoing_payload_lengths[16][16] = {
+	[SS_SYSTEM] = {
+		[CMD_SYSTEM_QUERY]       = 0,
+		[CMD_SYSTEM_GET_ID]      = 0,
+		[CMD_SYSTEM_SET_ID]      = 32,
+		[CMD_SYSTEM_GET_OFFSETS] = 0,
+		[CMD_SYSTEM_SET_OFFSET]  = 3,
+		[CMD_SYSTEM_GET_GRIDSZ]  = 0,
+		[CMD_SYSTEM_SET_GRIDSZ]  = 2,
+		[CMD_SYSTEM_GET_ADDR]    = 0,
+		[CMD_SYSTEM_SET_ADDR]    = 2,
+		[CMD_SYSTEM_GET_VERSION] = 0,
+	},
+
+	[SS_LED_GRID] = {
+		[CMD_LED_ON]        = 1,
+		[CMD_LED_OFF]       = 1,
+		[CMD_LED_ALL_ON]    = 0,
+		[CMD_LED_ALL_OFF]   = 0,
+		[CMD_LED_FRAME]     = 10,
+		[CMD_LED_ROW]       = 3,
+		[CMD_LED_COLUMN]    = 3,
+		[CMD_LED_INTENSITY] = 1
+	}
+};
+
+static size_t incoming_payload_lengths[16][16] = {
+	[SS_SYSTEM] = {
+		[CMD_SYSTEM_QUERY_RESPONSE] = 2,
+		[CMD_SYSTEM_ID]             = 32,
+		[CMD_SYSTEM_GRID_OFFSET]    = 3,
+		[CMD_SYSTEM_GRIDSZ]         = 2,
+		[CMD_SYSTEM_ADDR]           = 2,
+		[CMD_SYSTEM_VERSION]        = 8
+	},
+
+	[SS_KEY_GRID] = {
+		[CMD_KEY_DOWN] = 2,
+		[CMD_KEY_UP]   = 2
+	}
+};
+
+/* types */
+
+typedef monome_t mext_t;
 
 typedef struct mext_msg mext_msg_t;
 
@@ -53,7 +125,7 @@ struct PACKED mext_msg {
 	struct PACKED {
 		__extension__ mext_subsystem_t addr:4;
 		__extension__ mext_cmd_t cmd:4;
-	} header;
+	} hdr;
 
 	union PACKED {
 		struct PACKED {
@@ -69,5 +141,5 @@ struct PACKED mext_msg {
 
 			uint8_t data[8];
 		} frame;
-	} cmd;
+	} payload;
 };
