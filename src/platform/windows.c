@@ -117,6 +117,22 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
+	HKEY key[1];
+
+	switch( RegOpenKeyEx(
+			HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Enum\\FTDIBUS",
+			0, KEY_READ, key) ) {
+	case ERROR_SUCCESS:
+		/* ERROR: request was (unexpectedly) successful */
+		break;
+
+	case ERROR_FILE_NOT_FOUND:
+		/* print message about needing the FTDI driver maybe? */
+		/* fall through also */
+	default:
+		return NULL;
+	}
+
 	return NULL;
 }
 
