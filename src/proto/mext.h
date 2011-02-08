@@ -138,6 +138,7 @@ struct mext_msg {
 
 	union {
 		uint8_t intensity;
+		uint8_t id[32];
 
 		struct {
 			uint8_t x;
@@ -148,6 +149,12 @@ struct mext_msg {
 			uint8_t x;
 			uint8_t y;
 		} PACKED led;
+
+		struct {
+			uint8_t x;
+			uint8_t y;
+			uint8_t data;
+		} PACKED led_row_col;
 
 		struct {
 			struct {

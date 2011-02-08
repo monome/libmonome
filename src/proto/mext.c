@@ -29,18 +29,16 @@
  * protocol internal
  */
 
-static int mext_write_msg(monome_t *monome, mext_msg_t *msg) {
+static ssize_t mext_write_msg(monome_t *monome, mext_msg_t *msg) {
 	size_t payload_length;
 
 	payload_length = outgoing_payload_lengths[msg->addr][msg->cmd];
-
 	msg->header = ((msg->addr & 0x7 ) << 4) | (msg->cmd & 0x7);
-	monome_platform_write(monome, &msg->header, 1 + payload_length);
 
-	return 0;
+	return monome_platform_write(monome, &msg->header, 1 + payload_length);
 }
 
-static int mext_read_msg(monome_t *monome, mext_msg_t *msg) {
+static ssize_t mext_read_msg(monome_t *monome, mext_msg_t *msg) {
 	size_t payload_length;
 
 	monome_platform_read(monome, &msg->header, 1);
@@ -59,11 +57,30 @@ static int mext_read_msg(monome_t *monome, mext_msg_t *msg) {
 	return 1 + payload_length;
 }
 
-static int mext_simple_cmd(monome_t *monome, mext_cmd_t cmd) {
+static ssize_t mext_simple_cmd(monome_t *monome, mext_cmd_t cmd) {
 	mext_msg_t msg = {
 		.addr = SS_SYSTEM,
 		.cmd  = cmd
 	};
+
+	return mext_write_msg(monome, &msg);
+}
+
+static ssize_t mext_led_row_col(monome_t *monome, mext_cmd_t cmd, uint_t x,
+                                uint_t y, uint8_t data) {
+	mext_msg_t msg = {
+		.addr = SS_LED_GRID,
+		.cmd  = cmd
+	};
+
+	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
+		msg.cmd = !(cmd - CMD_LED_ROW) + CMD_LED_ROW;
+
+	ROTATE_COORDS(monome, x, y);
+
+	msg.payload.led_row_col.x    = x;
+	msg.payload.led_row_col.y    = y;
+	msg.payload.led_row_col.data = data;
 
 	return mext_write_msg(monome, &msg);
 }
@@ -116,12 +133,36 @@ static int mext_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 
 static int mext_led_col(monome_t *monome, uint_t col, size_t count,
                         const uint8_t *data) {
-	return 0;
+	ssize_t y = 0;
+
+	if( ROTSPEC(monome).flags & COL_REVBITS ) {
+		for( ; count--; y += 8 )
+			mext_led_row_col(
+				monome, CMD_LED_COLUMN, col, y, REVERSE_BYTE(data[count]));
+	} else {
+		for( ; count--; y += 8 )
+			mext_led_row_col(
+				monome, CMD_LED_COLUMN, col, y, *(data++));
+	}
+
+	return 1;
 }
 
 static int mext_led_row(monome_t *monome, uint_t row, size_t count,
                         const uint8_t *data) {
-	return 0;
+	ssize_t x = 0;
+
+	if( ROTSPEC(monome).flags & ROW_REVBITS ) {
+		for( ; count--; x += 8 )
+			mext_led_row_col(
+				monome, CMD_LED_ROW, x, row, REVERSE_BYTE(data[count]));
+	} else {
+		for( ; count--; x += 8 )
+			mext_led_row_col(
+				monome, CMD_LED_ROW, x, row, *(data++));
+	}
+
+	return 1;
 }
 
 static int mext_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
@@ -225,7 +266,7 @@ static int mext_open(monome_t *monome, const char *dev, const char *serial,
 	mext_simple_cmd(monome, CMD_SYSTEM_QUERY);
 	mext_simple_cmd(monome, CMD_SYSTEM_GET_GRIDSZ);
 
-	monome_platform_wait_for_input(monome, 150);
+	monome_platform_wait_for_input(monome, 1000);
 
 	while( mext_next_event(monome, &e) );
 
