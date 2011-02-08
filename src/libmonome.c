@@ -46,9 +46,7 @@ static monome_devmap_t mapping[] = {
 	{"m128-%d", "series", {16, 8},  "monome 128"},
 	{"m256-%d", "series", {16, 16}, "monome 256"},
 
-	/* need specialized protocol module
-	   also, how do we determine dimensions? */
-	{"mk%d",    "mext",   {0, 0},   "monome kit"},
+	{"mk%d",    "series", {0, 0},   "monome kit"},
 
 	{"m40h%d",  "40h",    {8, 8},   "monome 40h"},
 	{"a40h-%d", "40h",    {8, 8},   "arduinome" },
