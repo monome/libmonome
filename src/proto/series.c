@@ -155,7 +155,8 @@ static int proto_series_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_series_led_col(monome_t *monome, uint_t col, size_t count, const uint8_t *data) {
+static int proto_series_led_col(monome_t *monome, uint_t col, uint_t offset,
+                                size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
 	switch( ((monome->cols > 8) << 1) | (count > 1)) {
@@ -179,7 +180,8 @@ static int proto_series_led_col(monome_t *monome, uint_t col, size_t count, cons
 	return -1;
 }
 
-static int proto_series_led_row(monome_t *monome, uint_t row, size_t count, const uint8_t *data) {
+static int proto_series_led_row(monome_t *monome, uint_t row, uint_t offset,
+                                size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
 	switch( ((monome->rows > 8) << 1) | (count > 1)) {

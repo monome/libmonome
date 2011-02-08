@@ -48,7 +48,7 @@ static monome_devmap_t mapping[] = {
 
 	/* need specialized protocol module
 	   also, how do we determine dimensions? */
-	{"mk%d",    "series", {8, 8},   "monome kit"},
+	{"mk%d",    "mext",   {0, 0},   "monome kit"},
 
 	{"m40h%d",  "40h",    {8, 8},   "monome 40h"},
 	{"a40h-%d", "40h",    {8, 8},   "arduinome" },
@@ -249,14 +249,14 @@ int monome_led_off(monome_t *monome, uint_t x, uint_t y) {
 	return monome_led(monome, x, y, 0);
 }
 
-int monome_led_col(monome_t *monome, uint_t col,
+int monome_led_col(monome_t *monome, uint_t col, uint_t offset,
 				   size_t count, const uint8_t *data) {
-	return monome->led_col(monome, col, count, data);
+	return monome->led_col(monome, col, offset, count, data);
 }
 
-int monome_led_row(monome_t *monome, uint_t row,
+int monome_led_row(monome_t *monome, uint_t row, uint_t offset,
 				   size_t count, const uint8_t *data) {
-	return monome->led_row(monome, row, count, data);
+	return monome->led_row(monome, row, offset, count, data);
 }
 
 int monome_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,

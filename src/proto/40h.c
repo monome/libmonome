@@ -117,11 +117,13 @@ static int proto_40h_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_40h_led_col(monome_t *monome, uint_t col, size_t count, const uint8_t *data) {
+static int proto_40h_led_col(monome_t *monome, uint_t col, uint_t offset,
+                             size_t count, const uint8_t *data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, data);
 }
 
-static int proto_40h_led_row(monome_t *monome, uint_t row, size_t count, const uint8_t *data) {
+static int proto_40h_led_row(monome_t *monome, uint_t row, uint_t offset,
+                             size_t count, const uint8_t *data) {
 	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, data);
 }
 

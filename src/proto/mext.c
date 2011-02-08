@@ -131,35 +131,31 @@ static int mext_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return mext_write_msg(monome, &msg);
 }
 
-static int mext_led_col(monome_t *monome, uint_t col, size_t count,
-                        const uint8_t *data) {
-	ssize_t y = 0;
-
+static int mext_led_col(monome_t *monome, uint_t col, uint_t y_off,
+                        size_t count, const uint8_t *data) {
 	if( ROTSPEC(monome).flags & COL_REVBITS ) {
-		for( ; count--; y += 8 )
+		for( ; count--; y_off += 8 )
 			mext_led_row_col(
-				monome, CMD_LED_COLUMN, col, y, REVERSE_BYTE(data[count]));
+				monome, CMD_LED_COLUMN, col, y_off, REVERSE_BYTE(data[count]));
 	} else {
-		for( ; count--; y += 8 )
+		for( ; count--; y_off += 8 )
 			mext_led_row_col(
-				monome, CMD_LED_COLUMN, col, y, *(data++));
+				monome, CMD_LED_COLUMN, col, y_off, *(data++));
 	}
 
 	return 1;
 }
 
-static int mext_led_row(monome_t *monome, uint_t row, size_t count,
-                        const uint8_t *data) {
-	ssize_t x = 0;
-
+static int mext_led_row(monome_t *monome, uint_t row, uint_t x_off,
+                        size_t count, const uint8_t *data) {
 	if( ROTSPEC(monome).flags & ROW_REVBITS ) {
-		for( ; count--; x += 8 )
+		for( ; count--; x_off += 8 )
 			mext_led_row_col(
-				monome, CMD_LED_ROW, x, row, REVERSE_BYTE(data[count]));
+				monome, CMD_LED_ROW, x_off, row, REVERSE_BYTE(data[count]));
 	} else {
-		for( ; count--; x += 8 )
+		for( ; count--; x_off += 8 )
 			mext_led_row_col(
-				monome, CMD_LED_ROW, x, row, *(data++));
+				monome, CMD_LED_ROW, x_off, row, *(data++));
 	}
 
 	return 1;

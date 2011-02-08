@@ -98,10 +98,10 @@ int monome_led(monome_t *monome, unsigned int x, unsigned int y,
                unsigned int on);
 int monome_led_on(monome_t *monome, unsigned int x, unsigned int y);
 int monome_led_off(monome_t *monome, unsigned int x, unsigned int y);
-int monome_led_col(monome_t *monome, unsigned int col, size_t count,
-                   const uint8_t *col_data);
-int monome_led_row(monome_t *monome, unsigned int row, size_t count,
-                   const uint8_t *row_data);
+int monome_led_col(monome_t *monome, unsigned int col, unsigned int offset,
+                   size_t count, const uint8_t *col_data);
+int monome_led_row(monome_t *monome, unsigned int row, unsigned int offset,
+                   size_t count, const uint8_t *row_data);
 int monome_led_frame(monome_t *monome, unsigned int x_off, unsigned int y_off,
                      const uint8_t *frame_data);
 

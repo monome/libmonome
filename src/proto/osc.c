@@ -81,7 +81,8 @@ static int proto_osc_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return LO_SEND_MSG(led, "iii", x, y, !!on);
 }
 
-static int proto_osc_led_col(monome_t *monome, uint_t col, size_t count, const uint8_t *data) {
+static int proto_osc_led_col(monome_t *monome, uint_t col, uint_t offset,
+                             size_t count, const uint8_t *data) {
 	SELF_FROM(monome);
 
 	if( count == 1 )
@@ -90,7 +91,8 @@ static int proto_osc_led_col(monome_t *monome, uint_t col, size_t count, const u
 	return LO_SEND_MSG(led_col, "iii", col, data[0], data[1]);
 }
 
-static int proto_osc_led_row(monome_t *monome, uint_t row, size_t count, const uint8_t *data) {
+static int proto_osc_led_row(monome_t *monome, uint_t row, uint_t offset,
+                             size_t count, const uint8_t *data) {
 	SELF_FROM(monome);
 
 	if( count == 1 )

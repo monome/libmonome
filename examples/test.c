@@ -59,14 +59,14 @@ void test_led_row_8(monome_t *monome, uint8_t on) {
 	unsigned int i;
 
 	for( i = 0; i < 8; i++ ) {
-		monome_led_row(monome, i, 1, (uint8_t *) &on);
+		monome_led_row(monome, i, 0, 1, (uint8_t *) &on);
 		chill(16);
 
 		on |= on << 1;
 	}
 
 	for( ; i < 16; i++ ) {
-		monome_led_row(monome, i, 1, (uint8_t *) &on);
+		monome_led_row(monome, i, 0, 1, (uint8_t *) &on);
 		chill(16);
 
 		on >>= 1;
@@ -77,14 +77,14 @@ void test_led_col_8(monome_t *monome, uint8_t on) {
 	unsigned int i;
 
 	for( i = 0; i < 8; i++ ) {
-		monome_led_col(monome, i, 1, (uint8_t *) &on);
+		monome_led_col(monome, i, 0, 1, (uint8_t *) &on);
 		chill(16);
 
 		on |= on << 1;
 	}
 
 	for( ; i < 16; i++ ) {
-		monome_led_col(monome, i, 1, (uint8_t *) &on);
+		monome_led_col(monome, i, 0, 1, (uint8_t *) &on);
 		chill(16);
 
 		on >>= 1;
@@ -95,7 +95,7 @@ void test_led_row_16(monome_t *monome, uint16_t on) {
 	unsigned int i;
 
 	for( i = 0; i < 16; i++ ) {
-		monome_led_row(monome, i, 2, (uint8_t *) &on);
+		monome_led_row(monome, i, 0, 2, (uint8_t *) &on);
 		chill(16);
 
 		on |= on << 1;
@@ -106,7 +106,7 @@ void test_led_col_16(monome_t *monome, uint16_t on) {
 	unsigned int i;
 
 	for( i = 0; i < 16; i++ ) {
-		monome_led_col(monome, i, 2, (uint8_t *) &on);
+		monome_led_col(monome, i, 0, 2, (uint8_t *) &on);
 		chill(16);
 
 		on |= on << 1;

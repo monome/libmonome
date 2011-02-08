@@ -84,9 +84,12 @@ struct monome {
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
 
 	int  (*led)(monome_t *monome, uint_t x, uint_t y, uint_t on);
-	int  (*led_col)(monome_t *monome, uint_t col, size_t count, const uint8_t *data);
-	int  (*led_row)(monome_t *monome, uint_t row, size_t count, const uint8_t *data);
-	int  (*led_frame)(monome_t *monome, uint_t x_off, uint_t y_off, const uint8_t *frame_data);
+	int  (*led_col)(monome_t *monome, uint_t col, uint_t offset,
+	                size_t count, const uint8_t *data);
+	int  (*led_row)(monome_t *monome, uint_t row, uint_t offset,
+	                size_t count, const uint8_t *data);
+	int  (*led_frame)(monome_t *monome, uint_t x_off, uint_t y_off,
+	                  const uint8_t *frame_data);
 };
 
 #endif /* defined MONOME_INTERNAL_H */

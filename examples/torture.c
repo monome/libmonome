@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 	for(s = 0;; s = !s)
 		for( y = 0; y < h; y++ ) {
 			buf = ((1 << y)) - s;
-			monome_led_row(monome, y, w / 8, (uint8_t *) &buf);
+			monome_led_row(monome, y, 0, w / 8, (uint8_t *) &buf);
 			monome_led(monome, w - 1, y, random() & 1);
 			random_chill();
 		}
