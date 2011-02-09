@@ -21,7 +21,7 @@
 #
 
 PROJECT="libmonome";
-VERSION="0.5";
+VERSION="0.8";
 
 CC="gcc";
 LD="\$(CC)";
