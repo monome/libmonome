@@ -297,8 +297,8 @@ monome_t *monome_protocol_new() {
 	monome->mode       = mext_mode_noop;
 	
 	monome->led        = mext_led;
-	monome->led_col    = mext_led_row;
-	monome->led_row    = mext_led_col;
+	monome->led_col    = mext_led_col;
+	monome->led_row    = mext_led_row;
 	monome->led_frame  = mext_led_frame;
 
 	return monome;
