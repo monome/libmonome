@@ -26,11 +26,11 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <io.h>
 
 /* THIS WAY LIES MADNESS */
 #include <windows.h>
 #include <Winreg.h>
+#include <io.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -97,14 +97,37 @@ void monome_platform_free(monome_t *monome) {
 }
 
 int monome_platform_open(monome_t *monome, const char *dev) {
+	DCB serparm = {0};
+	HANDLE hser;
 	int fd;
 
-	if( (fd = _open(dev, _O_RDWR | _O_BINARY)) < 0 ) {
-		perror("libmonome: could not open monome device");
-		return 1;
-	}
+	if( (fd = _open(dev, _O_RDWR | _O_BINARY)) < 0 )
+		goto err_open;
 
+	hser = (HANDLE) _get_osfhandle(fd);
+	serparm.DCBlength = sizeof(serparm);
+
+	if( !GetCommState(hser, &serparm) )
+		goto err_commstate;
+
+	serparm.BaudRate = CBR_115200;
+	serparm.ByteSize = 8;
+	serparm.StopBits = ONESTOPBIT;
+	serparm.Parity   = NOPARITY;
+
+	if( !SetCommState(hser, &serparm) )
+		goto err_commstate;
+
+	PurgeComm(hser, PURGE_RXCLEAR | PURGE_TXCLEAR);
+
+	monome->fd = fd;
 	return 0;
+
+err_commstate:
+	_close(fd);
+err_open:
+	perror("libmonome: could not open monome device");
+	return 1;
 }
 
 int monome_platform_close(monome_t *monome) {
@@ -204,7 +227,27 @@ int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
 }
 
 void monome_event_loop(monome_t *monome) {
-	return;
+	HANDLE hser = (HANDLE) _get_osfhandle(monome->fd);
+	monome_callback_t *handler;
+	monome_event_t e;
+
+	e.monome = monome;
+
+	do {
+		if( WaitForSingleObject(hser, INFINITE) == WAIT_FAILED ) {
+			printf("fuck: %ld\n", GetLastError());
+			break;
+		}
+
+		if( !monome->next_event(monome, &e) )
+			continue;
+
+		handler = &monome->handlers[e.event_type];
+		if( !handler->cb )
+			continue;
+
+		handler->cb(&e, handler->data);
+	} while( 1 );
 }
 
 void *m_malloc(size_t size) {
