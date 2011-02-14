@@ -91,7 +91,7 @@ monome_t *monome_open(const char *dev, ...) {
 	m = NULL;
 
 	/* first let's figure out which protocol to use */
-	if( *dev == '/' ) {
+	if( !strstr(dev, "://") ) {
 		/* assume that the device is a tty...let's probe and see what device
 		   we're dealing with */
 
