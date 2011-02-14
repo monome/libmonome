@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010 William Light <wrl@illest.net>
+ * Copyright (c) 2011 William Light <wrl@illest.net>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -30,10 +30,13 @@
 
 /* THIS WAY LIES MADNESS */
 #include <windows.h>
+#include <Winreg.h>
 
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
+
+#define FTDI_REG_PATH "SYSTEM\\CurrentControlSet\\Enum\\FTDIBUS"
 
 static char *m_asprintf(const char *fmt, ...) {
 	va_list args;
@@ -117,11 +120,17 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
-	HKEY key[1];
+	HKEY key, subkey;
+	char subkey_name[MAX_PATH], *subkey_path, *serial;
+	unsigned char port_name[64];
+	DWORD klen, plen, ptype;
+	int i = 0;
+
+	serial = NULL;
 
 	switch( RegOpenKeyEx(
-			HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Enum\\FTDIBUS",
-			0, KEY_READ, key) ) {
+			HKEY_LOCAL_MACHINE, FTDI_REG_PATH,
+			0, KEY_READ, &key) ) {
 	case ERROR_SUCCESS:
 		/* ERROR: request was (unexpectedly) successful */
 		break;
@@ -133,7 +142,61 @@ char *monome_platform_get_dev_serial(const char *path) {
 		return NULL;
 	}
 
-	return NULL;
+	do {
+		klen = sizeof(subkey_name) / sizeof(char);
+		switch( RegEnumKeyEx(key, i++, subkey_name, &klen,
+							 NULL, NULL, NULL, NULL) ) {
+		case ERROR_MORE_DATA:
+		case ERROR_SUCCESS:
+			break;
+
+		default:
+			goto done;
+		}
+
+		subkey_path = m_asprintf("%s\\%s\\0000\\Device Parameters",
+								 FTDI_REG_PATH, subkey_name);
+
+		switch( RegOpenKeyEx(
+				HKEY_LOCAL_MACHINE, subkey_path,
+				0, KEY_READ, &subkey) ) {
+		case ERROR_SUCCESS:
+			break;
+
+		default:
+			continue;
+		}
+
+		free(subkey_path);
+
+		plen = sizeof(port_name) / sizeof(char);
+		ptype = REG_SZ;
+		switch( RegQueryValueEx(subkey, "PortName", 0, &ptype,
+								port_name, &plen) ) {
+		case ERROR_SUCCESS:
+			port_name[plen] = '\0';
+			break;
+
+		default:
+			goto nomatch;
+		}
+
+		if( !strcmp((char *) port_name, path) ) {
+			/* there's a fucking "A" right after the serial number */
+			subkey_name[klen - 1] = '\0';
+			serial = strrchr(subkey_name, '+') + 1;
+
+			RegCloseKey(subkey);
+			break;
+		}
+
+nomatch:
+		RegCloseKey(subkey);
+	} while( 1 );
+
+done:
+	RegCloseKey(key);
+	return ( serial ) ? strdup(serial) : NULL;
 }
 
 void monome_event_loop(monome_t *monome) {
