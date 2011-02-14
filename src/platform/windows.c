@@ -63,7 +63,7 @@ monome_t *monome_platform_load_protocol(const char *proto) {
 	HMODULE proto_mod;
 	char *modname;
 
-	if( !(modname = m_asprintf("protocol_%s.dll")) )
+	if( !(modname = m_asprintf("protocol_%s.dll", proto)) )
 		goto err_loadlibrary;
 
 	proto_mod = LoadLibrary(modname);
@@ -197,6 +197,10 @@ nomatch:
 done:
 	RegCloseKey(key);
 	return ( serial ) ? strdup(serial) : NULL;
+}
+
+int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
+	return 0;
 }
 
 void monome_event_loop(monome_t *monome) {
