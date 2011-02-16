@@ -101,7 +101,7 @@ static void init_world() {
 }
 
 static void close_monome() {
-	monome_clear(monome, MONOME_CLEAR_OFF);
+	monome_led_all(monome, 0);
 	monome_close(monome);
 }
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
 
 	init_world();
-	monome_clear(monome, MONOME_CLEAR_OFF);
+	monome_led_all(monome, 0);
 
 	while(1) {
 		tick++;

@@ -40,13 +40,6 @@ typedef enum {
 	PROTO_SERIES_AUX_PORT_DEACTIVATE = 0xD0
 } proto_series_message_t;
 
-/* clearing statuses (argument to PROTO_SERIES_CLEAR output command) */
-
-typedef enum {
-	PROTO_SERIES_CLEAR_OFF           = 0x00,
-	PROTO_SERIES_CLEAR_ON            = 0x01
-} proto_series_clear_status_t;
-
 /* modes (argument to the PROTO_SERIES_MODE output command) */
 
 typedef enum {

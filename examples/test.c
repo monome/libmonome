@@ -50,7 +50,7 @@ void test_led_on_off(monome_t *monome) {
 	while( s-- )
 		for( i = 0; i < 16; i++ )
 			for( j = 0; j < 16; j++ ) {
-				monome_led(monome, j, i, s);
+				monome_led_set(monome, j, i, s);
 				chill(128);
 			}
 }
@@ -113,11 +113,11 @@ void test_led_col_16(monome_t *monome, uint16_t on) {
 	}
 }
 
-void test_led_frame(monome_t *monome) {
+void test_led_map(monome_t *monome) {
 	unsigned int i, q, l;
 
 	for( l = 0, q = 0; l < 8; l++ ) {
-		monome_led_frame(monome, ((q & 1) * 8), ((q & 2) * 4), pattern[q]);
+		monome_led_map(monome, ((q & 1) * 8), ((q & 2) * 4), pattern[q]);
 
 		for( i = 0; i < 8; i++ )
 			pattern[q][i] ^= 0xFF;
@@ -142,7 +142,7 @@ void fade_out(monome_t *monome) {
 	unsigned int i = 0x10;
 
 	while( i-- ) {
-		monome_intensity(monome, i);
+		monome_led_intensity(monome, i);
 		chill(16);
 	}
 }
@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
 	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, "8000")) )
 		return -1;
 
-	monome_clear(monome, MONOME_CLEAR_OFF);
+	monome_led_all(monome, 0);
 
 	for( i = 0; i < 2; i++ ) {
 		test_led_row_8(monome, 1);
@@ -169,15 +169,15 @@ int main(int argc, char **argv) {
 
 	test_led_col_16(monome, 0);
 	test_led_on_off(monome);
-	test_led_frame(monome);
+	test_led_map(monome);
 
 	chill(4);
 	test_mode(monome);
 
 	fade_out(monome);
 
-	monome_clear(monome, MONOME_CLEAR_OFF);
-	monome_intensity(monome, 0x0F);
+	monome_led_all(monome, 0);
+	monome_led_intensity(monome, 0x0F);
 
 	return 0;
 }

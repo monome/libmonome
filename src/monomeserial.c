@@ -58,24 +58,6 @@ static void lo_error(int num, const char *error_msg, const char *path) {
 	fflush(stdout);
 }
 
-static int osc_clear_handler(const char *path, const char *types,
-							 lo_arg **argv, int argc,
-							 lo_message data, void *user_data) {
-	monome_t *monome = user_data;
-	int mode = (argc) ? argv[0]->i : 0;
-
-	return monome_clear(monome, mode);
-}
-
-static int osc_intensity_handler(const char *path, const char *types,
-								 lo_arg **argv, int argc,
-								 lo_message data, void *user_data) {
-	monome_t *monome = user_data;
-	int intensity = (argc) ? argv[0]->i : 0xF;
-
-	return monome_intensity(monome, intensity);
-}
-
 static int osc_led_handler(const char *path, const char *types,
 						   lo_arg **argv, int argc,
 						   lo_message data, void *user_data) {
@@ -87,10 +69,16 @@ static int osc_led_handler(const char *path, const char *types,
 		(argv[2]->i > 1  || argv[2]->i < 0) )
 		return -1;
 
-	if( argv[2]->i )
-		return monome_led_on(monome, argv[0]->i, argv[1]->i);
-	else
-		return monome_led_off(monome, argv[0]->i, argv[1]->i);
+	return monome_led_set(monome, argv[0]->i, argv[1]->i, argv[2]->i);
+}
+
+static int osc_led_all_handler(const char *path, const char *types,
+							 lo_arg **argv, int argc,
+							 lo_message data, void *user_data) {
+	monome_t *monome = user_data;
+	int mode = (argc) ? argv[0]->i : 0;
+
+	return monome_led_all(monome, mode);
 }
 
 static int osc_led_col_row_handler(const char *path, const char *types,
@@ -108,9 +96,9 @@ static int osc_led_col_row_handler(const char *path, const char *types,
 		return monome_led_row(monome, argv[0]->i, 0, argc - 1, buf);
 }
 
-static int osc_frame_handler(const char *path, const char *types,
-							 lo_arg **argv, int argc,
-							 lo_message data, void *user_data) {
+static int osc_led_map_handler(const char *path, const char *types,
+                               lo_arg **argv, int argc,
+                               lo_message data, void *user_data) {
 	monome_t *monome = user_data;
 	uint8_t buf[8];
 	uint i;
@@ -120,31 +108,41 @@ static int osc_frame_handler(const char *path, const char *types,
 
 	switch( argc ) {
 	case 8:
-		return monome_led_frame(monome, 0, 0, buf);
+		return monome_led_map(monome, 0, 0, buf);
 
 	case 10:
-		return monome_led_frame(monome, argv[0]->i, argv[1]->i, buf);
+		return monome_led_map(monome, argv[0]->i, argv[1]->i, buf);
 	}
 
 	return -1;
+}
+
+static int osc_intensity_handler(const char *path, const char *types,
+								 lo_arg **argv, int argc,
+								 lo_message data, void *user_data) {
+	monome_t *monome = user_data;
+	int intensity = (argc) ? argv[0]->i : 0xF;
+
+	return monome_led_intensity(monome, intensity);
 }
 
 static void register_osc_methods(char *prefix, monome_t *monome) {
 	lo_server_thread srv = state.server;
 	char *cmd_buf;
 
-	asprintf(&cmd_buf, "/%s/clear", prefix);
-	lo_server_add_method(srv, cmd_buf, "", osc_clear_handler, monome);
-	lo_server_add_method(srv, cmd_buf, "i", osc_clear_handler, monome);
-	m_free(cmd_buf);
-
-	asprintf(&cmd_buf, "/%s/intensity", prefix);
-	lo_server_add_method(srv, cmd_buf, "", osc_intensity_handler, monome);
-	lo_server_add_method(srv, cmd_buf, "i", osc_intensity_handler, monome);
-	m_free(cmd_buf);
-
 	asprintf(&cmd_buf, "/%s/led", prefix);
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_handler, monome);
+	m_free(cmd_buf);
+
+	asprintf(&cmd_buf, "/%s/clear", prefix);
+	lo_server_add_method(srv, cmd_buf, "", osc_led_all_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "i", osc_led_all_handler, monome);
+	m_free(cmd_buf);
+
+	asprintf(&cmd_buf, "/%s/frame", prefix);
+	lo_server_add_method(srv, cmd_buf, "iiiiiiii", osc_led_map_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii",
+						 osc_led_map_handler, monome);
 	m_free(cmd_buf);
 
 	asprintf(&cmd_buf, "/%s/led_row", prefix);
@@ -157,10 +155,9 @@ static void register_osc_methods(char *prefix, monome_t *monome) {
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_col_row_handler, monome);
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/frame", prefix);
-	lo_server_add_method(srv, cmd_buf, "iiiiiiii", osc_frame_handler, monome);
-	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii",
-						 osc_frame_handler, monome);
+	asprintf(&cmd_buf, "/%s/intensity", prefix);
+	lo_server_add_method(srv, cmd_buf, "", osc_intensity_handler, monome);
+	lo_server_add_method(srv, cmd_buf, "i", osc_intensity_handler, monome);
 	m_free(cmd_buf);
 }
 
@@ -420,7 +417,7 @@ int main(int argc, char *argv[]) {
 	register_osc_methods(state.lo_prefix, state.monome);
 
 	monome_set_rotation(state.monome, rotate);
-	monome_clear(state.monome, MONOME_CLEAR_OFF);
+	monome_led_all(state.monome, 0);
 	monome_mode(state.monome, MONOME_MODE_NORMAL);
 
 	printf("monomeserial version %s, yay!\n\n", VERSION);

@@ -72,7 +72,7 @@ static int proto_osc_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return LO_SEND_MSG(led, "iii", x, y, !!on);
 }
 
-static int proto_osc_led_all(monome_t *monome, monome_clear_status_t status) {
+static int proto_osc_led_all(monome_t *monome, uint_t status) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(clear, "i", status);
 }

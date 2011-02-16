@@ -108,15 +108,12 @@ static int mext_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return mext_write_msg(monome, &msg);
 }
 
-static int mext_led_all(monome_t *monome, monome_clear_status_t status) {
+static int mext_led_all(monome_t *monome, uint_t status) {
 	mext_msg_t msg = {
-		.addr = SS_LED_GRID
+		.addr = SS_LED_GRID,
+		.cmd = (status) ? CMD_LED_ALL_ON : CMD_LED_ALL_OFF
 	};
 
-	if( status == MONOME_CLEAR_OFF )
-		msg.cmd = CMD_LED_ALL_OFF;
-	else
-		msg.cmd = CMD_LED_ALL_ON;
 
 	return mext_write_msg(monome, &msg);
 }

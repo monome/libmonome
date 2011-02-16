@@ -38,7 +38,6 @@
 #define LIBDIR "/usr/lib"
 #endif
 
-#define DEFAULT_MODEL    MONOME_DEVICE_40h
 #define DEFAULT_PROTOCOL "40h"
 
 static monome_devmap_t mapping[] = {
@@ -223,28 +222,29 @@ int monome_get_fd(monome_t *monome) {
 	return monome->fd;
 }
 
-int monome_clear(monome_t *monome, monome_clear_status_t status) {
-	return monome->led.all(monome, status);
-}
-
-int monome_intensity(monome_t *monome, uint_t brightness) {
-	return monome->led.intensity(monome, brightness);
-}
-
 int monome_mode(monome_t *monome, monome_mode_t mode) {
 	return monome->mode(monome, mode);
 }
 
-int monome_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
+int monome_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return monome->led.set(monome, x, y, on);
 }
 
 int monome_led_on(monome_t *monome, uint_t x, uint_t y) {
-	return monome_led(monome, x, y, 1);
+	return monome_led_set(monome, x, y, 1);
 }
 
 int monome_led_off(monome_t *monome, uint_t x, uint_t y) {
-	return monome_led(monome, x, y, 0);
+	return monome_led_set(monome, x, y, 0);
+}
+
+int monome_led_all(monome_t *monome, uint_t status) {
+	return monome->led.all(monome, status);
+}
+
+int monome_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
+                   const uint8_t *data) {
+	return monome->led.map(monome, x_off, y_off, data);
 }
 
 int monome_led_row(monome_t *monome, uint_t row, uint_t offset,
@@ -257,7 +257,6 @@ int monome_led_col(monome_t *monome, uint_t col, uint_t offset,
 	return monome->led.col(monome, col, offset, count, data);
 }
 
-int monome_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
-                     const uint8_t *frame_data) {
-	return monome->led.map(monome, x_off, y_off, frame_data);
+int monome_led_intensity(monome_t *monome, uint_t brightness) {
+	return monome->led.intensity(monome, brightness);
 }

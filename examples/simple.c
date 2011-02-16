@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	if( !(monome = monome_open(MONOME_DEVICE, "8000")) )
 		return -1;
 
-	monome_clear(monome, MONOME_CLEAR_OFF);
+	monome_led_all(monome, 0);
 
 	/* initialize the grid (all off) */
 	for( x = 0; x < 16; x++ )

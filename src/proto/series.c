@@ -130,7 +130,7 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
  */
 
 static int proto_series_led_all(monome_t *monome, uint_t status) {
-	uint8_t buf = PROTO_SERIES_CLEAR | (status & PROTO_SERIES_CLEAR_ON);
+	uint8_t buf = PROTO_SERIES_CLEAR | (status & 0x01);
 	return monome_write(monome, &buf, sizeof(buf));
 }
 

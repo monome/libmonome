@@ -32,13 +32,6 @@ typedef enum {
 	MONOME_AUX_INPUT     = 0x02
 } monome_event_type_t;
 
-/* clearing statuses (argument to monome_clear) */
-
-typedef enum {
-	MONOME_CLEAR_OFF     = 0x00,
-	MONOME_CLEAR_ON      = 0x01
-} monome_clear_status_t;
-
 /* modes (argument to monome_mode) */
 
 typedef enum {
@@ -90,20 +83,23 @@ int monome_event_handle_next(monome_t *monome);
 void monome_event_loop(monome_t *monome);
 int monome_get_fd(monome_t *monome);
 
-int monome_clear(monome_t *monome, monome_clear_status_t status);
-int monome_intensity(monome_t *monome, unsigned int brightness);
 int monome_mode(monome_t *monome, monome_mode_t mode);
 
-int monome_led(monome_t *monome, unsigned int x, unsigned int y,
-               unsigned int on);
+/**
+ * led grid commands
+ */
+int monome_led_set(monome_t *monome, unsigned int x, unsigned int y,
+                   unsigned int on);
 int monome_led_on(monome_t *monome, unsigned int x, unsigned int y);
 int monome_led_off(monome_t *monome, unsigned int x, unsigned int y);
+int monome_led_all(monome_t *monome, unsigned int status);
+int monome_led_map(monome_t *monome, unsigned int x_off, unsigned int y_off,
+                   const uint8_t *data);
 int monome_led_col(monome_t *monome, unsigned int col, unsigned int offset,
                    size_t count, const uint8_t *col_data);
 int monome_led_row(monome_t *monome, unsigned int row, unsigned int offset,
                    size_t count, const uint8_t *row_data);
-int monome_led_frame(monome_t *monome, unsigned int x_off, unsigned int y_off,
-                     const uint8_t *frame_data);
+int monome_led_intensity(monome_t *monome, unsigned int brightness);
 
 #ifdef __cplusplus
 } /* extern "C" */
