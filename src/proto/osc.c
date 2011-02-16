@@ -60,16 +60,6 @@ static int proto_osc_press_handler(const char *path, const char *types, lo_arg *
  * public
  */
 
-static int proto_osc_clear(monome_t *monome, monome_clear_status_t status) {
-	SELF_FROM(monome);
-	return LO_SEND_MSG(clear, "i", status);
-}
-
-static int proto_osc_intensity(monome_t *monome, uint_t brightness) {
-	SELF_FROM(monome);
-	return LO_SEND_MSG(intensity, "i", brightness);
-}
-
 static int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 	SELF_FROM(monome);
 
@@ -77,19 +67,14 @@ static int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 	return lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, "/sys/mode", "i", mode);
 }
 
-static int proto_osc_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
+static int proto_osc_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led, "iii", x, y, !!on);
 }
 
-static int proto_osc_led_col(monome_t *monome, uint_t col, uint_t offset,
-                             size_t count, const uint8_t *data) {
+static int proto_osc_led_all(monome_t *monome, monome_clear_status_t status) {
 	SELF_FROM(monome);
-
-	if( count == 1 )
-		return LO_SEND_MSG(led_col, "ii", col, data[0]);
-
-	return LO_SEND_MSG(led_col, "iii", col, data[0], data[1]);
+	return LO_SEND_MSG(clear, "i", status);
 }
 
 static int proto_osc_led_row(monome_t *monome, uint_t row, uint_t offset,
@@ -102,8 +87,18 @@ static int proto_osc_led_row(monome_t *monome, uint_t row, uint_t offset,
 	return LO_SEND_MSG(led_row, "iii", row, data[0], data[1]);
 }
 
-static int proto_osc_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
-                               const uint8_t *f) {
+static int proto_osc_led_col(monome_t *monome, uint_t col, uint_t offset,
+                             size_t count, const uint8_t *data) {
+	SELF_FROM(monome);
+
+	if( count == 1 )
+		return LO_SEND_MSG(led_col, "ii", col, data[0]);
+
+	return LO_SEND_MSG(led_col, "iii", col, data[0], data[1]);
+}
+
+static int proto_osc_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
+                             const uint8_t *f) {
 	SELF_FROM(monome);
 
 	/* there has to be a cleaner way to do this */
@@ -113,6 +108,11 @@ static int proto_osc_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
 	else
 		return LO_SEND_MSG(frame, "iiiiiiiiii", x_off, y_off,
 						   f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7]);
+}
+
+static int proto_osc_led_intensity(monome_t *monome, uint_t brightness) {
+	SELF_FROM(monome);
+	return LO_SEND_MSG(intensity, "i", brightness);
 }
 
 static int proto_osc_next_event(monome_t *monome, monome_event_t *e) {
@@ -204,14 +204,14 @@ monome_t *monome_protocol_new() {
 
 	monome->next_event = proto_osc_next_event;
 
-	monome->clear      = proto_osc_clear;
-	monome->intensity  = proto_osc_intensity;
 	monome->mode       = proto_osc_mode;
 	
-	monome->led        = proto_osc_led;
-	monome->led_col    = proto_osc_led_col;
-	monome->led_row    = proto_osc_led_row;
-	monome->led_frame  = proto_osc_led_frame;
+	monome->led.set    = proto_osc_led_set;
+	monome->led.all    = proto_osc_led_all;
+	monome->led.map    = proto_osc_led_map;
+	monome->led.row    = proto_osc_led_row;
+	monome->led.col    = proto_osc_led_col;
+	monome->led.intensity = proto_osc_led_intensity;
 
 	return monome;
 }

@@ -94,30 +94,7 @@ static int mext_mode_noop(monome_t *monome, monome_mode_t mode) {
 	return 0;
 }
 
-static int mext_clear(monome_t *monome, monome_clear_status_t status) {
-	mext_msg_t msg = {
-		.addr = SS_LED_GRID
-	};
-
-	if( status == MONOME_CLEAR_OFF )
-		msg.cmd = CMD_LED_ALL_OFF;
-	else
-		msg.cmd = CMD_LED_ALL_ON;
-
-	return mext_write_msg(monome, &msg);
-}
-
-static int mext_intensity(monome_t *monome, uint_t intensity) {
-	mext_msg_t msg = {
-		.addr = SS_LED_GRID,
-		.cmd  = CMD_LED_INTENSITY
-	};
-
-	msg.payload.intensity = intensity & 0xF;
-	return mext_write_msg(monome, &msg);
-}
-
-static int mext_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
+static int mext_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	mext_msg_t msg = {
 		.addr = SS_LED_GRID,
 		.cmd  = on ? CMD_LED_ON : CMD_LED_OFF
@@ -131,19 +108,36 @@ static int mext_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return mext_write_msg(monome, &msg);
 }
 
-static int mext_led_col(monome_t *monome, uint_t col, uint_t y_off,
-                        size_t count, const uint8_t *data) {
-	if( ROTSPEC(monome).flags & COL_REVBITS ) {
-		for( ; count--; y_off += 8 )
-			mext_led_row_col(
-				monome, CMD_LED_COLUMN, col, y_off, REVERSE_BYTE(data[count]));
-	} else {
-		for( ; count--; y_off += 8 )
-			mext_led_row_col(
-				monome, CMD_LED_COLUMN, col, y_off, *(data++));
-	}
+static int mext_led_all(monome_t *monome, monome_clear_status_t status) {
+	mext_msg_t msg = {
+		.addr = SS_LED_GRID
+	};
 
-	return 1;
+	if( status == MONOME_CLEAR_OFF )
+		msg.cmd = CMD_LED_ALL_OFF;
+	else
+		msg.cmd = CMD_LED_ALL_ON;
+
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
+                        const uint8_t *data) {
+	mext_msg_t msg = {
+		.addr = SS_LED_GRID,
+		.cmd  = CMD_LED_FRAME
+	};
+
+#ifdef __LP64__
+	*((uint64_t *) msg.payload.frame.data) = *((uint64_t *) data);
+#else
+	*((uint32_t *) msg.payload.frame.data) = *((uint32_t *) data);
+	*((uint32_t *) msg.payload.frame.data + 4) = *(((uint32_t *) data) + 1);
+#endif
+
+	ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, msg.payload.frame.data);
+
+	return mext_write_msg(monome, &msg);
 }
 
 static int mext_led_row(monome_t *monome, uint_t row, uint_t x_off,
@@ -161,22 +155,28 @@ static int mext_led_row(monome_t *monome, uint_t row, uint_t x_off,
 	return 1;
 }
 
-static int mext_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
-                          const uint8_t *frame_data) {
+static int mext_led_col(monome_t *monome, uint_t col, uint_t y_off,
+                        size_t count, const uint8_t *data) {
+	if( ROTSPEC(monome).flags & COL_REVBITS ) {
+		for( ; count--; y_off += 8 )
+			mext_led_row_col(
+				monome, CMD_LED_COLUMN, col, y_off, REVERSE_BYTE(data[count]));
+	} else {
+		for( ; count--; y_off += 8 )
+			mext_led_row_col(
+				monome, CMD_LED_COLUMN, col, y_off, *(data++));
+	}
+
+	return 1;
+}
+
+static int mext_led_intensity(monome_t *monome, uint_t intensity) {
 	mext_msg_t msg = {
 		.addr = SS_LED_GRID,
-		.cmd  = CMD_LED_FRAME
+		.cmd  = CMD_LED_INTENSITY
 	};
 
-#ifdef __LP64__
-	*((uint64_t *) msg.payload.frame.data) = *((uint64_t *) frame_data);
-#else
-	*((uint32_t *) msg.payload.frame.data) = *((uint32_t *) frame_data);
-	*((uint32_t *) msg.payload.frame.data + 4) = *(((uint32_t *) frame_data) + 1);
-#endif
-
-	ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, msg.payload.frame.data);
-
+	msg.payload.intensity = intensity & 0xF;
 	return mext_write_msg(monome, &msg);
 }
 
@@ -292,14 +292,14 @@ monome_t *monome_protocol_new() {
 
 	monome->next_event = mext_next_event;
 
-	monome->clear      = mext_clear;
-	monome->intensity  = mext_intensity;
 	monome->mode       = mext_mode_noop;
 	
-	monome->led        = mext_led;
-	monome->led_col    = mext_led_col;
-	monome->led_row    = mext_led_row;
-	monome->led_frame  = mext_led_frame;
+	monome->led.set    = mext_led_set;
+	monome->led.all    = mext_led_all;
+	monome->led.col    = mext_led_col;
+	monome->led.row    = mext_led_row;
+	monome->led.map    = mext_led_map;
+	monome->led.intensity = mext_led_intensity;
 
 	return monome;
 }

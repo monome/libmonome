@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -29,6 +29,8 @@ typedef unsigned int uint_t;
 typedef struct monome_callback monome_callback_t;
 typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
+
+typedef struct monome_led_functions monome_led_functions_t;
 
 typedef void (*monome_coord_cb)(monome_t *, uint_t *x, uint_t *y);
 typedef void (*monome_frame_cb)(monome_t *, uint_t *x_off, uint_t *y_off,
@@ -60,7 +62,24 @@ struct monome_rotspec {
 	} flags;
 };
 
+/**
+ * subsystem functions
+ */
+
+struct monome_led_functions {
+	int  (*set)(monome_t *monome, uint_t x, uint_t y, uint_t on);
+	int  (*all)(monome_t *monome, uint_t status);
+	int  (*map)(monome_t *monome, uint_t x_off, uint_t y_off,
+	            const uint8_t *frame_data);
+	int  (*row)(monome_t *monome, uint_t row, uint_t offset,
+	            size_t count, const uint8_t *data);
+	int  (*col)(monome_t *monome, uint_t col, uint_t offset,
+	            size_t count, const uint8_t *data);
+	int  (*intensity)(monome_t *monome, uint_t brightness);
+};
+
 struct monome {
+	/* handle for the loaded protocol module */
 	void *dl_handle;
 
 	const char *serial;
@@ -79,17 +98,9 @@ struct monome {
 
 	int  (*next_event)(monome_t *monome, monome_event_t *event);
 
-	int  (*clear)(monome_t *monome, monome_clear_status_t status);
-	int  (*intensity)(monome_t *monome, uint_t brightness);
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
 
-	int  (*led)(monome_t *monome, uint_t x, uint_t y, uint_t on);
-	int  (*led_col)(monome_t *monome, uint_t col, uint_t offset,
-	                size_t count, const uint8_t *data);
-	int  (*led_row)(monome_t *monome, uint_t row, uint_t offset,
-	                size_t count, const uint8_t *data);
-	int  (*led_frame)(monome_t *monome, uint_t x_off, uint_t y_off,
-	                  const uint8_t *frame_data);
+	monome_led_functions_t led;
 };
 
 #endif /* defined MONOME_INTERNAL_H */

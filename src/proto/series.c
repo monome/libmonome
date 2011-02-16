@@ -129,12 +129,12 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
  * public
  */
 
-static int proto_series_clear(monome_t *monome, monome_clear_status_t status) {
+static int proto_series_led_all(monome_t *monome, uint_t status) {
 	uint8_t buf = PROTO_SERIES_CLEAR | (status & PROTO_SERIES_CLEAR_ON);
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
-static int proto_series_intensity(monome_t *monome, uint_t brightness) {
+static int proto_series_led_intensity(monome_t *monome, uint_t brightness) {
 	uint8_t buf = PROTO_SERIES_INTENSITY | (brightness & 0x0F);
 	return monome_write(monome, &buf, sizeof(buf));
 }
@@ -144,7 +144,7 @@ static int proto_series_mode(monome_t *monome, monome_mode_t mode) {
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
-static int proto_series_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
+static int proto_series_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	uint8_t buf[2];
 
 	ROTATE_COORDS(monome, x, y);
@@ -205,18 +205,18 @@ static int proto_series_led_row(monome_t *monome, uint_t row, uint_t offset,
 	return -1;
 }
 
-static int proto_series_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
-                                  const uint8_t *frame_data) {
+static int proto_series_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
+                                const uint8_t *data) {
 	uint8_t buf[9];
 	uint_t quadrant;
 
-	/* by treating frame_data as a bigger integer, we can copy it in
+	/* by treating data as a bigger integer, we can copy it in
 	   one or two operations (instead of 8) */
 #ifdef __LP64__
-	*((uint64_t *) &buf[1]) = *((uint64_t *) frame_data);
+	*((uint64_t *) &buf[1]) = *((uint64_t *) data);
 #else
-	*((uint32_t *) &buf[1]) = *((uint32_t *) frame_data);
-	*((uint32_t *) &buf[5]) = *(((uint32_t *) frame_data) + 1);
+	*((uint32_t *) &buf[1]) = *((uint32_t *) data);
+	*((uint32_t *) &buf[5]) = *(((uint32_t *) data) + 1);
 #endif
 
 	ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, &buf[1]);
@@ -281,14 +281,14 @@ monome_t *monome_protocol_new() {
 
 	monome->next_event = proto_series_next_event;
 
-	monome->clear      = proto_series_clear;
-	monome->intensity  = proto_series_intensity;
 	monome->mode       = proto_series_mode;
 
-	monome->led        = proto_series_led;
-	monome->led_col    = proto_series_led_col;
-	monome->led_row    = proto_series_led_row;
-	monome->led_frame  = proto_series_led_frame;
+	monome->led.set    = proto_series_led_set;
+	monome->led.all    = proto_series_led_all;
+	monome->led.map    = proto_series_led_map;
+	monome->led.row    = proto_series_led_row;
+	monome->led.col    = proto_series_led_col;
+	monome->led.intensity = proto_series_led_intensity;
 
 	return monome;
 }

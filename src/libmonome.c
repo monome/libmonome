@@ -224,11 +224,11 @@ int monome_get_fd(monome_t *monome) {
 }
 
 int monome_clear(monome_t *monome, monome_clear_status_t status) {
-	return monome->clear(monome, status);
+	return monome->led.all(monome, status);
 }
 
 int monome_intensity(monome_t *monome, uint_t brightness) {
-	return monome->intensity(monome, brightness);
+	return monome->led.intensity(monome, brightness);
 }
 
 int monome_mode(monome_t *monome, monome_mode_t mode) {
@@ -236,7 +236,7 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 }
 
 int monome_led(monome_t *monome, uint_t x, uint_t y, uint_t on) {
-	return monome->led(monome, x, y, on);
+	return monome->led.set(monome, x, y, on);
 }
 
 int monome_led_on(monome_t *monome, uint_t x, uint_t y) {
@@ -247,17 +247,17 @@ int monome_led_off(monome_t *monome, uint_t x, uint_t y) {
 	return monome_led(monome, x, y, 0);
 }
 
-int monome_led_col(monome_t *monome, uint_t col, uint_t offset,
-				   size_t count, const uint8_t *data) {
-	return monome->led_col(monome, col, offset, count, data);
-}
-
 int monome_led_row(monome_t *monome, uint_t row, uint_t offset,
 				   size_t count, const uint8_t *data) {
-	return monome->led_row(monome, row, offset, count, data);
+	return monome->led.row(monome, row, offset, count, data);
+}
+
+int monome_led_col(monome_t *monome, uint_t col, uint_t offset,
+				   size_t count, const uint8_t *data) {
+	return monome->led.col(monome, col, offset, count, data);
 }
 
 int monome_led_frame(monome_t *monome, uint_t x_off, uint_t y_off,
                      const uint8_t *frame_data) {
-	return monome->led_frame(monome, x_off, y_off, frame_data);
+	return monome->led.map(monome, x_off, y_off, frame_data);
 }
