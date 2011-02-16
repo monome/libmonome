@@ -39,8 +39,8 @@ static void r0_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	return;
 }
 
-static void r0_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                        uint8_t *frame_data) {
+static void r0_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                      uint8_t *data) {
 	return;
 }
 
@@ -58,18 +58,18 @@ static void r90_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = t;
 }
 
-static void r90_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                         uint8_t *frame_data) {
+static void r90_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                       uint8_t *data) {
 	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
-	   in the case of r270_frame_cb, the rotation is clockwise, in the case
-	   of r90_frame_cb it is counter-clockwise.
+	   in the case of r270_map_cb, the rotation is clockwise, in the case
+	   of r90_map_cb it is counter-clockwise.
 
 	   the matrix is made up of an array of 8 bytes, which, laid out
 	   contiguously in memory, can be treated as a 64 bit integer, which I've
 	   opted to do here. this allows rotation to be accomplished solely with
 	   bitwise operations.
 
-	   on 64 bit architectures, we treat frame_data as a 64 bit integer, on 32
+	   on 64 bit architectures, we treat data as a 64 bit integer, on 32
 	   bit architectures we treat it as two 32 bit integers.
 
 	   inspired by "hacker's delight" by henry s. warren
@@ -82,7 +82,7 @@ static void r90_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	r90_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
-	uint64_t t, x = *((uint64_t *) frame_data);
+	uint64_t t, x = *((uint64_t *) data);
 
 #define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
@@ -97,12 +97,12 @@ static void r90_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	swap(36, 0xF0F0F0F000000000LLU);
 #undef swap
 
-	*((uint64_t *) frame_data) = x;
+	*((uint64_t *) data) = x;
 #else /* __LP64__ */
 	uint32_t x, y, t;
 
-	x = *((uint32_t *) frame_data);
-	y = *(((uint32_t *) frame_data) + 1);
+	x = *((uint32_t *) data);
+	y = *(((uint32_t *) data) + 1);
 	t = 0;
 
 #define swap(x, f, c)\
@@ -121,8 +121,8 @@ static void r90_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	swap(y, 18, 0xCCCC0000);
 #undef swap
 
-	*((uint32_t *) frame_data) = ((x & 0xF0F0F0F0) >> 4) | (y & 0xF0F0F0F0);
-	*(((uint32_t *) frame_data) + 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) << 4);
+	*((uint32_t *) data) = ((x & 0xF0F0F0F0) >> 4) | (y & 0xF0F0F0F0);
+	*(((uint32_t *) data) + 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) << 4);
 #endif
 }
 
@@ -136,8 +136,8 @@ static void r180_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = (COLS(monome) - *y) % (COLS(monome) + 1);
 }
 
-static void r180_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                          uint8_t *frame_data) {
+static void r180_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                        uint8_t *data) {
 	/* integer reversal. */
 
 	*x_off &= ~(0x7);
@@ -146,7 +146,7 @@ static void r180_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	r180_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
-	uint64_t x = *((uint64_t *) frame_data);
+	uint64_t x = *((uint64_t *) data);
 
 	x = x >> 32 | x << 32;
 	x = (x & 0xFFFF0000FFFF0000LLU) >> 16 | (x & 0x0000FFFF0000FFFFLLU) << 16;
@@ -155,12 +155,12 @@ static void r180_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	x = (x & 0xCCCCCCCCCCCCCCCCLLU) >> 2  | (x & 0x3333333333333333LLU) << 2;
 	x = (x & 0xAAAAAAAAAAAAAAAALLU) >> 1  | (x & 0x5555555555555555LLU) << 1;
 
-	*((uint64_t *) frame_data) = x;
+	*((uint64_t *) data) = x;
 #else /* __LP64__ */
 	uint32_t x, y;
 
-	x = *((uint32_t *) frame_data);
-	y = *(((uint32_t *) frame_data) + 1);
+	x = *((uint32_t *) data);
+	y = *(((uint32_t *) data) + 1);
 
 	x = x >> 16 | x << 16;
 	x = (x & 0xFF00FF00) >> 8  | (x & 0x00FF00FF) << 8;
@@ -174,8 +174,8 @@ static void r180_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	y = (y & 0xCCCCCCCC) >> 2  | (y & 0x33333333) << 2;
 	y = (y & 0xAAAAAAAA) >> 1  | (y & 0x55555555) << 1;
 
-	*((uint64_t *) frame_data) = y;
-	*(((uint32_t *) frame_data) + 1) = x;
+	*((uint64_t *) data) = y;
+	*(((uint32_t *) data) + 1) = x;
 #endif
 }
 
@@ -193,9 +193,9 @@ static void r270_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = (COLS(monome) - t) % (COLS(monome) + 1);
 }
 
-static void r270_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                          uint8_t *frame_data) {
-	/* see r90_frame_cb for a brief explanation */
+static void r270_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
+                        uint8_t *data) {
+	/* see r90_map_cb for a brief explanation */
 
 	*x_off &= ~(0x7);
 	*y_off &= ~(0x7);
@@ -203,7 +203,7 @@ static void r270_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	r270_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
-	uint64_t t, x = *((uint64_t *) frame_data);
+	uint64_t t, x = *((uint64_t *) data);
 
 #define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
@@ -218,12 +218,12 @@ static void r270_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	swap(28, 0x0F0F0F0F00000000LLU);
 #undef swap
 
-	*((uint64_t *) frame_data) = x;
+	*((uint64_t *) data) = x;
 #else /* __LP64__ */
 	uint32_t x, y, t;
 
-	x = *((uint32_t *) frame_data);
-	y = *(((uint32_t *) frame_data) + 1);
+	x = *((uint32_t *) data);
+	y = *(((uint32_t *) data) + 1);
 	t = 0;
 
 #define swap(x, f, c)\
@@ -242,8 +242,8 @@ static void r270_frame_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 	swap(y, 14, 0x33330000);
 #undef swap
 
-	*((uint32_t *) frame_data) = ((x & 0x0F0F0F0F) << 4) | (y & 0x0F0F0F0F);
-	*(((uint32_t *) frame_data) + 1) = (x & 0xF0F0F0F0) | ((y & 0xF0F0F0F0) >> 4);
+	*((uint32_t *) data) = ((x & 0x0F0F0F0F) << 4) | (y & 0x0F0F0F0F);
+	*(((uint32_t *) data) + 1) = (x & 0xF0F0F0F0) | ((y & 0xF0F0F0F0) >> 4);
 #endif
 }
 
@@ -251,7 +251,7 @@ monome_rotspec_t rotspec[4] = {
 	[MONOME_ROTATE_0] = {
 		.output_cb = r0_cb,
 		.input_cb  = r0_cb,
-		.frame_cb  = r0_frame_cb,
+		.map_cb    = r0_map_cb,
 
 		.flags     = 0,
 	},
@@ -259,7 +259,7 @@ monome_rotspec_t rotspec[4] = {
 	[MONOME_ROTATE_90] = {
 		.output_cb = r90_output_cb,
 		.input_cb  = r90_input_cb,
-		.frame_cb  = r90_frame_cb,
+		.map_cb    = r90_map_cb,
 
 		.flags     = ROW_COL_SWAP | ROW_REVBITS
 	},
@@ -267,7 +267,7 @@ monome_rotspec_t rotspec[4] = {
 	[MONOME_ROTATE_180] = {
 		.output_cb = r180_output_cb,
 		.input_cb  = r180_input_cb,
-		.frame_cb  = r180_frame_cb,
+		.map_cb    = r180_map_cb,
 
 		.flags     = ROW_REVBITS | COL_REVBITS
 	},
@@ -275,7 +275,7 @@ monome_rotspec_t rotspec[4] = {
 	[MONOME_ROTATE_270] = {
 		.output_cb = r270_output_cb,
 		.input_cb  = r270_input_cb,
-		.frame_cb  = r270_frame_cb,
+		.map_cb    = r270_map_cb,
 
 		.flags     = ROW_COL_SWAP | COL_REVBITS
 	},

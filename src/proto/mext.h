@@ -163,7 +163,7 @@ struct mext_msg {
 			} PACKED offset;
 
 			uint8_t data[8];
-		} PACKED frame;
+		} PACKED map;
 
 		struct {
 			uint8_t x;

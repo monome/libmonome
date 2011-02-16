@@ -142,7 +142,7 @@ static int proto_40h_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	*((uint32_t *) &buf[5]) = *(((uint32_t *) data) + 1);
 #endif
 
-	ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, buf);
+	ROTSPEC(monome).map_cb(monome, &x_off, &y_off, buf);
 
 	for( i = 0; i < 8; i++ )
 		ret += proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, i, &buf[i]);

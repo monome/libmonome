@@ -126,13 +126,13 @@ static int mext_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	};
 
 #ifdef __LP64__
-	*((uint64_t *) msg.payload.frame.data) = *((uint64_t *) data);
+	*((uint64_t *) msg.payload.map.data) = *((uint64_t *) data);
 #else
-	*((uint32_t *) msg.payload.frame.data) = *((uint32_t *) data);
-	*((uint32_t *) msg.payload.frame.data + 4) = *(((uint32_t *) data) + 1);
+	*((uint32_t *) msg.payload.map.data) = *((uint32_t *) data);
+	*((uint32_t *) msg.payload.map.data + 4) = *(((uint32_t *) data) + 1);
 #endif
 
-	ROTSPEC(monome).frame_cb(monome, &x_off, &y_off, msg.payload.frame.data);
+	ROTSPEC(monome).map_cb(monome, &x_off, &y_off, msg.payload.map.data);
 
 	return mext_write_msg(monome, &msg);
 }
