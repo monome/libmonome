@@ -136,10 +136,10 @@ static int proto_40h_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	/* by treating data as a bigger integer, we can copy it in
 	   one or two operations (instead of 8) */
 #ifdef __LP64__
-	*((uint64_t *) &buf[1]) = *((uint64_t *) data);
+	*((uint64_t *) &buf[0]) = *((uint64_t *) data);
 #else
-	*((uint32_t *) &buf[1]) = *((uint32_t *) data);
-	*((uint32_t *) &buf[5]) = *(((uint32_t *) data) + 1);
+	*((uint32_t *) &buf[0]) = *((uint32_t *) data);
+	*((uint32_t *) &buf[4]) = *(((uint32_t *) data) + 1);
 #endif
 
 	ROTSPEC(monome).map_cb(monome, &x_off, &y_off, buf);
