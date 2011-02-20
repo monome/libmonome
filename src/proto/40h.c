@@ -78,10 +78,10 @@ static int proto_40h_led_col_row(monome_t *monome, proto_40h_message_t mode, uin
 
 static int proto_40h_led_all(monome_t *monome, uint_t status) {
 	uint_t i;
-	uint8_t buf[2] = {0, 0};
+	uint8_t buf[2] = {0, (status) ? 0xFF : 0};
 
 	for( i = 0; i < 8; i++ ) {
-		buf[0] = PROTO_40h_LED_ROW | (status & 0x01);
+		buf[0] = PROTO_40h_LED_ROW | (i & 0xF);
 		monome_write(monome, buf, sizeof(buf));
 	}
 
