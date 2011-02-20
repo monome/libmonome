@@ -223,7 +223,17 @@ done:
 }
 
 int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
-	return 0;
+	HANDLE hser = (HANDLE) _get_osfhandle(monome->fd);
+
+	switch( WaitForSingleObject(hser, msec) ) {
+	case WAIT_FAILED:
+	case WAIT_TIMEOUT:
+	case WAIT_ABANDONED:
+		return 1;
+
+	default:
+		return 0;
+	}
 }
 
 void monome_event_loop(monome_t *monome) {
@@ -234,10 +244,8 @@ void monome_event_loop(monome_t *monome) {
 	e.monome = monome;
 
 	do {
-		if( WaitForSingleObject(hser, INFINITE) == WAIT_FAILED ) {
-			printf("fuck: %ld\n", GetLastError());
+		if( WaitForSingleObject(hser, INFINITE) == WAIT_FAILED )
 			break;
-		}
 
 		if( !monome->next_event(monome, &e) )
 			continue;
