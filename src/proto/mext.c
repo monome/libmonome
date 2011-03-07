@@ -15,6 +15,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -81,6 +82,36 @@ static ssize_t mext_led_row_col(monome_t *monome, mext_cmd_t cmd, uint_t x,
 	msg.payload.row_col.offset.x = x;
 	msg.payload.row_col.offset.y = y;
 	msg.payload.row_col.data     = data;
+
+	return mext_write_msg(monome, &msg);
+}
+
+static void revcopy(uint8_t *dst, const uint8_t *src) {
+	int i = 8;
+
+	while( i-- )
+		dst[7 - i] = src[i];
+}
+
+static ssize_t mext_led_level_row_col(monome_t *monome, mext_cmd_t cmd, int rev,
+                                      uint_t x, uint_t y, const uint8_t *data) {
+	mext_msg_t msg = {
+		.addr = SS_LED_GRID,
+		.cmd  = cmd
+	};
+
+	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
+		msg.cmd = !(cmd - CMD_LED_LEVEL_ROW) + CMD_LED_LEVEL_ROW;
+
+	ROTATE_COORDS(monome, x, y);
+
+	msg.payload.row_col.offset.x = x;
+	msg.payload.row_col.offset.y = y;
+
+	if( rev )
+		revcopy(msg.payload.level_row_col.levels, data);
+	else
+		memcpy(msg.payload.level_row_col.levels, data, 8);
 
 	return mext_write_msg(monome, &msg);
 }
@@ -231,6 +262,26 @@ static int mext_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	return mext_write_msg(monome, &msg);
 }
 
+static int mext_led_level_row(monome_t *monome, uint_t row, uint_t x_off,
+                              size_t count, const uint8_t *data) {
+	for( count >>= 3; count--; x_off += 8, data += 8 )
+		mext_led_level_row_col(
+			monome, CMD_LED_LEVEL_ROW, ROTSPEC(monome).flags & ROW_REVBITS,
+			x_off, row, data);
+
+	return 1;
+}
+
+static int mext_led_level_col(monome_t *monome, uint_t col, uint_t x_off,
+                              size_t count, const uint8_t *data) {
+	for( count >>= 3; count--; x_off += 8, data += 8 )
+		mext_led_level_row_col(
+			monome, CMD_LED_LEVEL_COLUMN, ROTSPEC(monome).flags & COL_REVBITS,
+			x_off, col, data);
+
+	return 1;
+}
+
 /**
  * event handlers
  */
@@ -357,6 +408,8 @@ monome_t *monome_protocol_new() {
 	monome->led_level.set = mext_led_level_set;
 	monome->led_level.all = mext_led_level_all;
 	monome->led_level.map = mext_led_level_map;
+	monome->led_level.row = mext_led_level_row;
+	monome->led_level.col = mext_led_level_col;
 
 	return monome;
 }
