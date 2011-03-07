@@ -134,6 +134,9 @@ static int mext_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 
 	ROTSPEC(monome).map_cb(monome, &x_off, &y_off, msg.payload.map.data);
 
+	msg.payload.map.offset.x = x_off;
+	msg.payload.map.offset.y = y_off;
+
 	return mext_write_msg(monome, &msg);
 }
 
