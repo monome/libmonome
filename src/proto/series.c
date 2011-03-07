@@ -219,7 +219,9 @@ static int proto_series_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	*((uint32_t *) &buf[5]) = *(((uint32_t *) data) + 1);
 #endif
 
-	ROTSPEC(monome).map_cb(monome, &x_off, &y_off, &buf[1]);
+	ROTSPEC(monome).map_cb(monome, &buf[1]);
+
+	ROTATE_COORDS(monome, x_off, y_off);
 	quadrant = (x_off / 8) + ((y_off / 8) * 2);
 
 	buf[0] = PROTO_SERIES_LED_FRAME | (quadrant & 0x03);

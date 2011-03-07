@@ -33,9 +33,10 @@ typedef struct monome_devmap monome_devmap_t;
 typedef struct monome_led_functions monome_led_functions_t;
 typedef struct monome_led_level_functions monome_led_level_functions_t;
 
-typedef void (*monome_coord_cb)(monome_t *, uint_t *x, uint_t *y);
-typedef void (*monome_map_cb)(monome_t *, uint_t *x_off, uint_t *y_off,
-							  uint8_t *data);
+typedef void (*monome_coord_cb_t)(monome_t *, uint_t *x, uint_t *y);
+typedef void (*monome_map_cb_t)(monome_t *, uint8_t *data);
+typedef void (*monome_level_map_cb_t)(monome_t *, uint8_t *dest,
+                                      const uint8_t *src);
 
 struct monome_callback {
 	monome_event_callback_t cb;
@@ -52,9 +53,10 @@ struct monome_devmap {
 };
 
 struct monome_rotspec {
-	monome_coord_cb output_cb;
-	monome_coord_cb input_cb;
-	monome_map_cb map_cb;
+	monome_coord_cb_t output_cb;
+	monome_coord_cb_t input_cb;
+	monome_map_cb_t map_cb;
+	monome_level_map_cb_t level_map_cb;
 
 	enum {
 		ROW_COL_SWAP    = 0x1,

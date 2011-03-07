@@ -183,21 +183,19 @@ struct mext_msg {
 		struct {
 			mext_point_t led;
 			uint8_t level;
-		} PACKED led_level;
+		} PACKED level_set;
 
-		struct {
-			uint8_t level;
-		} PACKED all_level;
+		uint8_t level_all;
 
 		struct {
 			mext_point_t offset;
 			uint8_t levels[64];
-		} PACKED map_level;
+		} PACKED level_map;
 
 		struct {
 			mext_point_t offset;
 			uint8_t levels[8];
-		} PACKED row_col_level;
+		} PACKED level_row_col;
 
 		/**
 		 * key grid

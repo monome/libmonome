@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -35,14 +36,26 @@
    while this bug is arguably contrived, I'd rather pay the minute
    computational cost here and avoid causing trouble in application code. */
 
+/**
+ * 0 degrees
+ */
+
 static void r0_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	return;
 }
 
-static void r0_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                      uint8_t *data) {
+static void r0_map_cb(monome_t *monome, uint8_t *data) {
 	return;
 }
+
+static void r0_level_map_cb(monome_t *monome, uint8_t *dst,
+                            const uint8_t *src) {
+	memcpy(dst, src, 64);
+}
+
+/**
+ * 90 degrees
+ */
 
 static void r90_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
@@ -58,8 +71,7 @@ static void r90_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = t;
 }
 
-static void r90_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                       uint8_t *data) {
+static void r90_map_cb(monome_t *monome, uint8_t *data) {
 	/* this is an algorithm for rotation of a bit matrix by 90 degrees.
 	   in the case of r270_map_cb, the rotation is clockwise, in the case
 	   of r90_map_cb it is counter-clockwise.
@@ -74,12 +86,6 @@ static void r90_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 
 	   inspired by "hacker's delight" by henry s. warren
 	   see section 7-3 "transposing a bit matrix" */
-
-	/* round to nearest multiple of 8 */
-	*x_off &= ~(0x7);
-	*y_off &= ~(0x7);
-
-	r90_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) data);
@@ -126,6 +132,18 @@ static void r90_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 #endif
 }
 
+static void r90_level_map_cb(monome_t *monome, uint8_t *dst,
+                             const uint8_t *src) {
+	int i;
+
+	for( i = 0; i < 64; i++ )
+		dst[i] = src[(7 - (i >> 3)) + ((i & 7) << 3)];
+}
+
+/**
+ * 180 degrees
+ */
+
 static void r180_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*x = ROWS(monome) - *x;
 	*y = COLS(monome) - *y;
@@ -136,14 +154,8 @@ static void r180_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = (COLS(monome) - *y) % (COLS(monome) + 1);
 }
 
-static void r180_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                        uint8_t *data) {
+static void r180_map_cb(monome_t *monome, uint8_t *data) {
 	/* integer reversal. */
-
-	*x_off &= ~(0x7);
-	*y_off &= ~(0x7);
-
-	r180_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
 	uint64_t x = *((uint64_t *) data);
@@ -179,6 +191,18 @@ static void r180_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 #endif
 }
 
+static void r180_level_map_cb(monome_t *monome, uint8_t *dst,
+                              const uint8_t *src) {
+	int i;
+
+	for( i = 0; i < 64; i++ )
+		dst[63 - i] = src[i];
+}
+
+/**
+ * 270 degrees
+ */
+
 static void r270_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
 
@@ -193,14 +217,8 @@ static void r270_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	*y = (COLS(monome) - t) % (COLS(monome) + 1);
 }
 
-static void r270_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
-                        uint8_t *data) {
+static void r270_map_cb(monome_t *monome, uint8_t *data) {
 	/* see r90_map_cb for a brief explanation */
-
-	*x_off &= ~(0x7);
-	*y_off &= ~(0x7);
-
-	r270_output_cb(monome, x_off, y_off);
 
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) data);
@@ -247,36 +265,48 @@ static void r270_map_cb(monome_t *monome, uint_t *x_off, uint_t *y_off,
 #endif
 }
 
+static void r270_level_map_cb(monome_t *monome, uint8_t *dst,
+                              const uint8_t *src) {
+	int i;
+
+	for( i = 0; i < 64; i++ )
+		dst[i] = src[(i >> 3) + ((7 - (i & 7)) << 3)];
+}
+
 monome_rotspec_t rotspec[4] = {
 	[MONOME_ROTATE_0] = {
-		.output_cb = r0_cb,
-		.input_cb  = r0_cb,
-		.map_cb    = r0_map_cb,
+		.output_cb    = r0_cb,
+		.input_cb     = r0_cb,
+		.map_cb       = r0_map_cb,
+		.level_map_cb = r0_level_map_cb,
 
-		.flags     = 0,
+		.flags        = 0,
 	},
 	
 	[MONOME_ROTATE_90] = {
-		.output_cb = r90_output_cb,
-		.input_cb  = r90_input_cb,
-		.map_cb    = r90_map_cb,
+		.output_cb    = r90_output_cb,
+		.input_cb     = r90_input_cb,
+		.map_cb       = r90_map_cb,
+		.level_map_cb = r90_level_map_cb,
 
-		.flags     = ROW_COL_SWAP | ROW_REVBITS
+		.flags        = ROW_COL_SWAP | ROW_REVBITS
 	},
 
 	[MONOME_ROTATE_180] = {
-		.output_cb = r180_output_cb,
-		.input_cb  = r180_input_cb,
-		.map_cb    = r180_map_cb,
+		.output_cb    = r180_output_cb,
+		.input_cb     = r180_input_cb,
+		.map_cb       = r180_map_cb,
+		.level_map_cb = r180_level_map_cb,
 
-		.flags     = ROW_REVBITS | COL_REVBITS
+		.flags        = ROW_REVBITS | COL_REVBITS
 	},
 
 	[MONOME_ROTATE_270] = {
-		.output_cb = r270_output_cb,
-		.input_cb  = r270_input_cb,
-		.map_cb    = r270_map_cb,
+		.output_cb    = r270_output_cb,
+		.input_cb     = r270_input_cb,
+		.map_cb       = r270_map_cb,
+		.level_map_cb = r270_level_map_cb,
 
-		.flags     = ROW_COL_SWAP | COL_REVBITS
+		.flags        = ROW_COL_SWAP | COL_REVBITS
 	},
 };

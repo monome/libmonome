@@ -132,7 +132,8 @@ static int mext_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	*((uint32_t *) msg.payload.map.data + 4) = *(((uint32_t *) data) + 1);
 #endif
 
-	ROTSPEC(monome).map_cb(monome, &x_off, &y_off, msg.payload.map.data);
+	ROTATE_COORDS(monome, x_off, y_off);
+	ROTSPEC(monome).map_cb(monome, msg.payload.map.data);
 
 	msg.payload.map.offset.x = x_off;
 	msg.payload.map.offset.y = y_off;
@@ -177,6 +178,56 @@ static int mext_led_intensity(monome_t *monome, uint_t intensity) {
 	};
 
 	msg.payload.intensity = intensity & 0xF;
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_level_set(monome_t *monome, uint_t x, uint_t y,
+                              uint_t level) {
+	mext_msg_t msg = {
+		.addr = SS_LED_GRID,
+		.cmd  = CMD_LED_LEVEL_SET,
+
+		.payload = {
+			.level_set = {
+				.level = level
+			}
+		}
+	};
+
+	ROTATE_COORDS(monome, x, y);
+
+	msg.payload.level_set.led.x = x;
+	msg.payload.level_set.led.y = y;
+
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_level_all(monome_t *monome, uint_t level) {
+	mext_msg_t msg = {
+		.addr = SS_LED_GRID,
+		.cmd  = CMD_LED_LEVEL_ALL,
+
+		.payload = {
+			.level_all = level
+		}
+	};
+
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
+                              const uint8_t *data) {
+	mext_msg_t msg = {
+		.addr = SS_LED_GRID,
+		.cmd  = CMD_LED_LEVEL_MAP
+	};
+
+	ROTATE_COORDS(monome, x_off, y_off);
+	ROTSPEC(monome).level_map_cb(monome, msg.payload.level_map.levels, data);
+
+	msg.payload.level_map.offset.x = x_off;
+	msg.payload.level_map.offset.y = y_off;
+
 	return mext_write_msg(monome, &msg);
 }
 
@@ -288,20 +339,24 @@ monome_t *monome_protocol_new() {
 	if( !monome )
 		return NULL;
 
-	monome->open       = mext_open;
-	monome->close      = mext_close;
-	monome->free       = mext_free;
+	monome->open  = mext_open;
+	monome->close = mext_close;
+	monome->free  = mext_free;
 
 	monome->next_event = mext_next_event;
 
-	monome->mode       = mext_mode_noop;
+	monome->mode = mext_mode_noop;
 	
-	monome->led.set    = mext_led_set;
-	monome->led.all    = mext_led_all;
-	monome->led.col    = mext_led_col;
-	monome->led.row    = mext_led_row;
-	monome->led.map    = mext_led_map;
+	monome->led.set = mext_led_set;
+	monome->led.all = mext_led_all;
+	monome->led.col = mext_led_col;
+	monome->led.row = mext_led_row;
+	monome->led.map = mext_led_map;
 	monome->led.intensity = mext_led_intensity;
+
+	monome->led_level.set = mext_led_level_set;
+	monome->led_level.all = mext_led_level_all;
+	monome->led_level.map = mext_led_level_map;
 
 	return monome;
 }
