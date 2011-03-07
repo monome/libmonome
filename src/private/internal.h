@@ -31,6 +31,7 @@ typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
 
 typedef struct monome_led_functions monome_led_functions_t;
+typedef struct monome_led_level_functions monome_led_level_functions_t;
 
 typedef void (*monome_coord_cb)(monome_t *, uint_t *x, uint_t *y);
 typedef void (*monome_map_cb)(monome_t *, uint_t *x_off, uint_t *y_off,
@@ -67,15 +68,26 @@ struct monome_rotspec {
  */
 
 struct monome_led_functions {
-	int  (*set)(monome_t *monome, uint_t x, uint_t y, uint_t on);
-	int  (*all)(monome_t *monome, uint_t status);
-	int  (*map)(monome_t *monome, uint_t x_off, uint_t y_off,
-	            const uint8_t *data);
-	int  (*row)(monome_t *monome, uint_t row, uint_t offset,
-	            size_t count, const uint8_t *data);
-	int  (*col)(monome_t *monome, uint_t col, uint_t offset,
-	            size_t count, const uint8_t *data);
-	int  (*intensity)(monome_t *monome, uint_t brightness);
+	int (*set)(monome_t *monome, uint_t x, uint_t y, uint_t on);
+	int (*all)(monome_t *monome, uint_t status);
+	int (*map)(monome_t *monome, uint_t x_off, uint_t y_off,
+	           const uint8_t *data);
+	int (*row)(monome_t *monome, uint_t row, uint_t offset,
+	           size_t count, const uint8_t *data);
+	int (*col)(monome_t *monome, uint_t col, uint_t offset,
+	           size_t count, const uint8_t *data);
+	int (*intensity)(monome_t *monome, uint_t brightness);
+};
+
+struct monome_led_level_functions {
+	int (*set)(monome_t *monome, uint_t x, uint_t y, uint_t level);
+	int (*all)(monome_t *monome, uint_t level);
+	int (*map)(monome_t *monome, uint_t x_off, uint_t y_off,
+	           const uint8_t *data);
+	int (*row)(monome_t *monome, uint_t row, uint_t offset,
+	           size_t count, const uint8_t *data);
+	int (*col)(monome_t *monome, uint_t col, uint_t offset,
+	           size_t count, const uint8_t *data);
 };
 
 struct monome {
@@ -101,6 +113,7 @@ struct monome {
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
 
 	monome_led_functions_t led;
+	monome_led_level_functions_t led_level;
 };
 
 #endif /* defined MONOME_INTERNAL_H */

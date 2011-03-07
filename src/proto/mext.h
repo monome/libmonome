@@ -59,14 +59,20 @@ typedef enum {
 	CMD_SYSTEM_VERSION        = 0xF,
 
 	/* outgoing */
-	CMD_LED_OFF       = 0x0,
-	CMD_LED_ON        = 0x1,
-	CMD_LED_ALL_OFF   = 0x2,
-	CMD_LED_ALL_ON    = 0x3,
-	CMD_LED_FRAME     = 0x4,
-	CMD_LED_ROW       = 0x5,
-	CMD_LED_COLUMN    = 0x6,
-	CMD_LED_INTENSITY = 0x7,
+	CMD_LED_OFF          = 0x0,
+	CMD_LED_ON           = 0x1,
+	CMD_LED_ALL_OFF      = 0x2,
+	CMD_LED_ALL_ON       = 0x3,
+	CMD_LED_FRAME        = 0x4,
+	CMD_LED_ROW          = 0x5,
+	CMD_LED_COLUMN       = 0x6,
+	CMD_LED_INTENSITY    = 0x7,
+	CMD_LED_LEVEL_SET    = 0x8,
+	CMD_LED_LEVEL_ALL    = 0x9,
+	CMD_LED_LEVEL_MAP    = 0xA,
+	CMD_LED_LEVEL_ROW    = 0xB,
+	CMD_LED_LEVEL_COLUMN = 0xC,
+
 	/* incoming */
 	CMD_KEY_UP        = 0x0,
 	CMD_KEY_DOWN      = 0x1
@@ -90,14 +96,19 @@ static size_t outgoing_payload_lengths[16][16] = {
 	},
 
 	[SS_LED_GRID] = {
-		[CMD_LED_ON]        = 2,
-		[CMD_LED_OFF]       = 2,
-		[CMD_LED_ALL_ON]    = 0,
-		[CMD_LED_ALL_OFF]   = 0,
-		[CMD_LED_FRAME]     = 10,
-		[CMD_LED_ROW]       = 3,
-		[CMD_LED_COLUMN]    = 3,
-		[CMD_LED_INTENSITY] = 1
+		[CMD_LED_ON]           = 2,
+		[CMD_LED_OFF]          = 2,
+		[CMD_LED_ALL_ON]       = 0,
+		[CMD_LED_ALL_OFF]      = 0,
+		[CMD_LED_FRAME]        = 10,
+		[CMD_LED_ROW]          = 3,
+		[CMD_LED_COLUMN]       = 3,
+		[CMD_LED_INTENSITY]    = 1,
+		[CMD_LED_LEVEL_SET]    = 3,
+		[CMD_LED_LEVEL_ALL]    = 1,
+		[CMD_LED_LEVEL_MAP]    = 66,
+		[CMD_LED_LEVEL_ROW]    = 10,
+		[CMD_LED_LEVEL_COLUMN] = 10
 	}
 };
 
@@ -123,12 +134,18 @@ static size_t incoming_payload_lengths[16][16] = {
 
 typedef struct mext mext_t;
 typedef struct mext_msg mext_msg_t;
+typedef struct mext_point mext_point_t;
 
 typedef int (*mext_handler_t)(mext_t *, mext_msg_t *, monome_event_t *);
 
 struct mext {
 	monome_t monome;
 };
+
+struct mext_point {
+	uint8_t x;
+	uint8_t y;
+} PACKED;
 
 struct mext_msg {
 	mext_subsystem_t addr;
@@ -137,37 +154,55 @@ struct mext_msg {
 	uint8_t header;
 
 	union {
-		uint8_t intensity;
+		/**
+		  * system
+		  */
+
 		uint8_t id[32];
 
-		struct {
-			uint8_t x;
-			uint8_t y;
-		} PACKED gridsz;
+		mext_point_t gridsz;
+
+		/**
+		 * led grid
+		 */
+
+		mext_point_t led;
 
 		struct {
-			uint8_t x;
-			uint8_t y;
-		} PACKED led;
-
-		struct {
-			uint8_t x;
-			uint8_t y;
-			uint8_t data;
-		} PACKED led_row_col;
-
-		struct {
-			struct {
-				uint8_t x;
-				uint8_t y;
-			} PACKED offset;
-
+			mext_point_t offset;
 			uint8_t data[8];
 		} PACKED map;
 
 		struct {
-			uint8_t x;
-			uint8_t y;
-		} PACKED key;
+			mext_point_t offset;
+			uint8_t data;
+		} PACKED row_col;
+
+		uint8_t intensity;
+
+		struct {
+			mext_point_t led;
+			uint8_t level;
+		} PACKED led_level;
+
+		struct {
+			uint8_t level;
+		} PACKED all_level;
+
+		struct {
+			mext_point_t offset;
+			uint8_t levels[64];
+		} PACKED map_level;
+
+		struct {
+			mext_point_t offset;
+			uint8_t levels[8];
+		} PACKED row_col_level;
+
+		/**
+		 * key grid
+		 */
+
+		mext_point_t key;
 	} PACKED payload;
 } PACKED;

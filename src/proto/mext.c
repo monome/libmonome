@@ -78,9 +78,9 @@ static ssize_t mext_led_row_col(monome_t *monome, mext_cmd_t cmd, uint_t x,
 
 	ROTATE_COORDS(monome, x, y);
 
-	msg.payload.led_row_col.x    = x;
-	msg.payload.led_row_col.y    = y;
-	msg.payload.led_row_col.data = data;
+	msg.payload.row_col.offset.x = x;
+	msg.payload.row_col.offset.y = y;
+	msg.payload.row_col.data     = data;
 
 	return mext_write_msg(monome, &msg);
 }
