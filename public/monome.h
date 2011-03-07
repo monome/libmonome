@@ -101,6 +101,16 @@ int monome_led_row(monome_t *monome, unsigned int row, unsigned int offset,
                    size_t count, const uint8_t *row_data);
 int monome_led_intensity(monome_t *monome, unsigned int brightness);
 
+int monome_led_level_set(monome_t *monome, unsigned int x, unsigned int y,
+                         unsigned int level);
+int monome_led_level_all(monome_t *monome, unsigned int level);
+int monome_led_level_map(monome_t *monome, unsigned int x_off,
+                         unsigned int y_off, const uint8_t *data);
+int monome_led_level_row(monome_t *monome, unsigned int x_off,
+                         unsigned int row, size_t count, const uint8_t *data);
+int monome_led_level_col(monome_t *monome, unsigned int col, unsigned int y_off,
+                         size_t count, const uint8_t *data);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

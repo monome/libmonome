@@ -262,7 +262,7 @@ static int mext_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	return mext_write_msg(monome, &msg);
 }
 
-static int mext_led_level_row(monome_t *monome, uint_t row, uint_t x_off,
+static int mext_led_level_row(monome_t *monome, uint_t x_off, uint_t row,
                               size_t count, const uint8_t *data) {
 	for( count >>= 3; count--; x_off += 8, data += 8 )
 		mext_led_level_row_col(
@@ -272,12 +272,12 @@ static int mext_led_level_row(monome_t *monome, uint_t row, uint_t x_off,
 	return 1;
 }
 
-static int mext_led_level_col(monome_t *monome, uint_t col, uint_t x_off,
+static int mext_led_level_col(monome_t *monome, uint_t col, uint_t y_off,
                               size_t count, const uint8_t *data) {
-	for( count >>= 3; count--; x_off += 8, data += 8 )
+	for( count >>= 3; count--; y_off += 8, data += 8 )
 		mext_led_level_row_col(
 			monome, CMD_LED_LEVEL_COLUMN, ROTSPEC(monome).flags & COL_REVBITS,
-			x_off, col, data);
+			col, y_off, data);
 
 	return 1;
 }

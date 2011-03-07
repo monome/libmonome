@@ -260,3 +260,36 @@ int monome_led_col(monome_t *monome, uint_t col, uint_t offset,
 int monome_led_intensity(monome_t *monome, uint_t brightness) {
 	return monome->led.intensity(monome, brightness);
 }
+
+int monome_led_level_set(monome_t *monome, uint_t x, uint_t y, uint_t level) {
+	if( monome->led_level.set )
+		return monome->led_level.set(monome, x, y, level);
+	return -1;
+}
+
+int monome_led_level_all(monome_t *monome, uint_t level) {
+	if( monome->led_level.all )
+		return monome->led_level.all(monome, level);
+	return -1;
+}
+
+int monome_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
+                         const uint8_t *data) {
+	if( monome->led_level.map )
+		return monome->led_level.map(monome, x_off, y_off, data);
+	return -1;
+}
+
+int monome_led_level_row(monome_t *monome, uint_t x_off, uint_t row,
+                         size_t count, const uint8_t *data) {
+	if( monome->led_level.row )
+		return monome->led_level.row(monome, x_off, row, count, data);
+	return -1;
+}
+
+int monome_led_level_col(monome_t *monome, uint_t col, uint_t y_off,
+                         size_t count, const uint8_t *data) {
+	if( monome->led_level.col )
+		return monome->led_level.col(monome, col, y_off, count, data);
+	return -1;
+}
