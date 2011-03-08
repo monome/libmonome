@@ -44,7 +44,7 @@ static ssize_t mext_read_msg(monome_t *monome, mext_msg_t *msg) {
 
 	monome_platform_read(monome, &msg->header, 1);
 	msg->addr = msg->header >> 4;
-	msg->cmd  = msg->header & 0x7;
+	msg->cmd  = msg->header & 0xF;
 
 	payload_length = incoming_payload_lengths[msg->addr][msg->cmd];
 
