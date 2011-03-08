@@ -160,7 +160,7 @@ static int mext_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	*((uint64_t *) msg.payload.map.data) = *((uint64_t *) data);
 #else
 	*((uint32_t *) msg.payload.map.data) = *((uint32_t *) data);
-	*((uint32_t *) msg.payload.map.data + 4) = *(((uint32_t *) data) + 1);
+	*(((uint32_t *) msg.payload.map.data) + 1) = *(((uint32_t *) data) + 1);
 #endif
 
 	ROTATE_COORDS(monome, x_off, y_off);
