@@ -247,14 +247,14 @@ int monome_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	return monome->led.map(monome, x_off, y_off, data);
 }
 
-int monome_led_row(monome_t *monome, uint_t row, uint_t offset,
+int monome_led_row(monome_t *monome, uint_t x_off, uint_t y,
 				   size_t count, const uint8_t *data) {
-	return monome->led.row(monome, row, offset, count, data);
+	return monome->led.row(monome, y, x_off, count, data);
 }
 
-int monome_led_col(monome_t *monome, uint_t col, uint_t offset,
+int monome_led_col(monome_t *monome, uint_t x, uint_t y_off,
 				   size_t count, const uint8_t *data) {
-	return monome->led.col(monome, col, offset, count, data);
+	return monome->led.col(monome, x, y_off, count, data);
 }
 
 int monome_led_intensity(monome_t *monome, uint_t brightness) {
@@ -280,16 +280,16 @@ int monome_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	return -1;
 }
 
-int monome_led_level_row(monome_t *monome, uint_t x_off, uint_t row,
+int monome_led_level_row(monome_t *monome, uint_t x_off, uint_t y,
                          size_t count, const uint8_t *data) {
 	if( monome->led_level.row )
-		return monome->led_level.row(monome, x_off, row, count, data);
+		return monome->led_level.row(monome, x_off, y, count, data);
 	return -1;
 }
 
-int monome_led_level_col(monome_t *monome, uint_t col, uint_t y_off,
+int monome_led_level_col(monome_t *monome, uint_t x, uint_t y_off,
                          size_t count, const uint8_t *data) {
 	if( monome->led_level.col )
-		return monome->led_level.col(monome, col, y_off, count, data);
+		return monome->led_level.col(monome, x, y_off, count, data);
 	return -1;
 }
