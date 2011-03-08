@@ -31,12 +31,10 @@ struct monome_osc {
 	int have_event;
 	monome_event_t *e_ptr;
 
-	char *clear_str;
+	char *set_str;
+	char *all_str;
+	char *map_str;
+	char *col_str;
+	char *row_str;
 	char *intensity_str;
-	char *mode_str;
-
-	char *led_str;
-	char *led_row_str;
-	char *led_col_str;
-	char *frame_str;
 };

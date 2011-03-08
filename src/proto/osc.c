@@ -69,12 +69,12 @@ static int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
 
 static int proto_osc_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	SELF_FROM(monome);
-	return LO_SEND_MSG(led, "iii", x, y, !!on);
+	return LO_SEND_MSG(set, "iii", x, y, !!on);
 }
 
 static int proto_osc_led_all(monome_t *monome, uint_t status) {
 	SELF_FROM(monome);
-	return LO_SEND_MSG(clear, "i", status);
+	return LO_SEND_MSG(all, "i", status);
 }
 
 static int proto_osc_led_row(monome_t *monome, uint_t row, uint_t offset,
@@ -82,9 +82,9 @@ static int proto_osc_led_row(monome_t *monome, uint_t row, uint_t offset,
 	SELF_FROM(monome);
 
 	if( count == 1 )
-		return LO_SEND_MSG(led_row, "ii", row, data[0]);
+		return LO_SEND_MSG(row, "iii", offset, row, data[0]);
 
-	return LO_SEND_MSG(led_row, "iii", row, data[0], data[1]);
+	return LO_SEND_MSG(row, "iiii", offset, row, data[0], data[1]);
 }
 
 static int proto_osc_led_col(monome_t *monome, uint_t col, uint_t offset,
@@ -92,22 +92,17 @@ static int proto_osc_led_col(monome_t *monome, uint_t col, uint_t offset,
 	SELF_FROM(monome);
 
 	if( count == 1 )
-		return LO_SEND_MSG(led_col, "ii", col, data[0]);
+		return LO_SEND_MSG(col, "iii", col, offset, data[0]);
 
-	return LO_SEND_MSG(led_col, "iii", col, data[0], data[1]);
+	return LO_SEND_MSG(col, "iiii", col, offset, data[0], data[1]);
 }
 
 static int proto_osc_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
                              const uint8_t *f) {
 	SELF_FROM(monome);
 
-	/* there has to be a cleaner way to do this */
-	if( !x_off && !y_off )
-		return LO_SEND_MSG(frame, "iiiiiiii",
-						   f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7]);
-	else
-		return LO_SEND_MSG(frame, "iiiiiiiiii", x_off, y_off,
-						   f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7]);
+	return LO_SEND_MSG(map, "iiiiiiiiii", x_off, y_off,
+	                   f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7]);
 }
 
 static int proto_osc_led_intensity(monome_t *monome, uint_t brightness) {
@@ -150,14 +145,13 @@ static int proto_osc_open(monome_t *monome, const char *dev,
 	lo_server_add_method(self->server, buf, "iii", proto_osc_press_handler, self);
 	m_free(buf);
 
-#define cache_osc_path(base) asprintf(&self->base##_str, "%s/" #base, self->prefix)
-	cache_osc_path(clear);
-	cache_osc_path(intensity);
-	cache_osc_path(mode);
-	cache_osc_path(led);
-	cache_osc_path(led_row);
-	cache_osc_path(led_col);
-	cache_osc_path(frame);
+#define cache_osc_path(base, path) asprintf(&self->base##_str, "%s/" path, self->prefix)
+	cache_osc_path(set, "grid/led/set");
+	cache_osc_path(all, "grid/led/all");
+	cache_osc_path(map, "grid/led/map");
+	cache_osc_path(col, "grid/led/col");
+	cache_osc_path(row, "grid/led/row");
+	cache_osc_path(intensity, "grid/led/intensity");
 #undef cache_osc_path
 
 	return 0;
@@ -171,13 +165,12 @@ static void proto_osc_free(monome_t *monome) {
 	SELF_FROM(monome);
 
 #define clear_osc_path(base) m_free(self->base##_str);
-	clear_osc_path(clear);
+	clear_osc_path(set);
+	clear_osc_path(all);
+	clear_osc_path(map);
+	clear_osc_path(col);
+	clear_osc_path(row);
 	clear_osc_path(intensity);
-	clear_osc_path(mode);
-	clear_osc_path(led);
-	clear_osc_path(led_row);
-	clear_osc_path(led_col);
-	clear_osc_path(frame);
 #undef clear_osc_path
 
 	m_free(self->prefix);
