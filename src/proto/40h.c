@@ -117,14 +117,14 @@ static int proto_40h_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_40h_led_col(monome_t *monome, uint_t col, uint_t offset,
+static int proto_40h_led_col(monome_t *monome, uint_t x, uint_t y_off,
                              size_t count, const uint8_t *data) {
-	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, col, data);
+	return proto_40h_led_col_row(monome, PROTO_40h_LED_COL, x, data);
 }
 
-static int proto_40h_led_row(monome_t *monome, uint_t row, uint_t offset,
+static int proto_40h_led_row(monome_t *monome, uint_t x_off, uint_t y,
                              size_t count, const uint8_t *data) {
-	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, row, data);
+	return proto_40h_led_col_row(monome, PROTO_40h_LED_ROW, y, data);
 }
 
 static int proto_40h_led_map(monome_t *monome, uint_t x_off, uint_t y_off,

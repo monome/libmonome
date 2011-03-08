@@ -155,7 +155,7 @@ static int proto_series_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on)
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_series_led_col(monome_t *monome, uint_t col, uint_t offset,
+static int proto_series_led_col(monome_t *monome, uint_t x, uint_t y_off,
                                 size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
@@ -163,24 +163,24 @@ static int proto_series_led_col(monome_t *monome, uint_t col, uint_t offset,
 	case 0x0: /* 1-byte monome, 1-byte message */
 	case 0x1: /* 1-byte monome, 2-byte message */
 		return proto_series_led_col_row_8(
-			monome, PROTO_SERIES_LED_COL_8, col, data);
+			monome, PROTO_SERIES_LED_COL_8, x, data);
 
 	case 0x2: /* 2-byte monome, 1-byte message */
 		sdata = *data;
 
 		return proto_series_led_col_row_16(
-			monome, PROTO_SERIES_LED_COL_16, col,
+			monome, PROTO_SERIES_LED_COL_16, x,
 			((const uint8_t *) &sdata));
 
 	case 0x3: /* 2-byte monome, 2-byte message */
 		return proto_series_led_col_row_16(
-			monome, PROTO_SERIES_LED_COL_16, col, data);
+			monome, PROTO_SERIES_LED_COL_16, x, data);
 	}
 
 	return -1;
 }
 
-static int proto_series_led_row(monome_t *monome, uint_t row, uint_t offset,
+static int proto_series_led_row(monome_t *monome, uint_t x_off, uint_t y,
                                 size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
@@ -188,18 +188,18 @@ static int proto_series_led_row(monome_t *monome, uint_t row, uint_t offset,
 	case 0x0: /* 1-byte monome, 1-byte message */
 	case 0x1: /* 1-byte monome, 2-byte message */
 		return proto_series_led_col_row_8(
-			monome, PROTO_SERIES_LED_ROW_8, row, data);
+			monome, PROTO_SERIES_LED_ROW_8, y, data);
 
 	case 0x2: /* 2-byte monome, 1-byte message */
 		sdata = *data;
 
 		return proto_series_led_col_row_16(
-			monome, PROTO_SERIES_LED_ROW_16, row,
+			monome, PROTO_SERIES_LED_ROW_16, y,
 			((const uint8_t *) &sdata));
 
 	case 0x3: /* 2-byte monome, 2-byte message */
 		return proto_series_led_col_row_16(
-			monome, PROTO_SERIES_LED_ROW_16, row, data);
+			monome, PROTO_SERIES_LED_ROW_16, y, data);
 	}
 
 	return -1;

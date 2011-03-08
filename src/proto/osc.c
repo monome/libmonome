@@ -77,24 +77,24 @@ static int proto_osc_led_all(monome_t *monome, uint_t status) {
 	return LO_SEND_MSG(all, "i", status);
 }
 
-static int proto_osc_led_row(monome_t *monome, uint_t row, uint_t offset,
+static int proto_osc_led_row(monome_t *monome, uint_t x_off, uint_t y,
                              size_t count, const uint8_t *data) {
 	SELF_FROM(monome);
 
 	if( count == 1 )
-		return LO_SEND_MSG(row, "iii", offset, row, data[0]);
+		return LO_SEND_MSG(row, "iii", x_off, y, data[0]);
 
-	return LO_SEND_MSG(row, "iiii", offset, row, data[0], data[1]);
+	return LO_SEND_MSG(row, "iiii", x_off, y, data[0], data[1]);
 }
 
-static int proto_osc_led_col(monome_t *monome, uint_t col, uint_t offset,
+static int proto_osc_led_col(monome_t *monome, uint_t x, uint_t y_off,
                              size_t count, const uint8_t *data) {
 	SELF_FROM(monome);
 
 	if( count == 1 )
-		return LO_SEND_MSG(col, "iii", col, offset, data[0]);
+		return LO_SEND_MSG(col, "iii", x, y_off, data[0]);
 
-	return LO_SEND_MSG(col, "iiii", col, offset, data[0], data[1]);
+	return LO_SEND_MSG(col, "iiii", x, y_off, data[0], data[1]);
 }
 
 static int proto_osc_led_map(monome_t *monome, uint_t x_off, uint_t y_off,

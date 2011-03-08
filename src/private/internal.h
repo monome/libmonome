@@ -74,9 +74,9 @@ struct monome_led_functions {
 	int (*all)(monome_t *monome, uint_t status);
 	int (*map)(monome_t *monome, uint_t x_off, uint_t y_off,
 	           const uint8_t *data);
-	int (*row)(monome_t *monome, uint_t row, uint_t offset,
+	int (*row)(monome_t *monome, uint_t x_off, uint_t y,
 	           size_t count, const uint8_t *data);
-	int (*col)(monome_t *monome, uint_t col, uint_t offset,
+	int (*col)(monome_t *monome, uint_t x, uint_t y_off,
 	           size_t count, const uint8_t *data);
 	int (*intensity)(monome_t *monome, uint_t brightness);
 };
@@ -86,9 +86,9 @@ struct monome_led_level_functions {
 	int (*all)(monome_t *monome, uint_t level);
 	int (*map)(monome_t *monome, uint_t x_off, uint_t y_off,
 	           const uint8_t *data);
-	int (*row)(monome_t *monome, uint_t row, uint_t offset,
+	int (*row)(monome_t *monome, uint_t x_off, uint_t y,
 	           size_t count, const uint8_t *data);
-	int (*col)(monome_t *monome, uint_t col, uint_t offset,
+	int (*col)(monome_t *monome, uint_t x, uint_t y_off,
 	           size_t count, const uint8_t *data);
 };
 
