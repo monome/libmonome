@@ -34,7 +34,7 @@ static ssize_t mext_write_msg(monome_t *monome, mext_msg_t *msg) {
 	size_t payload_length;
 
 	payload_length = outgoing_payload_lengths[msg->addr][msg->cmd];
-	msg->header = ((msg->addr & 0x7 ) << 4) | (msg->cmd & 0x7);
+	msg->header = ((msg->addr & 0xF ) << 4) | (msg->cmd & 0xF);
 
 	return monome_platform_write(monome, &msg->header, 1 + payload_length);
 }
