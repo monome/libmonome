@@ -141,7 +141,7 @@ static int proto_osc_open(monome_t *monome, const char *dev,
 		return 1;
 	}
 
-	asprintf(&buf, "%s/press", self->prefix);
+	asprintf(&buf, "%s/grid/key", self->prefix);
 	lo_server_add_method(self->server, buf, "iii", proto_osc_press_handler, self);
 	m_free(buf);
 
