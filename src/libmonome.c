@@ -249,7 +249,7 @@ int monome_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 
 int monome_led_row(monome_t *monome, uint_t x_off, uint_t y,
 				   size_t count, const uint8_t *data) {
-	return monome->led.row(monome, y, x_off, count, data);
+	return monome->led.row(monome, x_off, y, count, data);
 }
 
 int monome_led_col(monome_t *monome, uint_t x, uint_t y_off,
