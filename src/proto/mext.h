@@ -107,8 +107,8 @@ static size_t outgoing_payload_lengths[16][16] = {
 		[CMD_LED_LEVEL_SET]    = 3,
 		[CMD_LED_LEVEL_ALL]    = 1,
 		[CMD_LED_LEVEL_MAP]    = 34,
-		[CMD_LED_LEVEL_ROW]    = 10,
-		[CMD_LED_LEVEL_COLUMN] = 10
+		[CMD_LED_LEVEL_ROW]    = 6,
+		[CMD_LED_LEVEL_COLUMN] = 6
 	}
 };
 

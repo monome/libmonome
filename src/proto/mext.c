@@ -93,6 +93,15 @@ static void revcopy(uint8_t *dst, const uint8_t *src) {
 		dst[7 - i] = src[i];
 }
 
+static void pack_nybbles(uint8_t *data, size_t nbyte) {
+	uint_t i;
+
+	for( i = 0; i < nbyte; i++ )
+		data[i] =
+			(data[i * 2] << 4) |
+			(data[(i * 2) + 1] & 0x0F);
+}
+
 static ssize_t mext_led_level_row_col(monome_t *monome, mext_cmd_t cmd, int rev,
                                       uint_t x, uint_t y, const uint8_t *data) {
 	mext_msg_t msg = {
@@ -113,6 +122,7 @@ static ssize_t mext_led_level_row_col(monome_t *monome, mext_cmd_t cmd, int rev,
 	else
 		memcpy(msg.payload.level_row_col.levels, data, 8);
 
+	pack_nybbles(msg.payload.level_row_col.levels, 4);
 	return mext_write_msg(monome, &msg);
 }
 
@@ -248,7 +258,6 @@ static int mext_led_level_all(monome_t *monome, uint_t level) {
 
 static int mext_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
                               const uint8_t *data) {
-	uint_t i;
 	mext_msg_t msg = {
 		.addr = SS_LED_GRID,
 		.cmd  = CMD_LED_LEVEL_MAP
@@ -256,11 +265,7 @@ static int mext_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
 
 	ROTATE_COORDS(monome, x_off, y_off);
 	ROTSPEC(monome).level_map_cb(monome, msg.payload.level_map.levels, data);
-
-	for( i = 0; i < 32; i++ )
-		msg.payload.level_map.levels[i] =
-			(msg.payload.level_map.levels[i * 2] << 4) |
-			(msg.payload.level_map.levels[(i * 2) + 1] & 0x0F);
+	pack_nybbles(msg.payload.level_map.levels, 32);
 
 	msg.payload.level_map.offset.x = x_off;
 	msg.payload.level_map.offset.y = y_off;
