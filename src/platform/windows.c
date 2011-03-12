@@ -63,7 +63,7 @@ monome_t *monome_platform_load_protocol(const char *proto) {
 	HMODULE proto_mod;
 	char *modname;
 
-	if( !(modname = m_asprintf("protocol_%s.dll", proto)) )
+	if( !(modname = m_asprintf("monome\\protocol_%s.dll", proto)) )
 		goto err_loadlibrary;
 
 	proto_mod = LoadLibrary(modname);
