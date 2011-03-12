@@ -99,12 +99,20 @@ void monome_platform_free(monome_t *monome) {
 int monome_platform_open(monome_t *monome, const char *dev) {
 	DCB serparm = {0};
 	HANDLE hser;
-	int fd;
+	COMMTIMEOUTS timeouts = {
+		.ReadIntervalTimeout         = MAXDWORD,
+		.ReadTotalTimeoutConstant    = 0,
+		.ReadTotalTimeoutMultiplier  = 0,
+		.WriteTotalTimeoutConstant   = 0,
+		.WriteTotalTimeoutMultiplier = 0
+	};
 
-	if( (fd = _open(dev, _O_RDWR | _O_BINARY)) < 0 )
+	hser = CreateFile(dev, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+					  FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, 0);
+
+	if( hser == INVALID_HANDLE_VALUE )
 		goto err_open;
 
-	hser = (HANDLE) _get_osfhandle(fd);
 	serparm.DCBlength = sizeof(serparm);
 
 	if( !GetCommState(hser, &serparm) )
@@ -114,17 +122,21 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	serparm.ByteSize = 8;
 	serparm.StopBits = ONESTOPBIT;
 	serparm.Parity   = NOPARITY;
+	serparm.fBinary  = 1;
 
 	if( !SetCommState(hser, &serparm) )
 		goto err_commstate;
 
+	if( !SetCommTimeouts(hser, &timeouts) )
+		goto err_commstate;
+
 	PurgeComm(hser, PURGE_RXCLEAR | PURGE_TXCLEAR);
 
-	monome->fd = fd;
+	monome->fd = _open_osfhandle((intptr_t) hser, _O_RDWR | _O_BINARY);
 	return 0;
 
 err_commstate:
-	_close(fd);
+	CloseHandle(hser);
 err_open:
 	perror("libmonome: could not open monome device");
 	return 1;
@@ -135,11 +147,55 @@ int monome_platform_close(monome_t *monome) {
 }
 
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, size_t nbyte) {
-	return _write(monome->fd, buf, nbyte);
+	HANDLE hres = (HANDLE) _get_osfhandle(monome->fd);
+	OVERLAPPED ov = {0, 0, {{0, 0}}};
+	DWORD written = 0;
+
+	if( !(ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) ) {
+		fprintf(stderr,
+				"monome_plaform_write(): could not allocate event (%ld)\n",
+				GetLastError());
+		return -1;
+	}
+
+	if( !WriteFile(hres, buf, nbyte, &written, &ov) ) {
+		if( GetLastError() != ERROR_IO_PENDING ) {
+			fprintf(stderr, "monome_platform_write(): write failed (%ld)\n",
+					GetLastError());
+			return -1;
+		}
+
+		GetOverlappedResult(hres, &ov, &written, TRUE);
+	}
+
+	CloseHandle(ov.hEvent);
+	return written;
 }
 
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
-	return _read(monome->fd, buf, nbyte);
+	HANDLE hres = (HANDLE) _get_osfhandle(monome->fd);
+	OVERLAPPED ov = {0, 0, {{0, 0}}};
+	DWORD read = 0;
+
+	if( !(ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) ) {
+		fprintf(stderr,
+				"monome_plaform_read(): could not allocate event (%ld)\n",
+				GetLastError());
+		return -1;
+	}
+
+	if( !ReadFile(hres, buf, nbyte, &read, &ov) ) {
+		if( GetLastError() != ERROR_IO_PENDING ) {
+			fprintf(stderr, "monome_platform_read(): read failed (%ld)\n",
+					GetLastError());
+			return -1;
+		}
+
+		GetOverlappedResult(hres, &ov, &read, TRUE);
+	}
+
+	CloseHandle(ov.hEvent);
+	return read;
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
@@ -223,39 +279,13 @@ done:
 }
 
 int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
-	HANDLE hser = (HANDLE) _get_osfhandle(monome->fd);
-
-	switch( WaitForSingleObject(hser, msec) ) {
-	case WAIT_FAILED:
-	case WAIT_TIMEOUT:
-	case WAIT_ABANDONED:
-		return 1;
-
-	default:
-		return 0;
-	}
+	Sleep(msec); /* fuck it */
+	return 1;
 }
 
 void monome_event_loop(monome_t *monome) {
-	HANDLE hser = (HANDLE) _get_osfhandle(monome->fd);
-	monome_callback_t *handler;
-	monome_event_t e;
-
-	e.monome = monome;
-
-	do {
-		if( WaitForSingleObject(hser, INFINITE) == WAIT_FAILED )
-			break;
-
-		if( !monome->next_event(monome, &e) )
-			continue;
-
-		handler = &monome->handlers[e.event_type];
-		if( !handler->cb )
-			continue;
-
-		handler->cb(&e, handler->data);
-	} while( 1 );
+	printf("monome_event_loop() is unimplemented\n");
+	return;
 }
 
 void *m_malloc(size_t size) {
