@@ -489,6 +489,8 @@ case $PLATFORM in
 		LIBSUFFIX=dll;
 		LM_SUFFIX=dll;
 		PLATFORM=windows;
+
+		CFLAGS="$CFLAGS -fms-extensions"
 		;;
 
 	*)
