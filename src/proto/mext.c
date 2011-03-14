@@ -377,9 +377,9 @@ static int mext_open(monome_t *monome, const char *dev, const char *serial,
 	mext_simple_cmd(monome, CMD_SYSTEM_QUERY);
 	mext_simple_cmd(monome, CMD_SYSTEM_GET_GRIDSZ);
 
-	monome_platform_wait_for_input(monome, 1000);
-
-	while( mext_next_event(monome, &e) );
+	do {
+		monome_platform_wait_for_input(monome, 250);
+	} while( mext_next_event(monome, &e) );
 
 	return 0;
 }
