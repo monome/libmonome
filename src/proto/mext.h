@@ -50,6 +50,7 @@ typedef enum {
 	CMD_SYSTEM_GET_ADDR    = 0x7,
 	CMD_SYSTEM_SET_ADDR    = 0x8,
 	CMD_SYSTEM_GET_VERSION = 0xF,
+
 	/* incoming */
 	CMD_SYSTEM_QUERY_RESPONSE = 0x0,
 	CMD_SYSTEM_ID             = 0x1,
@@ -74,8 +75,19 @@ typedef enum {
 	CMD_LED_LEVEL_COLUMN = 0xC,
 
 	/* incoming */
-	CMD_KEY_UP        = 0x0,
-	CMD_KEY_DOWN      = 0x1
+	CMD_KEY_UP   = 0x0,
+	CMD_KEY_DOWN = 0x1,
+
+	/* outgoing */
+	CMD_LED_RING_SET   = 0x0,
+	CMD_LED_RING_ALL   = 0x1,
+	CMD_LED_RING_MAP   = 0x2,
+	CMD_LED_RING_RANGE = 0x3,
+
+	/* incoming */
+	CMD_ENCODER_DELTA       = 0x0,
+	CMD_ENCODER_SWITCH_UP   = 0x1,
+	CMD_ENCODER_SWITCH_DOWN = 0x2
 } mext_cmd_t;
 
 /* message lengths exclude one-byte header */
@@ -109,6 +121,13 @@ static size_t outgoing_payload_lengths[16][16] = {
 		[CMD_LED_LEVEL_MAP]    = 34,
 		[CMD_LED_LEVEL_ROW]    = 6,
 		[CMD_LED_LEVEL_COLUMN] = 6
+	},
+
+	[SS_LED_RING] = {
+		[CMD_LED_RING_SET]   = 3,
+		[CMD_LED_RING_ALL]   = 2,
+		[CMD_LED_RING_MAP]   = 65,
+		[CMD_LED_RING_RANGE] = 4
 	}
 };
 
@@ -127,6 +146,12 @@ static size_t incoming_payload_lengths[16][16] = {
 	[SS_KEY_GRID] = {
 		[CMD_KEY_DOWN] = 2,
 		[CMD_KEY_UP]   = 2
+	},
+
+	[SS_ENCODER] = {
+		[CMD_ENCODER_DELTA]       = 1,
+		[CMD_ENCODER_SWITCH_UP]   = 0,
+		[CMD_ENCODER_SWITCH_DOWN] = 0
 	}
 };
 
@@ -202,5 +227,40 @@ struct mext_msg {
 		 */
 
 		mext_point_t key;
+
+		/**
+		 * led ring
+		 */
+
+		struct {
+			uint8_t ring;
+			uint8_t led;
+			uint8_t level;
+		} PACKED led_ring_set;
+
+		struct {
+			uint8_t ring;
+			uint8_t level;
+		} PACKED led_ring_all;
+
+		struct {
+			uint8_t ring;
+			uint8_t start;
+			uint8_t end;
+			uint8_t level;
+		} PACKED led_ring_range;
+
+		/**
+		 * encoder
+		 */
+
+		struct {
+			uint8_t encoder;
+			int8_t delta;
+		} PACKED encoder_delta;
+
+		struct {
+			uint8_t encoder;
+		} PACKED encoder_switch;
 	} PACKED payload;
 } PACKED;

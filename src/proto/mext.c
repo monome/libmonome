@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -339,11 +340,33 @@ static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *
 	return 1;
 }
 
+static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+	switch( msg->cmd ) {
+	case CMD_ENCODER_DELTA:
+		printf("delta: %d\n", msg->payload.encoder_delta.delta);
+		break;
+
+	case CMD_ENCODER_SWITCH_UP:
+		printf("switch up\n");
+		break;
+
+	case CMD_ENCODER_SWITCH_DOWN:
+		printf("switch down\n");
+		break;
+
+	default:
+		break;
+	}
+
+	return 1;
+}
+
 static mext_handler_t subsystem_event_handlers[16] = {
 	[0 ... 15] = &mext_handler_noop,
 	
 	[SS_SYSTEM]   = mext_handler_system,
-	[SS_KEY_GRID] = mext_handler_key_grid
+	[SS_KEY_GRID] = mext_handler_key_grid,
+	[SS_ENCODER]  = mext_handler_encoder
 };
 
 /**
