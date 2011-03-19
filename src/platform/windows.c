@@ -138,7 +138,9 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 err_commstate:
 	CloseHandle(hser);
 err_open:
-	perror("libmonome: could not open monome device");
+	if( GetLastError() != ERROR_FILE_NOT_FOUND )
+		printf("libmonome: could not open monome device: error %ld",
+		       GetLastError());
 	return 1;
 }
 
