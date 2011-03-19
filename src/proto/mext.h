@@ -126,7 +126,7 @@ static size_t outgoing_payload_lengths[16][16] = {
 	[SS_LED_RING] = {
 		[CMD_LED_RING_SET]   = 3,
 		[CMD_LED_RING_ALL]   = 2,
-		[CMD_LED_RING_MAP]   = 65,
+		[CMD_LED_RING_MAP]   = 33,
 		[CMD_LED_RING_RANGE] = 4
 	}
 };
@@ -149,9 +149,9 @@ static size_t incoming_payload_lengths[16][16] = {
 	},
 
 	[SS_ENCODER] = {
-		[CMD_ENCODER_DELTA]       = 1,
-		[CMD_ENCODER_SWITCH_UP]   = 0,
-		[CMD_ENCODER_SWITCH_DOWN] = 0
+		[CMD_ENCODER_DELTA]       = 2,
+		[CMD_ENCODER_SWITCH_UP]   = 1,
+		[CMD_ENCODER_SWITCH_DOWN] = 1
 	}
 };
 
@@ -160,6 +160,9 @@ static size_t incoming_payload_lengths[16][16] = {
 typedef struct mext mext_t;
 typedef struct mext_msg mext_msg_t;
 typedef struct mext_point mext_point_t;
+
+/* a mext_handler_t should return 1 to propagate the event up to libmonome,
+   or should return 0 if the event should not propagate/bubble. */
 
 typedef int (*mext_handler_t)(mext_t *, mext_msg_t *, monome_event_t *);
 

@@ -299,7 +299,7 @@ static int mext_led_level_col(monome_t *monome, uint_t col, uint_t y_off,
  */
 
 static int mext_handler_noop(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
-	return 1;
+	return 0;
 }
 
 static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
@@ -343,22 +343,22 @@ static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *
 static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_ENCODER_DELTA:
-		printf("delta: %d\n", msg->payload.encoder_delta.delta);
+		printf("delta: %d %d\n", msg->payload.encoder_delta.encoder, msg->payload.encoder_delta.delta);
 		break;
 
 	case CMD_ENCODER_SWITCH_UP:
-		printf("switch up\n");
+		printf("switch up %d\n", msg->payload.encoder_delta.encoder);
 		break;
 
 	case CMD_ENCODER_SWITCH_DOWN:
-		printf("switch down\n");
+		printf("switch down %d\n", msg->payload.encoder_delta.encoder);
 		break;
 
 	default:
 		break;
 	}
 
-	return 1;
+	return 0;
 }
 
 static mext_handler_t subsystem_event_handlers[16] = {
@@ -376,13 +376,10 @@ static mext_handler_t subsystem_event_handlers[16] = {
 static int mext_next_event(monome_t *monome, monome_event_t *e) {
 	SELF_FROM(monome);
 	mext_msg_t msg = {0, 0};
-	int ret;
 
 	while( mext_read_msg(monome, &msg) ) {
-		ret = subsystem_event_handlers[msg.addr](self, &msg, e);
-
-		if( msg.addr != SS_SYSTEM )
-			return ret;
+		if( subsystem_event_handlers[msg.addr](self, &msg, e) )
+			return 1;
 	}
 
 	return 0;
