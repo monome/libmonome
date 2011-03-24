@@ -248,6 +248,11 @@ struct mext_msg {
 
 		struct {
 			uint8_t ring;
+			uint8_t levels[64];
+		} PACKED led_ring_map;
+
+		struct {
+			uint8_t ring;
 			uint8_t start;
 			uint8_t end;
 			uint8_t level;
