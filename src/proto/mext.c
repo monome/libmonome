@@ -223,6 +223,10 @@ static int mext_led_intensity(monome_t *monome, uint_t intensity) {
 	return mext_write_msg(monome, &msg);
 }
 
+/**
+ * led level functions
+ */
+
 static int mext_led_level_set(monome_t *monome, uint_t x, uint_t y,
                               uint_t level) {
 	mext_msg_t msg = {
@@ -293,6 +297,88 @@ static int mext_led_level_col(monome_t *monome, uint_t col, uint_t y_off,
 
 	return 1;
 }
+
+/**
+ * led ring functions
+ */
+
+static int mext_led_ring_set(monome_t *monome, uint_t ring, uint_t led,
+                             uint_t level) {
+	mext_msg_t msg = {
+		.addr = SS_LED_RING,
+		.cmd  = CMD_LED_RING_SET,
+
+		.payload = {
+			.led_ring_set = {
+				.ring  = ring,
+				.led   = led,
+				.level = level
+			}
+		}
+	};
+
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_ring_all(monome_t *monome, uint_t ring, uint_t level) {
+	mext_msg_t msg = {
+		.addr = SS_LED_RING,
+		.cmd  = CMD_LED_RING_ALL,
+
+		.payload = {
+			.led_ring_all = {
+				.ring  = ring,
+				.level = level
+			}
+		}
+	};
+
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_ring_map(monome_t *monome, uint_t ring, uint_t *levels) {
+	mext_msg_t msg = {
+		.addr = SS_LED_RING,
+		.cmd  = CMD_LED_RING_MAP,
+
+		.payload = {
+			.led_ring_map = {
+				.ring  = ring
+			}
+		}
+	};
+
+	memcpy(msg.payload.led_ring_map.levels, levels, 64);
+	pack_nybbles(msg.payload.led_ring_map.levels, 32);
+
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_led_ring_range(monome_t *monome, uint_t ring, uint_t start,
+                               uint_t end, uint_t level) {
+	mext_msg_t msg = {
+		.addr = SS_LED_RING,
+		.cmd  = CMD_LED_RING_RANGE,
+
+		.payload = {
+			.led_ring_range = {
+				.ring  = ring,
+				.start = start,
+				.end   = end,
+				.level = level
+			}
+		}
+	};
+
+	return mext_write_msg(monome, &msg);
+}
+
+static monome_led_ring_functions_t mext_led_ring_functions = {
+	.set   = mext_led_ring_set,
+	.all   = mext_led_ring_all,
+	.map   = mext_led_ring_map,
+	.range = mext_led_ring_range
+};
 
 /**
  * event handlers
@@ -441,6 +527,8 @@ monome_t *monome_protocol_new() {
 	monome->led_level.map = mext_led_level_map;
 	monome->led_level.row = mext_led_level_row;
 	monome->led_level.col = mext_led_level_col;
+
+	monome->led_ring = &mext_led_ring_functions;
 
 	return monome;
 }
