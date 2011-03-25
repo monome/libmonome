@@ -293,3 +293,33 @@ int monome_led_level_col(monome_t *monome, uint_t x, uint_t y_off,
 		return monome->led_level.col(monome, x, y_off, count, data);
 	return -1;
 }
+
+int monome_led_ring_set(monome_t *monome, uint_t ring, uint_t led,
+                        uint_t level) {
+	if( !monome->led_ring )
+		return -1;
+
+	return monome->led_ring->set(monome, ring, led, level);
+}
+
+int monome_led_ring_all(monome_t *monome, uint_t ring, uint_t level) {
+	if( !monome->led_ring )
+		return -1;
+
+	return monome->led_ring->all(monome, ring, level);
+}
+
+int monome_led_ring_map(monome_t *monome, uint_t ring, const uint8_t *levels) {
+	if( !monome->led_ring )
+		return -1;
+
+	return monome->led_ring->map(monome, ring, levels);
+}
+
+int monome_led_ring_range(monome_t *monome, uint_t ring, uint_t start,
+                          uint_t end, uint_t level) {
+	if( !monome->led_ring )
+		return -1;
+
+	return monome->led_ring->range(monome, ring, start, end, level);
+}

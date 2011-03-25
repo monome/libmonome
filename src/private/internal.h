@@ -96,7 +96,7 @@ struct monome_led_level_functions {
 struct monome_led_ring_functions {
 	int (*set)(monome_t *monome, uint_t ring, uint_t led, uint_t level);
 	int (*all)(monome_t *monome, uint_t ring, uint_t level);
-	int (*map)(monome_t *monome, uint_t ring, uint_t *levels);
+	int (*map)(monome_t *monome, uint_t ring, const uint8_t *levels);
 	int (*range)(monome_t *monome, uint_t ring, uint_t start, uint_t end,
 	             uint_t level);
 };

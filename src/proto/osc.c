@@ -206,5 +206,7 @@ monome_t *monome_protocol_new() {
 	monome->led.col    = proto_osc_led_col;
 	monome->led.intensity = proto_osc_led_intensity;
 
+	monome->led_ring = NULL;
+
 	return monome;
 }

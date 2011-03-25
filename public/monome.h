@@ -111,6 +111,18 @@ int monome_led_level_row(monome_t *monome, unsigned int x_off,
 int monome_led_level_col(monome_t *monome, unsigned int x, unsigned int y_off,
                          size_t count, const uint8_t *data);
 
+/* led ring commands */
+
+int monome_led_ring_set(monome_t *monome, unsigned int ring, unsigned int led,
+                        unsigned int level);
+int monome_led_ring_all(monome_t *monome, unsigned int ring,
+                        unsigned int level);
+int monome_led_ring_map(monome_t *monome, unsigned int ring,
+                        const uint8_t *levels);
+int monome_led_ring_range(monome_t *monome, unsigned int ring,
+                          unsigned int start, unsigned int end,
+                          unsigned int level);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

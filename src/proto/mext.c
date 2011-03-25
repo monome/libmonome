@@ -336,7 +336,8 @@ static int mext_led_ring_all(monome_t *monome, uint_t ring, uint_t level) {
 	return mext_write_msg(monome, &msg);
 }
 
-static int mext_led_ring_map(monome_t *monome, uint_t ring, uint_t *levels) {
+static int mext_led_ring_map(monome_t *monome, uint_t ring,
+                             const uint8_t *levels) {
 	mext_msg_t msg = {
 		.addr = SS_LED_RING,
 		.cmd  = CMD_LED_RING_MAP,
