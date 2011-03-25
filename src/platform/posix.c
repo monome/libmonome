@@ -153,9 +153,6 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, size_t nbyte
 	if( ret < 0 )
 		perror("libmonome: error in write");
 
-	if( tcdrain(monome->fd) < 0 )
-		perror("libmonome: error in tcdrain");
-
 	return ret;
 }
 
