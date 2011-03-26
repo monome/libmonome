@@ -21,6 +21,7 @@
 
 #define _XOPEN_SOURCE 600
 
+#include <string.h>
 #include <time.h>
 #include <monome.h>
 
@@ -146,6 +147,19 @@ void fade_out(monome_t *monome) {
 	}
 }
 
+void test_led_ring_set(monome_t *monome) {
+	uint8_t yeah[64];
+	int i;
+
+	for( i = 0; i < 1024; i++ ) {
+		memset(yeah, 0, 64);
+		yeah[i & 63] = 15;
+		monome_led_ring_map(monome, 0, yeah);
+
+		chill(32);
+	}
+}
+
 int main(int argc, char **argv) {
 	monome_t *monome;
 	int i;
@@ -153,6 +167,9 @@ int main(int argc, char **argv) {
 
 	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, "8000")) )
 		return -1;
+
+	test_led_ring_set(monome);
+	return 0;
 
 	monome_led_all(monome, 0);
 

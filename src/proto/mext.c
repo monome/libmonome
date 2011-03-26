@@ -420,9 +420,9 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 
 static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	e->event_type = ( msg->cmd == CMD_KEY_DOWN ) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
-	e->x = msg->payload.key.x;
-	e->y = msg->payload.key.y;
-	UNROTATE_COORDS(MONOME_T(self), e->x, e->y);
+	e->grid.x = msg->payload.key.x;
+	e->grid.y = msg->payload.key.y;
+	UNROTATE_COORDS(MONOME_T(self), e->grid.x, e->grid.y);
 
 	return 1;
 }

@@ -59,8 +59,18 @@ struct monome_event {
 	monome_t *monome;
 	monome_event_type_t event_type;
 
-	unsigned int x;
-	unsigned int y;
+	/* __extension__ for anonymous unions in gcc */
+	__extension__ union {
+		struct {
+			unsigned int x;
+			unsigned int y;
+		} grid;
+
+		struct {
+			unsigned int number;
+			unsigned int delta;
+		} encoder;
+	};
 };
 
 monome_t *monome_open(const char *monome_device, ...);

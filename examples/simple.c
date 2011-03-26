@@ -33,8 +33,8 @@ unsigned int grid[16][16];
 void handle_press(const monome_event_t *e, void *data) {
 	unsigned int x, y;
 
-	x = e->x;
-	y = e->y;
+	x = e->grid.x;
+	y = e->grid.y;
 
 	if( grid[x][y] )
 		monome_led_off(e->monome, x, y);

@@ -239,10 +239,10 @@ static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 	case PROTO_SERIES_BUTTON_DOWN:
 	case PROTO_SERIES_BUTTON_UP:
 		e->event_type = (buf[0] == PROTO_SERIES_BUTTON_DOWN) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
-		e->x = buf[1] >> 4;
-		e->y = buf[1] & 0x0F;
+		e->grid.x = buf[1] >> 4;
+		e->grid.y = buf[1] & 0x0F;
 
-		UNROTATE_COORDS(monome, e->x, e->y);
+		UNROTATE_COORDS(monome, e->grid.x, e->grid.y);
 		return 1;
 
 	case PROTO_SERIES_AUX_INPUT:

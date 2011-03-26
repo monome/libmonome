@@ -58,7 +58,7 @@ static void chill(int msec) {
 }
 
 static void handle_press(const monome_event_t *e, void *user_data) {
-	world[e->x][e->y].mod_next = 1;
+	world[e->grid.x][e->grid.y].mod_next = 1;
 }
 
 static void mod_neighbors(cell_t *c, int delta) {
