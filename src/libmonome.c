@@ -179,7 +179,7 @@ int monome_register_handler(monome_t *monome, monome_event_type_t event_type,
                             monome_event_callback_t cb, void *data) {
 	monome_callback_t *handler;
 
-	if( event_type > 2 )
+	if( event_type >= MONOME_EVENT_MAX )
 		return EINVAL;
 
 	handler       = &monome->handlers[event_type];

@@ -430,16 +430,22 @@ static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *
 static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_ENCODER_DELTA:
-		printf("delta: %d %d\n", msg->payload.encoder_delta.encoder, msg->payload.encoder_delta.delta);
-		break;
-
-	case CMD_ENCODER_SWITCH_UP:
-		printf("switch up %d\n", msg->payload.encoder_delta.encoder);
-		break;
+		e->event_type = MONOME_ENCODER_DELTA;
+		e->encoder.number = msg->payload.encoder.number;
+		e->encoder.delta = msg->payload.encoder.delta;
+		return 1;
 
 	case CMD_ENCODER_SWITCH_DOWN:
-		printf("switch down %d\n", msg->payload.encoder_delta.encoder);
-		break;
+		e->event_type = MONOME_ENCODER_KEY_DOWN;
+		e->encoder.number = msg->payload.encoder.number;
+		e->encoder.delta = 0;
+		return 1;
+
+	case CMD_ENCODER_SWITCH_UP:
+		e->event_type = MONOME_ENCODER_KEY_UP;
+		e->encoder.number = msg->payload.encoder.number;
+		e->encoder.delta = 0;
+		return 1;
 
 	default:
 		break;

@@ -27,9 +27,14 @@ extern "C" {
 #include <sys/types.h>
 
 typedef enum {
-	MONOME_BUTTON_UP     = 0x00,
-	MONOME_BUTTON_DOWN   = 0x01,
-	MONOME_AUX_INPUT     = 0x02
+	MONOME_BUTTON_UP        = 0x00,
+	MONOME_BUTTON_DOWN      = 0x01,
+	MONOME_ENCODER_DELTA    = 0x02,
+	MONOME_ENCODER_KEY_UP   = 0x03,
+	MONOME_ENCODER_KEY_DOWN = 0x04,
+
+	/* update this if you add event types */
+	MONOME_EVENT_MAX        = 0x05
 } monome_event_type_t;
 
 /* modes (argument to monome_mode) */
@@ -68,7 +73,7 @@ struct monome_event {
 
 		struct {
 			unsigned int number;
-			unsigned int delta;
+			int delta;
 		} encoder;
 	};
 };

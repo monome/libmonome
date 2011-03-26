@@ -263,12 +263,8 @@ struct mext_msg {
 		 */
 
 		struct {
-			uint8_t encoder;
+			uint8_t number;
 			int8_t delta;
-		} PACKED encoder_delta;
-
-		struct {
-			uint8_t encoder;
-		} PACKED encoder_switch;
+		} PACKED encoder;
 	} PACKED payload;
 } PACKED;

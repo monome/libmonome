@@ -111,7 +111,7 @@ struct monome {
 
 	int fd;
 
-	monome_callback_t handlers[3];
+	monome_callback_t handlers[MONOME_EVENT_MAX];
 	monome_rotate_t rotation;
 
 	int  (*open)(monome_t *monome, const char *dev, const char *serial,
