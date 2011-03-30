@@ -98,6 +98,7 @@ void monome_platform_free(monome_t *monome) {
 
 int monome_platform_open(monome_t *monome, const char *dev) {
 	DCB serparm = {0};
+	char *devesc;
 	HANDLE hser;
 	COMMTIMEOUTS timeouts = {
 		.ReadIntervalTimeout         = MAXDWORD,
@@ -107,8 +108,16 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 		.WriteTotalTimeoutMultiplier = 0
 	};
 
-	hser = CreateFile(dev, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
-					  FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, 0);
+	if( !(devesc = m_asprintf("\\\\.\\%s", dev)) ) {
+		fprintf(stderr, "libmonome: could not open %s: out of memory\n", dev);
+		return 1;
+	}
+
+	hser = CreateFile(devesc, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+	                  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL |
+	                  FILE_FLAG_OVERLAPPED, 0);
+
+	free(devesc);
 
 	if( hser == INVALID_HANDLE_VALUE )
 		goto err_open;
@@ -139,7 +148,7 @@ err_commstate:
 	CloseHandle(hser);
 err_open:
 	if( GetLastError() != ERROR_FILE_NOT_FOUND )
-		printf("libmonome: could not open monome device: error %ld",
+		printf("libmonome: could not open %s: error %ld", dev,
 		       GetLastError());
 	return 1;
 }
