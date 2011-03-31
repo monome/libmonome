@@ -26,6 +26,11 @@
 
 typedef unsigned int uint_t;
 
+typedef enum {
+	NO_QUIRKS,
+	BAUD_RATE_57600
+} monome_device_quirks_t;
+
 typedef struct monome_callback monome_callback_t;
 typedef struct monome_rotspec monome_rotspec_t;
 typedef struct monome_devmap monome_devmap_t;
@@ -51,6 +56,7 @@ struct monome_devmap {
 		int rows, cols;
 	} dimensions;
 	char *friendly;
+	monome_device_quirks_t quirks;
 };
 
 struct monome_rotspec {

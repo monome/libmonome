@@ -41,17 +41,17 @@
 #define DEFAULT_PROTOCOL "40h"
 
 static monome_devmap_t mapping[] = {
-	{"m64-%d",  "series", {8, 8},   "monome 64" },
-	{"m128-%d", "series", {16, 8},  "monome 128"},
-	{"m256-%d", "series", {16, 16}, "monome 256"},
+	{"m64-%d",  "series", {8, 8},   "monome 64" , NO_QUIRKS},
+	{"m128-%d", "series", {16, 8},  "monome 128", NO_QUIRKS},
+	{"m256-%d", "series", {16, 16}, "monome 256", NO_QUIRKS},
 
-	{"mk%d",    "series", {0, 0},   "monome kit"},
+	{"mk%d",    "series", {0, 0},   "monome kit", NO_QUIRKS},
 
-	{"m40h%d",  "40h",    {8, 8},   "monome 40h"},
-	{"a40h-%d", "40h",    {8, 8},   "arduinome" },
+	{"m40h%d",  "40h",    {8, 8},   "monome 40h", NO_QUIRKS},
+	{"a40h-%d", "40h",    {8, 8},   "arduinome" , BAUD_RATE_57600},
 
 	/* determine device dimensions in initialization */
-	{"m%d",     "mext",   {0, 0},   "monome i2c"},
+	{"m%d",     "mext",   {0, 0},   "monome i2c", NO_QUIRKS},
 
 	{NULL}
 };
