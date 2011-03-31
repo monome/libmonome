@@ -482,7 +482,7 @@ static int mext_open(monome_t *monome, const char *dev, const char *serial,
                      const monome_devmap_t *m, va_list args) {
 	monome_event_t e;
 
-	if( monome_platform_open(monome, dev) )
+	if( monome_platform_open(monome, m, dev) )
 		return 1;
 
 	monome->serial = serial;

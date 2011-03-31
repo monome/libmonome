@@ -90,7 +90,8 @@ void monome_platform_free(monome_t *monome) {
 	dlclose(dl_handle);
 }
 
-int monome_platform_open(monome_t *monome, const char *dev) {
+int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
+                         const char *dev) {
 	struct termios nt, ot;
 	int fd;
 
@@ -103,8 +104,13 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	nt = ot;
 
 	/* baud rate */
-	cfsetispeed(&nt, MONOME_BAUD_RATE);
-	cfsetospeed(&nt, MONOME_BAUD_RATE);
+	if( m->quirks & QUIRK_57600_BAUD ) {
+		cfsetispeed(&nt, B57600);
+		cfsetospeed(&nt, B57600);
+	} else {
+		cfsetispeed(&nt, MONOME_BAUD_RATE);
+		cfsetospeed(&nt, MONOME_BAUD_RATE);
+	}
 
 	/* parity (8N1) */
 	nt.c_cflag &= ~(PARENB | CSTOPB | CSIZE);

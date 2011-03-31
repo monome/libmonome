@@ -96,7 +96,8 @@ void monome_platform_free(monome_t *monome) {
 	FreeLibrary(dl_handle);
 }
 
-int monome_platform_open(monome_t *monome, const char *dev) {
+int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
+                         const char *dev) {
 	DCB serparm = {0};
 	char *devesc;
 	HANDLE hser;
@@ -127,7 +128,11 @@ int monome_platform_open(monome_t *monome, const char *dev) {
 	if( !GetCommState(hser, &serparm) )
 		goto err_commstate;
 
-	serparm.BaudRate = CBR_115200;
+	if( m->quirks & QUIRK_57600_BAUD )
+		serparm.BaudRate = CBR_115200;
+	else
+		serparm.BaudRate = CBR_115200;
+
 	serparm.ByteSize = 8;
 	serparm.StopBits = ONESTOPBIT;
 	serparm.Parity   = NOPARITY;

@@ -27,8 +27,8 @@
 typedef unsigned int uint_t;
 
 typedef enum {
-	NO_QUIRKS,
-	BAUD_RATE_57600
+	NO_QUIRKS        = 0,
+	QUIRK_57600_BAUD = 0x1,
 } monome_device_quirks_t;
 
 typedef struct monome_callback monome_callback_t;

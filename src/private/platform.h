@@ -21,7 +21,8 @@ char *monome_platform_get_dev_serial(const char *device);
 monome_t *monome_platform_load_protocol(const char *proto);
 void monome_platform_free(monome_t *monome);
 
-int monome_platform_open(monome_t *monome, const char *dev);
+int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
+                         const char *dev);
 int monome_platform_close(monome_t *monome);
 
 ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, size_t nbyte);

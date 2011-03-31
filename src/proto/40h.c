@@ -181,7 +181,7 @@ static int proto_40h_open(monome_t *monome, const char *dev,
 	monome->cols   = m->dimensions.cols;
 	monome->serial = serial;
 
-	return monome_platform_open(monome, dev);
+	return monome_platform_open(monome, m, dev);
 }
 
 static int proto_40h_close(monome_t *monome) {
