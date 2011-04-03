@@ -322,7 +322,7 @@ static int main_loop() {
 #endif
 
 int main(int argc, char *argv[]) {
-	char c, *device, *sport, *aport, *ahost, *proto;
+	char c, *device, *sport, *aport, *ahost;
 	monome_rotate_t rotate = MONOME_ROTATE_0;
 	int i;
 
@@ -330,7 +330,6 @@ int main(int argc, char *argv[]) {
 		{"help",             no_argument,       0, 'h'},
 
 		{"device",           required_argument, 0, 'd'},
-		{"protocol",         required_argument, 0, 'p'},
 
 		{"server-port",      required_argument, 0, 's'},
 		{"application-port", required_argument, 0, 'a'},
@@ -340,12 +339,11 @@ int main(int argc, char *argv[]) {
 	};
 
 	device = DEFAULT_MONOME_DEVICE;
-	proto  = DEFAULT_MONOME_PROTOCOL;
 	sport  = DEFAULT_OSC_SERVER_PORT;
 	aport  = DEFAULT_OSC_APP_PORT;
 	ahost  = DEFAULT_OSC_APP_HOST;
 
-	while( (c = getopt_long(argc, argv, "hd:p:s:a:o:r:",
+	while( (c = getopt_long(argc, argv, "hd:s:a:o:r:",
 							arguments, &i)) > 0 ) {
 		switch( c ) {
 		case 'h':
@@ -354,10 +352,6 @@ int main(int argc, char *argv[]) {
 
 		case 'd':
 			device = optarg;
-			break;
-
-		case 'p':
-			proto = optarg;
 			break;
 
 		case 's':
