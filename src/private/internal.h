@@ -112,6 +112,7 @@ struct monome {
 	void *dl_handle;
 
 	const char *serial;
+	const char *friendly;
 	const char *device;
 	int rows, cols;
 

@@ -86,6 +86,7 @@ monome_rotate_t monome_get_rotation(monome_t *monome);
 
 const char *monome_get_serial(monome_t *monome);
 const char *monome_get_devpath(monome_t *monome);
+const char *monome_get_friendly_name(monome_t *monome);
 int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 

@@ -153,6 +153,10 @@ const char *monome_get_devpath(monome_t *monome) {
 	return monome->device;
 }
 
+const char *monome_get_friendly_name(monome_t *monome) {
+	return monome->friendly;
+}
+
 int monome_get_rows(monome_t *monome) {
 	if( ROTSPEC(monome).flags & ROW_COL_SWAP )
 		return monome->cols;

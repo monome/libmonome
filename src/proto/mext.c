@@ -397,6 +397,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 	case CMD_SYSTEM_ID:
 		strncpy(self->id, (char *) msg->payload.id, 32);
 		self->id[32] = '\0'; /* just in case */
+
+		MONOME_T(self)->friendly = self->id;
 		break;
 
 	case CMD_SYSTEM_GRID_OFFSET:
@@ -488,6 +490,7 @@ static int mext_open(monome_t *monome, const char *dev, const char *serial,
 		return 1;
 
 	monome->serial = serial;
+	monome->friendly = m->friendly;
 
 	mext_simple_cmd(monome, CMD_SYSTEM_QUERY);
 	mext_simple_cmd(monome, CMD_SYSTEM_GET_ID);
