@@ -168,6 +168,8 @@ typedef int (*mext_handler_t)(mext_t *, mext_msg_t *, monome_event_t *);
 
 struct mext {
 	monome_t monome;
+
+	char id[33];
 };
 
 struct mext_point {
