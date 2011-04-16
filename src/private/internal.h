@@ -53,7 +53,7 @@ struct monome_devmap {
 	char *sermatch;
 	char *proto;
 	struct {
-		int rows, cols;
+		int cols, rows;
 	} dimensions;
 	char *friendly;
 	monome_device_quirks_t quirks;

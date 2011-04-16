@@ -21,10 +21,8 @@
 #include <monome.h>
 #include "internal.h"
 
-/* faster than using the global libmonome functions
-   also, the global functions are 1-indexed, these are 0-indexed */
-#define ROWS(monome) (monome->rows - 1)
-#define COLS(monome) (monome->cols - 1)
+#define ROWS(monome) (monome_get_rows(monome) - 1)
+#define COLS(monome) (monome_get_cols(monome) - 1)
 
 /* you may notice the gratituous use of modulo when translating input
    coordinates...this is because it's possible to translate into negatives
@@ -61,13 +59,13 @@ static void r90_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
 
 	*x = *y;
-	*y = ROWS(monome) - t;
+	*y = COLS(monome) - t;
 }
 
 static void r90_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
 
-	*x = (ROWS(monome) - *y) % (ROWS(monome) + 1);
+	*x = (COLS(monome) - *y) % (COLS(monome) + 1);
 	*y = t;
 }
 
@@ -145,13 +143,13 @@ static void r90_level_map_cb(monome_t *monome, uint8_t *dst,
  */
 
 static void r180_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
-	*x = ROWS(monome) - *x;
-	*y = COLS(monome) - *y;
+	*x = COLS(monome) - *x;
+	*y = ROWS(monome) - *y;
 }
 
 static void r180_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
-	*x = (ROWS(monome) - *x) % (ROWS(monome) + 1);
-	*y = (COLS(monome) - *y) % (COLS(monome) + 1);
+	*x = (COLS(monome) - *x) % (COLS(monome) + 1);
+	*y = (ROWS(monome) - *y) % (ROWS(monome) + 1);
 }
 
 static void r180_map_cb(monome_t *monome, uint8_t *data) {
@@ -206,7 +204,7 @@ static void r180_level_map_cb(monome_t *monome, uint8_t *dst,
 static void r270_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
 
-	*x = COLS(monome) - *y;
+	*x = ROWS(monome) - *y;
 	*y = t;
 }
 
@@ -214,7 +212,7 @@ static void r270_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
 
 	*x = *y;
-	*y = (COLS(monome) - t) % (COLS(monome) + 1);
+	*y = (ROWS(monome) - t) % (ROWS(monome) + 1);
 }
 
 static void r270_map_cb(monome_t *monome, uint8_t *data) {

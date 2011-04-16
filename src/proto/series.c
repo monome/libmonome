@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -53,7 +53,8 @@ static int proto_series_led_col_row_8(monome_t *monome,
 
 	switch( mode ) {
 	case PROTO_SERIES_LED_ROW_8:
-		address = xaddress;
+		if( ROTSPEC(monome).flags & ROW_COL_SWAP )
+			address = xaddress;
 
 		if( ROTSPEC(monome).flags & ROW_REVBITS )
 			buf[1] = REVERSE_BYTE(*data);
@@ -63,13 +64,16 @@ static int proto_series_led_col_row_8(monome_t *monome,
 		break;
 
 	case PROTO_SERIES_LED_COL_8:
+		if( !(ROTSPEC(monome).flags & ROW_COL_SWAP) )
+			address = xaddress;
+
 		if( ROTSPEC(monome).flags & COL_REVBITS )
 			buf[1] = REVERSE_BYTE(*data);
 		else
 			buf[1] = *data;
 
 		break;
-	
+
 	default:
 		return -1;
 	}
@@ -90,7 +94,8 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 
 	switch( mode ) {
 	case PROTO_SERIES_LED_ROW_16:
-		address = xaddress;
+		if( ROTSPEC(monome).flags & ROW_COL_SWAP )
+			address = xaddress;
 
 		if( ROTSPEC(monome).flags & ROW_REVBITS ) {
 			buf[1] = REVERSE_BYTE(data[1]);
@@ -103,6 +108,9 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 		break;
 
 	case PROTO_SERIES_LED_COL_16:
+		if( !(ROTSPEC(monome).flags & ROW_COL_SWAP) )
+			address = xaddress;
+
 		if( ROTSPEC(monome).flags & COL_REVBITS ) {
 			buf[1] = REVERSE_BYTE(data[1]);
 			buf[2] = REVERSE_BYTE(data[0]);
@@ -159,7 +167,7 @@ static int proto_series_led_col(monome_t *monome, uint_t x, uint_t y_off,
                                 size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
-	switch( ((monome->cols > 8) << 1) | (count > 1)) {
+	switch( ((monome_get_rows(monome) > 8) << 1) | (count > 1)) {
 	case 0x0: /* 1-byte monome, 1-byte message */
 	case 0x1: /* 1-byte monome, 2-byte message */
 		return proto_series_led_col_row_8(
@@ -184,7 +192,7 @@ static int proto_series_led_row(monome_t *monome, uint_t x_off, uint_t y,
                                 size_t count, const uint8_t *data) {
 	uint16_t sdata;
 
-	switch( ((monome->rows > 8) << 1) | (count > 1)) {
+	switch( ((monome_get_cols(monome) > 8) << 1) | (count > 1)) {
 	case 0x0: /* 1-byte monome, 1-byte message */
 	case 0x1: /* 1-byte monome, 2-byte message */
 		return proto_series_led_col_row_8(
