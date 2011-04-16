@@ -168,9 +168,6 @@ int main(int argc, char **argv) {
 	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, "8000")) )
 		return -1;
 
-	test_led_ring_set(monome);
-	return 0;
-
 	monome_led_all(monome, 0);
 
 	for( i = 0; i < 2; i++ ) {
