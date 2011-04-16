@@ -29,6 +29,7 @@
 #include "internal.h"
 #include "platform.h"
 #include "rotation.h"
+#include "devices.h"
 
 #ifndef LIBSUFFIX
 #define LIBSUFFIX ".so"
@@ -37,24 +38,6 @@
 #ifndef LIBDIR
 #define LIBDIR "/usr/lib"
 #endif
-
-#define DEFAULT_PROTOCOL "40h"
-
-static monome_devmap_t mapping[] = {
-	{"m64-%d",  "series", {8, 8},   "monome 64" , NO_QUIRKS},
-	{"m128-%d", "series", {16, 8},  "monome 128", NO_QUIRKS},
-	{"m256-%d", "series", {16, 16}, "monome 256", NO_QUIRKS},
-
-	{"mk%d",    "series", {0, 0},   "monome kit", NO_QUIRKS},
-
-	{"m40h%d",  "40h",    {8, 8},   "monome 40h", NO_QUIRKS},
-	{"a40h-%d", "40h",    {8, 8},   "arduinome" , QUIRK_57600_BAUD},
-
-	/* determine device dimensions in initialization */
-	{"m%d",     "mext",   {0, 0},   "monome i2c", NO_QUIRKS},
-
-	{NULL}
-};
 
 /**
  * private
