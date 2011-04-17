@@ -127,9 +127,8 @@ int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
 	nt.c_oflag &= ~(OCRNL | ONLCR | ONLRET | ONOCR |
 	                OFILL | OPOST);
 
-	/* block until one character is read */
-	nt.c_cc[VMIN]  = 1;
-	nt.c_cc[VTIME] = 0;
+	nt.c_cc[VMIN]  = 255;
+	nt.c_cc[VTIME] = 1;
 
 	if( tcsetattr(fd, TCSANOW, &nt) < 0 )
 		goto err_tcsetattr;
