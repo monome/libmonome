@@ -553,7 +553,7 @@ conf_endian() {
 
 		1)
 			style_success "big endian";
-			CFLAGS="$CFLAGS -DBIG_ENDIAN"
+			CFLAGS="$CFLAGS -DLM_BIG_ENDIAN"
 			;;
 
 		*)
