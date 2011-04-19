@@ -161,7 +161,7 @@ compile_and_run() {
 
 	rm -f .conftests/$FILE.c;
 
-	[ $RET -ne 0 ] && return 1;
+	[ $RET -ne 0 ] && return -1;
 
 	CMD="./.conftests/$FILE";
 	try_command $CMD;
@@ -169,7 +169,7 @@ compile_and_run() {
 
 	rm -f .conftests/$FILE;
 
-	[ $RET -ne 0 ] && return 2;
+	[ $RET -ne 0 ] && return $RET;
 	return 0;
 }
 
@@ -206,6 +206,23 @@ check_gcc () {
 	return 1;
 }
 
+check_endian() {
+	cat <<EOF > .conftests/endian.c
+#include <stdint.h>
+
+int main(int argc, char **argv) {
+	uint32_t bytes = 0xFEEDFACE;
+
+	if( *((uint8_t *) &bytes) == 0xCE )
+		return 0; /* little-endian */
+	return 1; /* big-endian */
+}
+EOF
+
+	compile_and_run endian;
+	return $?;
+}
+
 check_poll () {
 	# ganked from glib's poll test
 
@@ -225,11 +242,7 @@ int main(int argc, char **argv) {
 }
 EOF
 	compile_and_run poll;
-	RET=$?;
-
-	[ $RET -ne 0 ] && return $RET;
-
-	return 0;
+	return $?;
 }
 
 check_libudev () {
@@ -511,21 +524,47 @@ esac
 PLATFORM=`echo $PLATFORM | tr A-Z a-z`
 style_success "$PLATFORM $PLATFORM_VERSION"
 
-echo_n "    checking for gcc:             ";
-if check_gcc; then
-	style_success "gcc $CC_VERSION";
-else
-	style_error "no gcc :(";
+conf_gcc() {
+	echo_n "    checking for gcc:             ";
+	if check_gcc; then
+		style_success "gcc $CC_VERSION";
+	else
+		style_error "no gcc :(";
 
-	echo   "";
-	echo   "  I couldn't find gcc on your system!  you will need it to compile ${PROJECT}.";
-	echo_n "  If you're on "; style_distro -n "Ubuntu"; echo_n ", make sure to grab the "; style_package -n "build-essential"; echo " package.";
-	echo   "  On Mac OS X, you'll need to install the Xcode developer tools or MacPorts.";
-	echo   "";
+		echo   "";
+		echo   "  I couldn't find gcc on your system!  you will need it to compile ${PROJECT}.";
+		echo_n "  If you're on "; style_distro -n "Ubuntu"; echo_n ", make sure to grab the "; style_package -n "build-essential"; echo " package.";
+		echo   "  On Mac OS X, you'll need to install the Xcode developer tools or MacPorts.";
+		echo   "";
 
-	cleanup;
-	exit 1;
-fi
+		cleanup;
+		exit 1;
+	fi
+}
+
+conf_endian() {
+	echo_n "    determining byte order:       ";
+	check_endian;
+
+	case $? in
+		0)
+			style_success "little endian";
+			;;
+
+		1)
+			style_success "big endian";
+			CFLAGS="$CFLAGS -DBIG_ENDIAN"
+			;;
+
+		*)
+			style_error "can't figure out";
+			echo "";
+
+			cleanup;
+			exit 1;
+			;;
+	esac
+}
 
 conf_poll() {
 echo_n "    checking for poll:            ";
@@ -537,6 +576,9 @@ echo_n "    checking for poll:            ";
 	fi
 }
 
+conf_gcc;
+conf_endian;
+echo "";
 conf_poll;
 
 if [ $PLATFORM = "linux" ]; then
