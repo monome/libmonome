@@ -126,7 +126,11 @@ static void r90_map_cb(monome_t *monome, uint8_t *data) {
 #undef swap
 
 	*((uint32_t *) data) = ((x & 0xF0F0F0F0) >> 4) | (y & 0xF0F0F0F0);
+# ifdef LM_BIG_ENDIAN
+	*(((uint32_t *) data) - 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) << 4);
+# else
 	*(((uint32_t *) data) + 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) << 4);
+# endif
 #endif
 }
 
@@ -185,8 +189,12 @@ static void r180_map_cb(monome_t *monome, uint8_t *data) {
 	y = (y & 0xAAAAAAAA) >> 1  | (y & 0x55555555) << 1;
 
 	*((uint64_t *) data) = y;
+# ifdef LM_BIG_ENDIAN
 	*(((uint32_t *) data) + 1) = x;
-#endif
+# else
+	*(((uint32_t *) data) - 1) = x;
+# endif /* defined LM_BIG_ENDIAN */
+#endif /* defined __LP64__ */
 }
 
 static void r180_level_map_cb(monome_t *monome, uint8_t *dst,
@@ -259,8 +267,12 @@ static void r270_map_cb(monome_t *monome, uint8_t *data) {
 #undef swap
 
 	*((uint32_t *) data) = ((x & 0x0F0F0F0F) << 4) | (y & 0x0F0F0F0F);
+# ifdef LM_BIG_ENDIAN
+	*(((uint32_t *) data) - 1) = (x & 0xF0F0F0F0) | ((y & 0xF0F0F0F0) >> 4);
+# else
 	*(((uint32_t *) data) + 1) = (x & 0xF0F0F0F0) | ((y & 0xF0F0F0F0) >> 4);
-#endif
+# endif /* defined LM_BIG_ENDIAN */
+#endif /* defined __LP64__ */
 }
 
 static void r270_level_map_cb(monome_t *monome, uint8_t *dst,
