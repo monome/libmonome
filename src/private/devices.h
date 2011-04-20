@@ -21,7 +21,7 @@ static monome_devmap_t mapping[] = {
 	{"m128-%d", "series", {16, 8},  "monome 128", NO_QUIRKS},
 	{"m256-%d", "series", {16, 16}, "monome 256", NO_QUIRKS},
 
-	{"mk%d",    "series", {0, 0},   "monome kit", NO_QUIRKS},
+	{"mk%d",    "series", {16, 16},  "monome kit", NO_QUIRKS},
 
 	{"m40h%d",  "40h",    {8, 8},   "monome 40h", NO_QUIRKS},
 	{"a40h-%d", "40h",    {8, 8},   "arduinome" , QUIRK_57600_BAUD},
