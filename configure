@@ -356,20 +356,6 @@ EOF
 	return 0;
 }
 
-check_macports() {
-	try_command "port version";
-	RET=$?;
-
-	if [ $RET -ne 0 ]; then
-		return $RET;
-	fi
-
-	HAVE_MACPORTS=1;
-	MACPORTS_VERSION=`expr "$(port version 2>&1)" : "[^0-9]*\([0-9.]*\)"`;
-
-	return 0;
-}
-
 determine_mandir() {
 	TRY_MANPATHS=$PREFIX/share/man:$PREFIX/man
 
@@ -592,15 +578,6 @@ if [ $PLATFORM = "linux" ]; then
 
 		style_warning "no, using sysfs (you're probably running an old system)"
 		PLATFORM=linux_sysfs;
-	fi
-fi
-
-if [ $PLATFORM = "darwin" ]; then
-	echo_n "    checking for macports:        ";
-	if check_macports; then
-		style_success "macports $MACPORTS_VERSION";
-	else
-		style_warning "no, you'll be building everything from source"
 	fi
 fi
 
