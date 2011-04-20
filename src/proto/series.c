@@ -97,6 +97,7 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 		if( ROTSPEC(monome).flags & ROW_COL_SWAP )
 			address = xaddress;
 
+#ifndef LM_BIG_ENDIAN
 		if( ROTSPEC(monome).flags & ROW_REVBITS ) {
 			buf[1] = REVERSE_BYTE(data[1]);
 			buf[2] = REVERSE_BYTE(data[0]);
@@ -104,6 +105,15 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 			buf[1] = data[0];
 			buf[2] = data[1];
 		}
+#else
+		if( ROTSPEC(monome).flags & ROW_REVBITS ) {
+			buf[2] = REVERSE_BYTE(data[1]);
+			buf[1] = REVERSE_BYTE(data[0]);
+		} else {
+			buf[2] = data[0];
+			buf[1] = data[1];
+		}
+#endif
 
 		break;
 
@@ -111,6 +121,7 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 		if( !(ROTSPEC(monome).flags & ROW_COL_SWAP) )
 			address = xaddress;
 
+#ifndef LM_BIG_ENDIAN
 		if( ROTSPEC(monome).flags & COL_REVBITS ) {
 			buf[1] = REVERSE_BYTE(data[1]);
 			buf[2] = REVERSE_BYTE(data[0]);
@@ -118,6 +129,15 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 			buf[1] = data[0];
 			buf[2] = data[1];
 		}
+#else
+		if( ROTSPEC(monome).flags & COL_REVBITS ) {
+			buf[2] = REVERSE_BYTE(data[1]);
+			buf[1] = REVERSE_BYTE(data[0]);
+		} else {
+			buf[2] = data[0];
+			buf[1] = data[1];
+		}
+#endif
 
 		break;
 
