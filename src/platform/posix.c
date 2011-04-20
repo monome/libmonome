@@ -128,7 +128,7 @@ int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
 	                OFILL | OPOST);
 
 	nt.c_cc[VMIN]  = 255;
-	nt.c_cc[VTIME] = 1;
+	nt.c_cc[VTIME] = 5;
 
 	if( tcsetattr(fd, TCSANOW, &nt) < 0 )
 		goto err_tcsetattr;

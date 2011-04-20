@@ -475,6 +475,11 @@ static int mext_next_event(monome_t *monome, monome_event_t *e) {
 	mext_msg_t msg = {0, 0};
 
 	while( mext_read_msg(monome, &msg) ) {
+		if( msg.addr == SS_SYSTEM ) {
+			subsystem_event_handlers[0](self, &msg, e);
+			continue;
+		}
+
 		if( subsystem_event_handlers[msg.addr](self, &msg, e) )
 			return 1;
 	}
