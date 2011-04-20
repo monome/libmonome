@@ -29,6 +29,11 @@
 #define SELF_FROM(what_okay) monome_osc_t *self = (monome_osc_t *) what_okay;
 #define LO_SEND_MSG(type, ...) lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, self->type##_str, __VA_ARGS__)
 
+#define OSC_HANDLER_FUNC(x)\
+	static int x(const char *path, const char *types,\
+				 lo_arg **argv, int argc,\
+				 lo_message data, void *user_data)
+
 static int proto_osc_close(monome_t *monome);
 static void proto_osc_free(monome_t *monome);
 
@@ -41,7 +46,7 @@ static void proto_osc_lo_error(int num, const char *error_msg, const char *path)
 	fflush(stderr);
 }
 
-static int proto_osc_press_handler(const char *path, const char *types, lo_arg **argv, int argc, lo_message data, void *user_data) {
+OSC_HANDLER_FUNC(proto_osc_press_handler) {
 	SELF_FROM(user_data);
 	monome_event_t *e = self->e_ptr;
 
@@ -51,6 +56,38 @@ static int proto_osc_press_handler(const char *path, const char *types, lo_arg *
 	e->grid.x     = argv[0]->i;
 	e->grid.y     = argv[1]->i;
 	e->event_type = argv[2]->i & 1;
+
+	self->have_event = 1;
+	return 0;
+}
+
+OSC_HANDLER_FUNC(proto_osc_delta_handler) {
+	SELF_FROM(user_data);
+	monome_event_t *e = self->e_ptr;
+
+	if( !e )
+		return 1;
+
+	e->event_type = MONOME_ENCODER_DELTA;
+	e->encoder.number = argv[0]->i;
+	e->encoder.delta = argv[1]->i;
+
+	self->have_event = 1;
+	return 0;
+}
+
+OSC_HANDLER_FUNC(proto_osc_enc_key_handler) {
+	SELF_FROM(user_data);
+	monome_event_t *e = self->e_ptr;
+
+	if( !e )
+		return 1;
+
+	if( argv[1]->i )
+		e->event_type = MONOME_ENCODER_KEY_DOWN;
+	else
+		e->event_type = MONOME_ENCODER_KEY_UP;
+	e->encoder.number = argv[0]->i;
 
 	self->have_event = 1;
 	return 0;
@@ -203,6 +240,14 @@ static int proto_osc_open(monome_t *monome, const char *dev,
 
 	asprintf(&buf, "%s/grid/key", self->prefix);
 	lo_server_add_method(self->server, buf, "iii", proto_osc_press_handler, self);
+	m_free(buf);
+
+	asprintf(&buf, "%s/enc/delta", self->prefix);
+	lo_server_add_method(self->server, buf, "ii", proto_osc_delta_handler, self);
+	m_free(buf);
+
+	asprintf(&buf, "%s/enc/key", self->prefix);
+	lo_server_add_method(self->server, buf, "ii", proto_osc_enc_key_handler, self);
 	m_free(buf);
 
 #define cache_osc_path(base, path) asprintf(&self->base##_str, "%s/" path, self->prefix)
