@@ -57,7 +57,7 @@ static int proto_osc_press_handler(const char *path, const char *types, lo_arg *
 }
 
 /**
- * public
+ * led functions
  */
 
 static int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
@@ -109,6 +109,19 @@ static int proto_osc_led_intensity(monome_t *monome, uint_t brightness) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(intensity, "i", brightness);
 }
+
+static monome_led_functions_t proto_osc_led_functions = {
+	.set = proto_osc_led_set,
+	.all = proto_osc_led_all,
+	.map = proto_osc_led_map,
+	.row = proto_osc_led_row,
+	.col = proto_osc_led_col,
+	.intensity = proto_osc_led_intensity
+};
+
+/**
+ * module interface
+ */
 
 static int proto_osc_next_event(monome_t *monome, monome_event_t *e) {
 	SELF_FROM(monome);
@@ -199,13 +212,8 @@ monome_t *monome_protocol_new() {
 
 	monome->mode       = proto_osc_mode;
 	
-	monome->led.set    = proto_osc_led_set;
-	monome->led.all    = proto_osc_led_all;
-	monome->led.map    = proto_osc_led_map;
-	monome->led.row    = proto_osc_led_row;
-	monome->led.col    = proto_osc_led_col;
-	monome->led.intensity = proto_osc_led_intensity;
-
+	monome->led = &proto_osc_led_functions;
+	monome->led_level = NULL;
 	monome->led_ring = NULL;
 
 	return monome;

@@ -213,100 +213,97 @@ int monome_mode(monome_t *monome, monome_mode_t mode) {
 	return monome->mode(monome, mode);
 }
 
+#define REQUIRE(capability) if( !monome->capability ) return -1
+
 int monome_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
-	return monome->led.set(monome, x, y, on);
+	REQUIRE(led);
+	return monome->led->set(monome, x, y, on);
 }
 
 int monome_led_on(monome_t *monome, uint_t x, uint_t y) {
+	REQUIRE(led);
 	return monome_led_set(monome, x, y, 1);
 }
 
 int monome_led_off(monome_t *monome, uint_t x, uint_t y) {
+	REQUIRE(led);
 	return monome_led_set(monome, x, y, 0);
 }
 
 int monome_led_all(monome_t *monome, uint_t status) {
-	return monome->led.all(monome, status);
+	REQUIRE(led);
+	return monome->led->all(monome, status);
 }
 
 int monome_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
                    const uint8_t *data) {
-	return monome->led.map(monome, x_off, y_off, data);
+	REQUIRE(led);
+	return monome->led->map(monome, x_off, y_off, data);
 }
 
 int monome_led_row(monome_t *monome, uint_t x_off, uint_t y,
 				   size_t count, const uint8_t *data) {
-	return monome->led.row(monome, x_off, y, count, data);
+	REQUIRE(led);
+	return monome->led->row(monome, x_off, y, count, data);
 }
 
 int monome_led_col(monome_t *monome, uint_t x, uint_t y_off,
 				   size_t count, const uint8_t *data) {
-	return monome->led.col(monome, x, y_off, count, data);
+	REQUIRE(led);
+	return monome->led->col(monome, x, y_off, count, data);
 }
 
 int monome_led_intensity(monome_t *monome, uint_t brightness) {
-	return monome->led.intensity(monome, brightness);
+	REQUIRE(led);
+	return monome->led->intensity(monome, brightness);
 }
 
 int monome_led_level_set(monome_t *monome, uint_t x, uint_t y, uint_t level) {
-	if( monome->led_level.set )
-		return monome->led_level.set(monome, x, y, level);
-	return -1;
+	REQUIRE(led_level);
+	return monome->led_level->set(monome, x, y, level);
 }
 
 int monome_led_level_all(monome_t *monome, uint_t level) {
-	if( monome->led_level.all )
-		return monome->led_level.all(monome, level);
-	return -1;
+	REQUIRE(led_level);
+	return monome->led_level->all(monome, level);
 }
 
 int monome_led_level_map(monome_t *monome, uint_t x_off, uint_t y_off,
                          const uint8_t *data) {
-	if( monome->led_level.map )
-		return monome->led_level.map(monome, x_off, y_off, data);
-	return -1;
+	REQUIRE(led_level);
+	return monome->led_level->map(monome, x_off, y_off, data);
 }
 
 int monome_led_level_row(monome_t *monome, uint_t x_off, uint_t y,
                          size_t count, const uint8_t *data) {
-	if( monome->led_level.row )
-		return monome->led_level.row(monome, x_off, y, count, data);
-	return -1;
+	REQUIRE(led_level);
+	return monome->led_level->row(monome, x_off, y, count, data);
 }
 
 int monome_led_level_col(monome_t *monome, uint_t x, uint_t y_off,
                          size_t count, const uint8_t *data) {
-	if( monome->led_level.col )
-		return monome->led_level.col(monome, x, y_off, count, data);
-	return -1;
+	REQUIRE(led_level);
+	return monome->led_level->col(monome, x, y_off, count, data);
 }
 
 int monome_led_ring_set(monome_t *monome, uint_t ring, uint_t led,
                         uint_t level) {
-	if( !monome->led_ring )
-		return -1;
-
+	REQUIRE(led_ring);
 	return monome->led_ring->set(monome, ring, led, level);
 }
 
 int monome_led_ring_all(monome_t *monome, uint_t ring, uint_t level) {
-	if( !monome->led_ring )
-		return -1;
-
+	REQUIRE(led_ring);
 	return monome->led_ring->all(monome, ring, level);
 }
 
 int monome_led_ring_map(monome_t *monome, uint_t ring, const uint8_t *levels) {
-	if( !monome->led_ring )
-		return -1;
-
+	REQUIRE(led_ring);
 	return monome->led_ring->map(monome, ring, levels);
 }
 
 int monome_led_ring_range(monome_t *monome, uint_t ring, uint_t start,
                           uint_t end, uint_t level) {
-	if( !monome->led_ring )
-		return -1;
-
+	REQUIRE(led_ring);
 	return monome->led_ring->range(monome, ring, start, end, level);
 }

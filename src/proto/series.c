@@ -257,6 +257,15 @@ static int proto_series_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	return monome_write(monome, buf, sizeof(buf));
 }
 
+static monome_led_functions_t proto_series_led_functions = {
+	.set = proto_series_led_set,
+	.all = proto_series_led_all,
+	.map = proto_series_led_map,
+	.row = proto_series_led_row,
+	.col = proto_series_led_col,
+	.intensity = proto_series_led_intensity
+};
+
 static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 
@@ -306,20 +315,16 @@ monome_t *monome_protocol_new() {
 	if( !monome )
 		return NULL;
 
-	monome->open       = proto_series_open;
-	monome->close      = proto_series_close;
-	monome->free       = proto_series_free;
-
+	monome->open = proto_series_open;
+	monome->close = proto_series_close;
+	monome->free = proto_series_free;
 	monome->next_event = proto_series_next_event;
 
-	monome->mode       = proto_series_mode;
+	monome->mode = proto_series_mode;
 
-	monome->led.set    = proto_series_led_set;
-	monome->led.all    = proto_series_led_all;
-	monome->led.map    = proto_series_led_map;
-	monome->led.row    = proto_series_led_row;
-	monome->led.col    = proto_series_led_col;
-	monome->led.intensity = proto_series_led_intensity;
+	monome->led = &proto_series_led_functions;
+	monome->led_level = NULL;
+	monome->led_ring = NULL;
 
 	return monome;
 }

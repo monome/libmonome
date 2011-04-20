@@ -150,6 +150,15 @@ static int proto_40h_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	return ret;
 }
 
+static monome_led_functions_t proto_40h_led_functions = {
+	.set = proto_40h_led_set,
+	.all = proto_40h_led_all,
+	.map = proto_40h_led_map,
+	.row = proto_40h_led_row,
+	.col = proto_40h_led_col,
+	.intensity = proto_40h_intensity
+};
+
 static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 
@@ -200,20 +209,17 @@ monome_t *monome_protocol_new() {
 	if( !monome )
 		return NULL;
 
-	monome->open       = proto_40h_open;
-	monome->close      = proto_40h_close;
-	monome->free       = proto_40h_free;
+	monome->open = proto_40h_open;
+	monome->close = proto_40h_close;
+	monome->free = proto_40h_free;
 
 	monome->next_event = proto_40h_next_event;
 
-	monome->mode       = proto_40h_mode;
+	monome->mode = proto_40h_mode;
 
-	monome->led.set    = proto_40h_led_set;
-	monome->led.all    = proto_40h_led_all;
-	monome->led.map    = proto_40h_led_map;
-	monome->led.row    = proto_40h_led_row;
-	monome->led.col    = proto_40h_led_col;
-	monome->led.intensity = proto_40h_intensity;
+	monome->led = &proto_40h_led_functions;
+	monome->led_level = NULL;
+	monome->led_ring = NULL;
 
 	return monome;
 }

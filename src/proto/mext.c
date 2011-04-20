@@ -223,6 +223,15 @@ static int mext_led_intensity(monome_t *monome, uint_t intensity) {
 	return mext_write_msg(monome, &msg);
 }
 
+static monome_led_functions_t mext_led_functions = {
+	.set = mext_led_set,
+	.all = mext_led_all,
+	.col = mext_led_col,
+	.row = mext_led_row,
+	.map = mext_led_map,
+	.intensity = mext_led_intensity
+};
+
 /**
  * led level functions
  */
@@ -297,6 +306,14 @@ static int mext_led_level_col(monome_t *monome, uint_t col, uint_t y_off,
 
 	return 1;
 }
+
+static monome_led_level_functions_t mext_led_level_functions = {
+	.set = mext_led_level_set,
+	.all = mext_led_level_all,
+	.map = mext_led_level_map,
+	.row = mext_led_level_row,
+	.col = mext_led_level_col
+};
 
 /**
  * led ring functions
@@ -533,19 +550,8 @@ monome_t *monome_protocol_new() {
 
 	monome->mode = mext_mode_noop;
 	
-	monome->led.set = mext_led_set;
-	monome->led.all = mext_led_all;
-	monome->led.col = mext_led_col;
-	monome->led.row = mext_led_row;
-	monome->led.map = mext_led_map;
-	monome->led.intensity = mext_led_intensity;
-
-	monome->led_level.set = mext_led_level_set;
-	monome->led_level.all = mext_led_level_all;
-	monome->led_level.map = mext_led_level_map;
-	monome->led_level.row = mext_led_level_row;
-	monome->led_level.col = mext_led_level_col;
-
+	monome->led = &mext_led_functions;
+	monome->led_level = &mext_led_level_functions;
 	monome->led_ring = &mext_led_ring_functions;
 
 	return monome;

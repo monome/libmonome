@@ -130,8 +130,8 @@ struct monome {
 
 	int  (*mode)(monome_t *monome, monome_mode_t mode);
 
-	monome_led_functions_t led;
-	monome_led_level_functions_t led_level;
+	monome_led_functions_t *led;
+	monome_led_level_functions_t *led_level;
 	monome_led_ring_functions_t *led_ring;
 };
 
