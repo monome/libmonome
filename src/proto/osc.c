@@ -137,7 +137,20 @@ static int proto_osc_led_ring_all(monome_t *monome, uint_t ring,
 
 static int proto_osc_led_ring_map(monome_t *monome, uint_t ring,
                                   const uint8_t *levels) {
-	return -1;
+	SELF_FROM(monome);
+	lo_message m;
+	int i, ret;
+
+	m = lo_message_new();
+
+	lo_message_add_int32(m, ring);
+	for( i = 0; i < 64; i++ )
+		lo_message_add_int32(m, levels[i]);
+
+	ret = lo_send_message_from(self->outgoing, self->server, self->ring_map_str, m);
+	lo_message_free(m);
+
+	return ret;
 }
 
 static int proto_osc_led_ring_range(monome_t *monome, uint_t ring,
