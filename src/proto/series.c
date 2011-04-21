@@ -272,12 +272,12 @@ static monome_led_functions_t proto_series_led_functions = {
  * see http://post.monome.org/comments.php?DiscussionID=773#Item_5
  */
 
-static int proto_series_tilt_enable(monome_t *monome) {
+static int proto_series_tilt_enable(monome_t *monome, uint_t sensor) {
 	uint8_t buf[1] = {193};
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_series_tilt_disable(monome_t *monome) {
+static int proto_series_tilt_disable(monome_t *monome, uint_t sensor) {
 	uint8_t buf[1] = {192};
 	return monome_write(monome, buf, sizeof(buf));
 }
@@ -314,8 +314,10 @@ static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 			SERIES_T(monome)->tilt.y = buf[1];
 
 		e->event_type = MONOME_TILT;
+		e->tilt.sensor = 0;
 		e->tilt.x = SERIES_T(monome)->tilt.x;
 		e->tilt.y = SERIES_T(monome)->tilt.y;
+		e->tilt.z = 0;
 		return 1;
 
 	case PROTO_SERIES_AUX_INPUT:

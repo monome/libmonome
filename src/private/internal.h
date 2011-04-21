@@ -109,8 +109,8 @@ struct monome_led_ring_functions {
 };
 
 struct monome_tilt_functions {
-	int (*enable)(monome_t *monome);
-	int (*disable)(monome_t *monome);
+	int (*enable)(monome_t *monome, uint_t sensor);
+	int (*disable)(monome_t *monome, uint_t sensor);
 };
 
 struct monome {

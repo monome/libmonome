@@ -307,3 +307,13 @@ int monome_led_ring_range(monome_t *monome, uint_t ring, uint_t start,
 	REQUIRE(led_ring);
 	return monome->led_ring->range(monome, ring, start, end, level);
 }
+
+int monome_tilt_enable(monome_t *monome, uint_t sensor) {
+	REQUIRE(tilt);
+	return monome->tilt->enable(monome, sensor);
+}
+
+int monome_tilt_disable(monome_t *monome, uint_t sensor) {
+	REQUIRE(tilt);
+	return monome->tilt->disable(monome, sensor);
+}

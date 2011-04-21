@@ -78,8 +78,10 @@ struct monome_event {
 		} encoder;
 
 		struct {
+			unsigned int sensor;
 			int x;
 			int y;
+			int z;
 		} tilt;
 	};
 };
