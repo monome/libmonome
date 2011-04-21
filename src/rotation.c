@@ -88,9 +88,19 @@ static void r90_map_cb(monome_t *monome, uint8_t *data) {
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) data);
 
-#define swap(f, c)\
+# define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
 
+# ifdef LM_BIG_ENDIAN
+	swap(8, 0xFF00FF00FF00FF00LLU);
+	swap(7, 0x5500550055005500LLU);
+
+	swap(16, 0xFFFF0000FFFF0000LLU);
+	swap(14, 0x3333000033330000LLU);
+
+	swap(32, 0xFFFFFFFF00000000LLU);
+	swap(28, 0x0F0F0F0F00000000LLU);
+# else
 	swap(8, 0xFF00FF00FF00FF00LLU);
 	swap(9, 0xAA00AA00AA00AA00LLU);
 
@@ -99,7 +109,8 @@ static void r90_map_cb(monome_t *monome, uint8_t *data) {
 
 	swap(32, 0xFFFFFFFF00000000LLU);
 	swap(36, 0xF0F0F0F000000000LLU);
-#undef swap
+# endif /* defined LM_BIG_ENDIAN */
+# undef swap
 
 	*((uint64_t *) data) = x;
 #else /* __LP64__ */
@@ -109,9 +120,22 @@ static void r90_map_cb(monome_t *monome, uint8_t *data) {
 	y = *(((uint32_t *) data) + 1);
 	t = 0;
 
-#define swap(x, f, c)\
+# define swap(x, f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
 
+# ifdef LM_BIG_ENDIAN
+	swap(x, 8, 0xFF00FF00);
+	swap(x, 7, 0x55005500);
+
+	swap(x, 16, 0xFFFF0000);
+	swap(x, 14, 0x33330000);
+
+	swap(y, 8, 0xFF00FF00);
+	swap(y, 7, 0x55005500);
+
+	swap(y, 16, 0xFFFF0000);
+	swap(y, 14, 0x33330000);
+# else
 	swap(x, 8, 0xFF00FF00);
 	swap(x, 9, 0xAA00AA00);
 
@@ -123,11 +147,12 @@ static void r90_map_cb(monome_t *monome, uint8_t *data) {
 
 	swap(y, 16, 0xFFFF0000);
 	swap(y, 18, 0xCCCC0000);
-#undef swap
+# endif /* defined LM_BIG_ENDIAN */
+# undef swap
 
-	*((uint32_t *) data) = ((x & 0xF0F0F0F0) << 4) | (y & 0xF0F0F0F0);
-	*(((uint32_t *) data) + 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) >> 4);
-#endif
+	*((uint32_t *) data) = ((x & 0xF0F0F0F0) >> 4) | (y & 0xF0F0F0F0);
+	*(((uint32_t *) data) + 1) = (x & 0x0F0F0F0F) | ((y & 0x0F0F0F0F) << 4);
+#endif /* __LP64__ */
 }
 
 static void r90_level_map_cb(monome_t *monome, uint8_t *dst,
@@ -221,9 +246,19 @@ static void r270_map_cb(monome_t *monome, uint8_t *data) {
 #ifdef __LP64__
 	uint64_t t, x = *((uint64_t *) data);
 
-#define swap(f, c)\
+# define swap(f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
 
+# ifdef LM_BIG_ENDIAN
+	swap(8, 0xFF00FF00FF00FF00LLU);
+	swap(9, 0xAA00AA00AA00AA00LLU);
+
+	swap(16, 0xFFFF0000FFFF0000LLU);
+	swap(18, 0xCCCC0000CCCC0000LLU);
+
+	swap(32, 0xFFFFFFFF00000000LLU);
+	swap(36, 0xF0F0F0F000000000LLU);
+# else
 	swap(8, 0xFF00FF00FF00FF00LLU);
 	swap(7, 0x5500550055005500LLU);
 
@@ -232,7 +267,8 @@ static void r270_map_cb(monome_t *monome, uint8_t *data) {
 
 	swap(32, 0xFFFFFFFF00000000LLU);
 	swap(28, 0x0F0F0F0F00000000LLU);
-#undef swap
+# endif /* defined LM_BIG_ENDIAN */
+# undef swap
 
 	*((uint64_t *) data) = x;
 #else /* __LP64__ */
@@ -242,9 +278,22 @@ static void r270_map_cb(monome_t *monome, uint8_t *data) {
 	y = *(((uint32_t *) data) + 1);
 	t = 0;
 
-#define swap(x, f, c)\
+# define swap(x, f, c)\
 	t = (x ^ (x << f)) & c; x ^= t ^ (t >> f);
 
+# ifdef LM_BIG_ENDIAN
+	swap(x, 8, 0xFF00FF00);
+	swap(x, 9, 0xAA00AA00);
+
+	swap(x, 16, 0xFFFF0000);
+	swap(x, 18, 0xCCCC0000);
+
+	swap(y, 8, 0xFF00FF00);
+	swap(y, 9, 0xAA00AA00);
+
+	swap(y, 16, 0xFFFF0000);
+	swap(y, 18, 0xCCCC0000);
+# else
 	swap(x, 8, 0xFF00FF00);
 	swap(x, 7, 0x55005500);
 
@@ -256,10 +305,12 @@ static void r270_map_cb(monome_t *monome, uint8_t *data) {
 
 	swap(y, 16, 0xFFFF0000);
 	swap(y, 14, 0x33330000);
-#undef swap
+# endif /* defined LM_BIG_ENDIAN */
 
 	*((uint32_t *) data) = ((x & 0x0F0F0F0F) << 4) | (y & 0x0F0F0F0F);
 	*(((uint32_t *) data) + 1) = (x & 0xF0F0F0F0) | ((y & 0xF0F0F0F0) >> 4);
+# undef swap
+
 #endif /* defined __LP64__ */
 }
 
