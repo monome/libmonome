@@ -31,13 +31,13 @@
 #define FTDI_PATH "/sys/bus/usb/drivers/ftdi_sio"
 #define MAX_LENGTH 128
 
-static char *get_serial(int bus, int device) {
+static char *get_serial(char *device) {
 	char *filestr, buf[MAX_LENGTH], *serial;
 	int len, serial_fd;
 
 	serial = NULL;
 
-	if( asprintf(&filestr, "/sys/bus/usb/devices/%d-%d/serial", bus, device) < 0 )
+	if( asprintf(&filestr, "/sys/bus/usb/devices/%s/serial", device) < 0 )
 		return NULL;
 
 	if( (serial_fd = open(filestr, O_RDONLY)) < 0 )
@@ -58,9 +58,8 @@ err:
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
-	int bus, device;
 	glob_t gb;
-	char *buf;
+	char *buf, *device;
 
 	assert(path);
 
@@ -74,12 +73,21 @@ char *monome_platform_get_dev_serial(const char *path) {
 	free(buf);
 
 	if( !gb.gl_pathc )
-		return NULL;
+		goto err_nodevs;
 
-	sscanf(*gb.gl_pathv, FTDI_PATH "/%d-%d", &bus, &device);
+	device = *gb.gl_pathv + (sizeof(FTDI_PATH) * sizeof(char));
+	if( !(buf = strchr(device, ':')) )
+		goto err_baddev;
+
+	*buf = '\0';
+	if( !(buf = get_serial(device)) )
+		goto err_baddev;
+
 	globfree(&gb);
+	return buf;
 
-	if( (buf = get_serial(bus, device)) )
-		return buf;
+err_baddev:
+		globfree(&gb);
+err_nodevs:
 	return NULL;
 }
