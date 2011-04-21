@@ -32,9 +32,10 @@ typedef enum {
 	MONOME_ENCODER_DELTA    = 0x02,
 	MONOME_ENCODER_KEY_UP   = 0x03,
 	MONOME_ENCODER_KEY_DOWN = 0x04,
+	MONOME_TILT             = 0x05,
 
 	/* update this if you add event types */
-	MONOME_EVENT_MAX        = 0x05
+	MONOME_EVENT_MAX        = 0x06
 } monome_event_type_t;
 
 /* modes (argument to monome_mode) */
@@ -75,6 +76,11 @@ struct monome_event {
 			unsigned int number;
 			int delta;
 		} encoder;
+
+		struct {
+			int x;
+			int y;
+		} tilt;
 	};
 };
 

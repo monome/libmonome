@@ -38,6 +38,7 @@ typedef struct monome_devmap monome_devmap_t;
 typedef struct monome_led_functions monome_led_functions_t;
 typedef struct monome_led_level_functions monome_led_level_functions_t;
 typedef struct monome_led_ring_functions monome_led_ring_functions_t;
+typedef struct monome_tilt_functions monome_tilt_functions_t;
 
 typedef void (*monome_coord_cb_t)(monome_t *, uint_t *x, uint_t *y);
 typedef void (*monome_map_cb_t)(monome_t *, uint8_t *data);
@@ -107,6 +108,11 @@ struct monome_led_ring_functions {
 	             uint_t level);
 };
 
+struct monome_tilt_functions {
+	int (*enable)(monome_t *monome);
+	int (*disable)(monome_t *monome);
+};
+
 struct monome {
 	/* handle for the loaded protocol module */
 	void *dl_handle;
@@ -133,6 +139,7 @@ struct monome {
 	monome_led_functions_t *led;
 	monome_led_level_functions_t *led_level;
 	monome_led_ring_functions_t *led_ring;
+	monome_tilt_functions_t *tilt;
 };
 
 #endif /* defined MONOME_INTERNAL_H */

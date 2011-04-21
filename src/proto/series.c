@@ -154,7 +154,7 @@ static int proto_series_led_col_row_16(monome_t *monome, proto_series_message_t 
 }
 
 /**
- * public
+ * led functions
  */
 
 static int proto_series_led_all(monome_t *monome, uint_t status) {
@@ -266,6 +266,31 @@ static monome_led_functions_t proto_series_led_functions = {
 	.intensity = proto_series_led_intensity
 };
 
+/**
+ * tilt functions
+ *
+ * see http://post.monome.org/comments.php?DiscussionID=773#Item_5
+ */
+
+static int proto_series_tilt_enable(monome_t *monome) {
+	uint8_t buf[1] = {193};
+	return monome_write(monome, buf, sizeof(buf));
+}
+
+static int proto_series_tilt_disable(monome_t *monome) {
+	uint8_t buf[1] = {192};
+	return monome_write(monome, buf, sizeof(buf));
+}
+
+static monome_tilt_functions_t proto_series_tilt_functions = {
+	.enable = proto_series_tilt_enable,
+	.disable = proto_series_tilt_disable
+};
+
+/**
+ * module interface
+ */
+
 static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 
@@ -280,6 +305,17 @@ static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 		e->grid.y = buf[1] & 0x0F;
 
 		UNROTATE_COORDS(monome, e->grid.x, e->grid.y);
+		return 1;
+
+	case PROTO_SERIES_TILT:
+		if( buf[0] & 1 )
+			SERIES_T(monome)->tilt.x = buf[1];
+		else
+			SERIES_T(monome)->tilt.y = buf[1];
+
+		e->event_type = MONOME_TILT;
+		e->tilt.x = SERIES_T(monome)->tilt.x;
+		e->tilt.y = SERIES_T(monome)->tilt.y;
 		return 1;
 
 	case PROTO_SERIES_AUX_INPUT:
@@ -310,7 +346,7 @@ static void proto_series_free(monome_t *monome) {
 }
 
 monome_t *monome_protocol_new() {
-	monome_t *monome = m_calloc(1, sizeof(monome_t));
+	monome_t *monome = m_calloc(1, sizeof(series_t));
 
 	if( !monome )
 		return NULL;
@@ -325,6 +361,10 @@ monome_t *monome_protocol_new() {
 	monome->led = &proto_series_led_functions;
 	monome->led_level = NULL;
 	monome->led_ring = NULL;
+	monome->tilt = &proto_series_tilt_functions;
+
+	SERIES_T(monome)->tilt.x = 0;
+	SERIES_T(monome)->tilt.y = 0;
 
 	return monome;
 }

@@ -17,11 +17,15 @@
 #include "monome.h"
 #include "internal.h"
 
+#define SERIES_T(x) ((series_t *) x)
+typedef struct series series_t;
+
 typedef enum {
 	/* input (from device) */
 
 	PROTO_SERIES_BUTTON_DOWN         = 0x00,
 	PROTO_SERIES_BUTTON_UP           = 0x10,
+	PROTO_SERIES_TILT                = 0xD0,
 	PROTO_SERIES_AUX_INPUT           = 0xE0,
 
 	/* output (to device) */
@@ -47,3 +51,12 @@ typedef enum {
 	PROTO_SERIES_MODE_TEST           = 0x01,
 	PROTO_SERIES_MODE_SHUTDOWN       = 0x02
 } proto_series_mode_t;
+
+struct series {
+	monome_t monome;
+
+	struct {
+		int x;
+		int y;
+	} tilt;
+};
