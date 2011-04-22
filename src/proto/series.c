@@ -308,11 +308,13 @@ static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 		return 1;
 
 	case PROTO_SERIES_TILT:
-		if( buf[0] & 1 )
-			SERIES_T(monome)->tilt.x = buf[1];
-		else
-			SERIES_T(monome)->tilt.y = buf[1];
+		SERIES_T(monome)->tilt.x = buf[1];
+		goto tilt_common; /* shut up okay */
 
+	case PROTO_SERIES_TILT + 1:
+		SERIES_T(monome)->tilt.y = buf[1];
+
+tilt_common: /* I SAID SHUT UP */
 		e->event_type = MONOME_TILT;
 		e->tilt.sensor = 0;
 		e->tilt.x = SERIES_T(monome)->tilt.x;
