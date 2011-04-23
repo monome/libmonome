@@ -65,8 +65,8 @@ static void r90_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 static void r90_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
 
-	*x = t;
-	*y = (COLS(monome) - t) % (COLS(monome) + 1);
+	*x = (COLS(monome) - *y) % (COLS(monome) + 1);
+	*y = t;
 }
 
 static void r90_map_cb(monome_t *monome, uint8_t *data) {
@@ -236,8 +236,8 @@ static void r270_output_cb(monome_t *monome, uint_t *x, uint_t *y) {
 static void r270_input_cb(monome_t *monome, uint_t *x, uint_t *y) {
 	uint_t t = *x;
 
+	*x = *y;
 	*x = (ROWS(monome) - t) % (ROWS(monome) + 1);
-	*y = t;
 }
 
 static void r270_map_cb(monome_t *monome, uint8_t *data) {
