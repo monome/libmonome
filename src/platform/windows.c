@@ -319,3 +319,7 @@ void *m_strdup(const char *s) {
 void m_free(void *ptr) {
 	free(ptr);
 }
+
+void m_sleep(uint_t msec) {
+	Sleep(msec);
+}

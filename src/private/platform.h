@@ -34,3 +34,4 @@ void *m_malloc(size_t size);
 void *m_calloc(size_t nmemb, size_t size);
 void *m_strdup(const char *s);
 void m_free(void *ptr);
+void m_sleep(uint_t msec);
