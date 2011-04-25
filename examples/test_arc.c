@@ -42,6 +42,7 @@ static void chill(int speed) {
 }
 
 void test_ring(monome_t *monome, int r) {
+	uint8_t map[64] = {[0 ... 63] = 0};
 	int b, i;
 
 	for( b = 0; b < 16; b++ ) {
@@ -58,6 +59,22 @@ void test_ring(monome_t *monome, int r) {
 		monome_led_ring_range(monome, r, i, i + (8 - ((i >= 55) ? i - 55: 0)), 15);
 		chill(40);
 		monome_led_ring_all(monome, r, 0);
+	}
+
+	for( i = 0; i < 80; i++ ) {
+		for( b = 0; b < 64; b++ )
+			map[b] = (b - i - 1) & 0xF;
+
+		monome_led_ring_map(monome, r, map);
+		chill(24);
+	}
+
+	for( i = 0; i < 16; i++ ) {
+		for( b = 0; b < 64; b++ )
+			map[b] = (map[b] + 1) % (16 - i);
+
+		monome_led_ring_map(monome, r, map);
+		chill(32);
 	}
 }
 
