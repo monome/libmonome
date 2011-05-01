@@ -192,6 +192,11 @@ struct mext_msg {
 
 		mext_point_t gridsz;
 
+		struct {
+			uint8_t subsystem;
+			uint8_t count;
+		} PACKED query;
+
 		/**
 		 * led grid
 		 */
