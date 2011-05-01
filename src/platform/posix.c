@@ -31,7 +31,7 @@
 #include "platform.h"
 
 #define MONOME_BAUD_RATE B115200
-#define READ_TIMEOUT 15
+#define READ_TIMEOUT 25
 
 /* stops gcc from complaining when compiled with -pedantic */
 typedef union {
@@ -168,7 +168,8 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 	goto party;
 
 	for( ; nbyte; nbyte -= bytes ) {
-		monome_platform_wait_for_input(monome, READ_TIMEOUT);
+		if( monome_platform_wait_for_input(monome, READ_TIMEOUT) )
+			return ret;
 
 party:
 		if( (bytes = read(monome->fd, buf, nbyte)) < 0 )
