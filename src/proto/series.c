@@ -294,7 +294,7 @@ static monome_tilt_functions_t proto_series_tilt_functions = {
 static int proto_series_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 
-	if( monome_platform_read(monome, buf, sizeof(buf)) < sizeof(buf) )
+	if( monome_platform_read(monome, buf, sizeof(buf)) != sizeof(buf) )
 		return 0;
 
 	switch( buf[0] ) {
