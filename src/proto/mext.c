@@ -424,8 +424,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 		break;
 
 	case CMD_SYSTEM_GRIDSZ:
-		MONOME_T(self)->rows = msg->payload.gridsz.x;
-		MONOME_T(self)->cols = msg->payload.gridsz.y;
+		MONOME_T(self)->cols = msg->payload.gridsz.x;
+		MONOME_T(self)->rows = msg->payload.gridsz.y;
 		break;
 
 	case CMD_SYSTEM_ADDR:
