@@ -673,11 +673,11 @@ export PROJECT    = $PROJECT
 export VERSION    = $VERSION
 
 export PREFIX     = $PREFIX
-export BINDIR     = $PREFIX/bin
-export LIBDIR     = $PREFIX/lib
-export INCDIR     = $PREFIX/include
-export MANDIR     = $MANDIR
-export PKGCONFIGDIR = $PKGCONFIGDIR
+export BINDIR     = \$(DESTDIR)$PREFIX/bin
+export LIBDIR     = \$(DESTDIR)$PREFIX/lib
+export INCDIR     = \$(DESTDIR)$PREFIX/include
+export MANDIR     = \$(DESTDIR)$MANDIR
+export PKGCONFIGDIR = \$(DESTDIR)$PKGCONFIGDIR
 
 export CC         = $CC
 export LD         = $LD
