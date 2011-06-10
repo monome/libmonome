@@ -93,7 +93,7 @@ static int osc_led_col_row_handler(const char *path, const char *types,
 	if( strstr(path, "led_col") )
 		return monome_led_col(monome, argv[0]->i, 0, argc - 1, buf);
 	else
-		return monome_led_row(monome, argv[0]->i, 0, argc - 1, buf);
+		return monome_led_row(monome, 0, argv[0]->i, argc - 1, buf);
 }
 
 static int osc_led_map_handler(const char *path, const char *types,
