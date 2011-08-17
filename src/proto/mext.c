@@ -401,6 +401,45 @@ static monome_led_ring_functions_t mext_led_ring_functions = {
 };
 
 /**
+ * tilt functions
+ */
+
+static int mext_tilt_enable(monome_t *monome, uint_t sensor) {
+	mext_msg_t msg = {
+		.addr = SS_TILT,
+		.cmd  = CMD_TILT_ENABLE,
+
+		.payload = {
+			.tilt_sys = {
+				.number = sensor
+			}
+		}
+	};
+
+	return mext_write_msg(monome, &msg);
+}
+
+static int mext_tilt_disable(monome_t *monome, uint_t sensor) {
+	mext_msg_t msg = {
+		.addr = SS_TILT,
+		.cmd  = CMD_TILT_DISABLE,
+
+		.payload = {
+			.tilt_sys = {
+				.number = sensor
+			}
+		}
+	};
+
+	return mext_write_msg(monome, &msg);
+}
+
+static monome_tilt_functions_t mext_tilt_functions = {
+	.enable = mext_tilt_enable,
+	.disable = mext_tilt_disable
+};
+
+/**
  * event handlers
  */
 
@@ -477,12 +516,34 @@ static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e
 	return 0;
 }
 
+static int mext_handler_tilt(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+	switch( msg->cmd ) {
+	case CMD_TILT_STATES:
+		break;
+
+	case CMD_TILT:
+		e->event_type = MONOME_TILT;
+		e->tilt.sensor = msg->payload.tilt.number;
+		e->tilt.x = msg->payload.tilt.x;
+		e->tilt.y = msg->payload.tilt.y;
+		e->tilt.z = msg->payload.tilt.z;
+
+		return 1;
+
+	default:
+		break;
+	}
+
+	return 0;
+}
+
 static mext_handler_t subsystem_event_handlers[16] = {
 	[0 ... 15] = &mext_handler_noop,
 	
 	[SS_SYSTEM]   = mext_handler_system,
 	[SS_KEY_GRID] = mext_handler_key_grid,
-	[SS_ENCODER]  = mext_handler_encoder
+	[SS_ENCODER]  = mext_handler_encoder,
+	[SS_TILT]     = mext_handler_tilt
 };
 
 /**
@@ -555,6 +616,7 @@ monome_t *monome_protocol_new() {
 	monome->led = &mext_led_functions;
 	monome->led_level = &mext_led_level_functions;
 	monome->led_ring = &mext_led_ring_functions;
+	monome->tilt = &mext_tilt_functions;
 
 	return monome;
 }
