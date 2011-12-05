@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h> //To Be Removed
 
 #include <monome.h>
 #include "internal.h"
@@ -159,9 +160,41 @@ static monome_led_functions_t proto_40h_led_functions = {
 	.intensity = proto_40h_intensity
 };
 
+/**
+ * tilt functions
+ *
+ * see http://post.monome.org/comments.php?DiscussionID=773#Item_5
+ */
+
+static int proto_40h_tilt_enable(monome_t *monome, uint_t sensor) {
+	printf("Enable\n");
+	printf("%d", sensor);
+	printf("\n");
+	return 0;
+	// return monome_write(monome, buf, sizeof(buf));
+}
+
+static int proto_40h_tilt_disable(monome_t *monome, uint_t sensor) {
+	
+	printf("Disable\n");
+	printf("%d", sensor);
+	printf("\n");
+	return 0;
+	// return monome_write(monome, buf, sizeof(buf));
+}
+
+static monome_tilt_functions_t proto_40h_tilt_functions = {
+	.enable = proto_40h_tilt_enable,
+	.disable = proto_40h_tilt_disable
+};
+
+/**
+ * module interface
+ */
+
 static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
-
+	
 	if( monome_platform_read(monome, buf, sizeof(buf)) != sizeof(buf) )
 		return 0;
 
@@ -220,6 +253,7 @@ monome_t *monome_protocol_new() {
 	monome->led = &proto_40h_led_functions;
 	monome->led_level = NULL;
 	monome->led_ring = NULL;
+	monome->tilt = &proto_40h_tilt_functions;
 
 	return monome;
 }
