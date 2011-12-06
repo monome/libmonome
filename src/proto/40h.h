@@ -24,8 +24,8 @@ typedef enum {
 
 	PROTO_40h_BUTTON_DOWN         = 0x01,
 	PROTO_40h_BUTTON_UP           = 0x00,
-	PROTO_40h_AUX_INPUT           = 0x10,
-	PROTO_40h_TILT                = 0x11,
+	PROTO_40h_AUX_1               = 0x10,
+	PROTO_40h_AUX_2               = 0x14,
 
 	/* output (to device) */
 
