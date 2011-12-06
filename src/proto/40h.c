@@ -188,6 +188,10 @@ static monome_tilt_functions_t proto_40h_tilt_functions = {
 static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 	
+	// Below values store important tilt data
+	uint8_t address[1] = {((buf[0] & 0xF0) >> 4)};
+	uint8_t port[1] = {((buf[0] & 0xC) >> 2)};
+	
 	if( monome_platform_read(monome, buf, sizeof(buf)) != sizeof(buf) )
 		return 0;
 
@@ -200,10 +204,28 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 
 		UNROTATE_COORDS(monome, e->grid.x, e->grid.y);
 		return 1;
+	}
+	
+	// Below code should in theory update the tilt... but it isn't working yet
+	
+	if (address[0] == 5){
+		switch( port[0] ){
+		case PROTO_40h_TILT:
+			MONOME_40H_T(monome)->tilt.x = buf[1];
+			goto tilt_common; /* shut up okay */
 
-	case PROTO_40h_AUX_INPUT:
-		/* soon */
-		return 0;
+		case PROTO_40h_TILT + 1:
+			MONOME_40H_T(monome)->tilt.y = buf[1];
+
+	tilt_common: /* I SAID SHUT UP */
+		e->event_type = MONOME_TILT;
+		e->tilt.sensor = 0;
+		e->tilt.x = MONOME_40H_T(monome)->tilt.x;
+		e->tilt.y = MONOME_40H_T(monome)->tilt.y;
+		e->tilt.z = 0;
+		return 1;
+
+		}
 	}
 
 	return 0;
@@ -247,6 +269,9 @@ monome_t *monome_protocol_new() {
 	monome->led_level = NULL;
 	monome->led_ring = NULL;
 	monome->tilt = &proto_40h_tilt_functions;
+	
+	MONOME_40H_T(monome)->tilt.x = 0;
+	MONOME_40H_T(monome)->tilt.y = 0;
 
 	return monome;
 }
