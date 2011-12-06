@@ -16,7 +16,6 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdio.h> //To Be Removed
 
 #include <monome.h>
 #include "internal.h"
@@ -206,14 +205,14 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	case PROTO_40h_AUX_1 + 1:
 	case PROTO_40h_AUX_1 + 2:
 	case PROTO_40h_AUX_1 + 3:
-		MONOME_40H_T(monome)->tilt.x = (((buf[0] & 0x2) << 8) + buf[1]) / 4;
+		MONOME_40H_T(monome)->tilt.x = (((buf[0] & 0x3) << 8) | buf[1]) / 4;
 		goto tilt_common; /* shut up okay */
 
 	case PROTO_40h_AUX_2:
 	case PROTO_40h_AUX_2 + 1:
 	case PROTO_40h_AUX_2 + 2:
 	case PROTO_40h_AUX_2 + 3:
-		MONOME_40H_T(monome)->tilt.y = (((buf[0] & 0x2) << 8) + buf[1]) / 4;
+		MONOME_40H_T(monome)->tilt.y = (((buf[0] & 0x3) << 8) | buf[1]) / 4;
 
 tilt_common: /* I SAID SHUT UP */
 		e->event_type = MONOME_TILT;
