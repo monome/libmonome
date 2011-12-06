@@ -167,12 +167,12 @@ static monome_led_functions_t proto_40h_led_functions = {
  */
 
 static int proto_40h_tilt_enable(monome_t *monome, uint_t sensor) {
-	uint8_t buf[2] = {80, (sensor << 4) + 1};
+	uint8_t buf[2] = {PROTO_40h_ADC_ENABLE, (sensor << 4) + 1};
 	return monome_write(monome, buf, sizeof(buf));
 }
 
 static int proto_40h_tilt_disable(monome_t *monome, uint_t sensor) {
-	uint8_t buf[2] = {80, (sensor << 4) + 0};
+	uint8_t buf[2] = {PROTO_40h_ADC_ENABLE, (sensor << 4) + 0};
 	return monome_write(monome, buf, sizeof(buf));
 }
 
