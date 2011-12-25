@@ -370,7 +370,7 @@ determine_mandir() {
 }
 
 determine_pkgconfigdir() {
-	TRY_PKGCONFIGPATHS=/usr/lib/pkgconfig:$PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH
+	TRY_PKGCONFIGPATHS=$PREFIX/lib/pkgconfig:/usr/lib/pkgconfig:$PKG_CONFIG_PATH
 
 	for DIR in `echo $TRY_PKGCONFIGPATHS | tr ':' ' '`; do
 		if [ -d $DIR ]; then
