@@ -186,7 +186,7 @@ static monome_tilt_functions_t proto_40h_tilt_functions = {
 
 static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
-	
+
 	if( monome_platform_read(monome, buf, sizeof(buf)) != sizeof(buf) )
 		return 0;
 
@@ -200,7 +200,6 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 		UNROTATE_COORDS(monome, e->grid.x, e->grid.y);
 		return 1;
 		
-
 	case PROTO_40h_AUX_1:
 	case PROTO_40h_AUX_1 + 1:
 	case PROTO_40h_AUX_1 + 2:
@@ -221,7 +220,6 @@ tilt_common: /* I SAID SHUT UP */
 		e->tilt.y = MONOME_40H_T(monome)->tilt.y;
 		e->tilt.z = 0;
 		return 1;
-
 	}
 
 	return 0;
@@ -265,7 +263,7 @@ monome_t *monome_protocol_new() {
 	monome->led_level = NULL;
 	monome->led_ring = NULL;
 	monome->tilt = &proto_40h_tilt_functions;
-	
+
 	MONOME_40H_T(monome)->tilt.x = 0;
 	MONOME_40H_T(monome)->tilt.y = 0;
 
