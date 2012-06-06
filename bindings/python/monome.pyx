@@ -27,7 +27,10 @@ cdef extern from "monome.h":
 	ctypedef enum monome_event_type_t:
 		MONOME_BUTTON_UP,
 		MONOME_BUTTON_DOWN,
-		MONOME_AUX_INPUT
+		MONOME_ENCODER_DELTA,
+		MONOME_ENCODER_KEY_UP,
+		MONOME_ENCODER_KEY_DOWN,
+		MONOME_TILT
 
 	ctypedef enum monome_mode_t:
 		MONOME_MODE_NORMAL,
@@ -104,11 +107,6 @@ all = [
 	# constants
 	# XXX: should these be members of the class?
 
-	"BUTTON_UP",
-	"BUTTON_DOWN",
-	"AUX_INPUT",
-	"CLEAR_OFF",
-	"CLEAR_ON",
 	"MODE_NORMAL",
 	"MODE_TEST",
 	"MODE_SHUTDOWN",
@@ -120,17 +118,10 @@ all = [
 	# classes
 
 	"MonomeEvent",
-	"MonomeButtonEvent",
+	"MonomeGridEvent",
 
 	"Monome"]
 
-
-BUTTON_UP = 0
-BUTTON_DOWN = 1
-AUX_INPUT = 2
-
-CLEAR_OFF = 0
-CLEAR_ON = 1
 
 MODE_NORMAL = 0
 MODE_TEST = 1
@@ -169,16 +160,17 @@ def _bitmap_data(data):
 
 
 cdef class MonomeEvent(object):
-	pass
-
-
-cdef class MonomeButtonEvent(MonomeEvent):
-	cdef uint x, y
-	cdef bool pressed
 	cdef object monome
 
-	def __cinit__(self, pressed, uint x, uint y, object monome=None):
+	def __cinit__(self, object monome):
 		self.monome = monome
+
+cdef class MonomeGridEvent(MonomeEvent):
+	cdef uint x, y
+	cdef bool pressed
+
+	def __cinit__(self, pressed, uint x, uint y, object monome):
+		MonomeEvent.__cinit__(monome)
 		self.pressed = bool(pressed)
 		self.x = x
 		self.y = y
@@ -205,7 +197,12 @@ cdef class MonomeButtonEvent(MonomeEvent):
 
 
 cdef MonomeEvent event_from_event_t(const_monome_event_t *e, object monome=None):
-	return MonomeButtonEvent(<uint> e.event_type, e.grid.x, e.grid.y, monome)
+	if   e.event_type == MONOME_BUTTON_DOWN:
+		return MonomeGridEvent(1, e.grid.x, e.grid.y, monome)
+	elif e.event_type == MONOME_BUTTON_UP:
+		return MonomeGridEvent(0, e.grid.x, e.grid.y, monome)
+
+	# XXX: handle other event types
 
 cdef void handler_thunk(const_monome_event_t *event, void *data):
 	ev_wrapper = event_from_event_t(event, (<Monome> data))
@@ -263,7 +260,7 @@ cdef class Monome(object):
 		self.handlers = [None, None, None]
 
 		if clear:
-			self.clear(CLEAR_OFF)
+			self.led_all(0)
 
 	def __dealloc__(self):
 		monome_close(self.monome)
@@ -331,10 +328,10 @@ cdef class Monome(object):
 	def next_event(self):
 		cdef monome_event_t e
 
-		if not monome_event_next(self.monome, &e):
-			return None
-		else:
+		if monome_event_next(self.monome, &e):
 			return event_from_event_t(&e, self)
+
+		return None
 
 	def fileno(self):
 		return self.fd
