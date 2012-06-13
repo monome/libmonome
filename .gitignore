@@ -1,11 +1,9 @@
-# compiled stuff
-config.mk
-libmonome.pc
-*.o
-*.so*
-*.dylib
-*.dll
-*.pyc
+# waf stuff
+.lock-waf*
+.waf*
+
+# build stuff
+build/
 
 # temporary stuff
 *.swp
