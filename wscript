@@ -96,12 +96,18 @@ def check_liblo(conf):
 
 def options(opt):
 	opt.load("compiler_c")
+	opt.load("cython")
 
 	lm_opts = opt.add_option_group("libmonome options")
+
 	lm_opts.add_option("--disable-osc", action="store_true",
 			default=False, help="disable OSC/liblo support [enabled by default]")
+	lm_opts.add_option("--enable-python", action="store_true",
+			default=False, help="enable python bindings [disabled by default]")
 
 def configure(conf):
+	print("")
+
 	conf.load("compiler_c")
 
 	conf.check_library()
@@ -121,6 +127,12 @@ def configure(conf):
 		check_liblo(conf)
 
 	print("")
+
+	if conf.options.enable_python:
+		conf.load("python")
+		conf.load("cython")
+
+		print("")
 
 	#
 	# setting defines, etc
