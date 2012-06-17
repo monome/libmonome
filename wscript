@@ -3,6 +3,8 @@
 top = "."
 out = "build"
 
+# change this stuff
+
 project = "libmonome"
 version = "1.1"
 
@@ -101,6 +103,7 @@ def options(opt):
 
 def configure(conf):
 	conf.load("compiler_c")
+
 	conf.check_library()
 	if conf.check_endianness() == "big":
 		conf.define("LM_BIG_ENDIAN", 1)
@@ -135,4 +138,5 @@ def configure(conf):
 	conf.write_config_header("config.h")
 
 def build(bld):
+	bld.install_files("${PREFIX}/include", ["public/monome.h"])
 	bld.recurse("src")

@@ -1,9 +1,26 @@
 #!/usr/bin/env python
 
+from waflib.TaskGen import before_method, after_method, feature
+
 top = ".."
 
+@feature("proto_module")
+@before_method('propagate_uselib_vars', 'apply_link')
+@after_method('apply_bundle')
+def proto_module(self):
+	"""
+	removes 'lib' from cshlib_PATTERN if it's there.
+	"""
+
+	pat = self.env["cshlib_PATTERN"]
+	if pat[:3] == "lib":
+		pat = pat[3:]
+		self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = pat
+
 def build(bld):
+	# ".." includes the build directory (for config.h)
 	bld(export_includes=".. private", name="lm_inc")
+
 	objs = []
 	obj = lambda src: objs.append(src)
 
@@ -31,18 +48,23 @@ def build(bld):
 	# protocols
 	#
 
-	opat = bld.env.cshlib_PATTERN
-	if bld.env.cshlib_PATTERN[:3] == "lib":
-		# don't always want "lib" before my lib names. grumble grumble.
-		bld.env.cshlib_PATTERN = bld.env.cshlib_PATTERN[3:]
-
 	for p in bld.env.PROTOCOLS:
-		bld.shlib(source="proto/{0}.c".format(p), target="protocol_{0}".format(p), use="lm_inc")
+		bld.shlib(
+			source="proto/{0}.c".format(p),
+			features="proto_module",
+			use="lm_inc",
+
+			target="protocol_{0}".format(p),
+			install_path="${LIBDIR}/monome")
 
 	if bld.env.LIB_LO:
-		bld.shlib(source="proto/osc.c", target="protocol_osc", use="lm_inc LO")
+		bld.shlib(
+			source="proto/osc.c",
+			features="proto_module",
+			use="lm_inc LO",
 
-	bld.env.cshlib_PATTERN = opat
+			target="protocol_osc",
+			install_path="${LIBDIR}/monome")
 
 	#
 	# common
@@ -54,14 +76,14 @@ def build(bld):
 	# the UDEV use is ignored if it is not defined
 	bld.shlib(
 		source=objs,
-		target="monome",
-
 		use="lm_inc UDEV",
+
+		target="monome",
 		vnum=bld.env.VERSION)
 
 	if bld.env.LIB_LO:
 		bld.program(
 			source="monomeserial.c",
-			target="monomeserial",
+			use="lm_inc monome LO",
 
-			use="lm_inc monome LO")
+			target="monomeserial")
