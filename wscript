@@ -5,8 +5,8 @@ out = "build"
 
 # change this stuff
 
-project = "libmonome"
-version = "1.1"
+APPNAME = "libmonome"
+VERSION = "1.1"
 
 #
 # dep checking functions
@@ -144,8 +144,8 @@ def configure(conf):
 	conf.define("LIBDIR", conf.env.LIBDIR)
 	conf.define("LIBSUFFIX", "." + conf.env.cshlib_PATTERN.rsplit(".", 1)[-1])
 
-	conf.env.VERSION = version
-	conf.define("VERSION", version)
+	conf.env.VERSION = VERSION
+	conf.define("VERSION", VERSION)
 
 	conf.write_config_header("config.h")
 
