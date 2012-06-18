@@ -106,11 +106,12 @@ def options(opt):
 			default=False, help="enable python bindings [disabled by default]")
 
 def configure(conf):
-	print("")
+	# just for output prettifying
+	separator = lambda: print("")
 
+	separator()
 	conf.load("compiler_c")
 
-	conf.check_library()
 	if conf.check_endianness() == "big":
 		conf.define("LM_BIG_ENDIAN", 1)
 
@@ -118,21 +119,24 @@ def configure(conf):
 	# conf checks
 	#
 
-	print("")
+	separator()
 
-	check_poll(conf)
-	check_udev(conf)
+	if conf.env.DEST_OS != "win32":
+		check_poll(conf)
+
+	if conf.env.DEST_OS == "linux":
+		check_udev(conf)
 
 	if not conf.options.disable_osc:
 		check_liblo(conf)
 
-	print("")
+	separator()
 
 	if conf.options.enable_python:
 		conf.load("python")
 		conf.load("cython")
 
-		print("")
+		separator()
 
 	#
 	# setting defines, etc

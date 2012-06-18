@@ -17,9 +17,22 @@ def proto_module(self):
 		pat = pat[3:]
 		self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = pat
 
+@feature("force_lib_prefix")
+@before_method('propagate_uselib_vars', 'apply_link')
+@after_method('apply_bundle')
+def force_lib_prefix(self):
+	"""
+	adds 'lib' to cshlib_PATTERN if it's not there.
+	"""
+
+	pat = self.env["cshlib_PATTERN"]
+	if pat[:3] != "lib":
+		pat = "lib{0}".format(pat)
+		self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = pat
+
 def build(bld):
 	# ".." includes the build directory (for config.h)
-	bld(export_includes=".. private", name="lm_inc")
+	bld(export_includes=".. ../public private", name="lm_inc")
 
 	objs = []
 	obj = lambda src: objs.append(src)
@@ -41,8 +54,10 @@ def build(bld):
 		obj("platform/darwin.c")
 		obj("platform/posix.c")
 
-	elif bld.env.DEST_OS == "windows":
+	elif bld.env.DEST_OS == "win32":
 		obj("platform/windows.c")
+
+	print(bld.env)
 
 	#
 	# protocols
@@ -52,7 +67,7 @@ def build(bld):
 		bld.shlib(
 			source="proto/{0}.c".format(p),
 			features="proto_module",
-			use="lm_inc",
+			use="lm_inc monome",
 
 			target="protocol_{0}".format(p),
 			install_path="${LIBDIR}/monome")
@@ -73,13 +88,21 @@ def build(bld):
 	obj("rotation.c")
 	obj("libmonome.c")
 
-	# the UDEV use is ignored if it is not defined
-	bld.shlib(
-		source=objs,
-		use="lm_inc UDEV",
+	if bld.env.DEST_OS == "win32":
+		bld.shlib(
+			source=objs,
+			features="force_lib_prefix",
+			use="lm_inc",
 
-		target="monome",
-		vnum=bld.env.VERSION)
+			target="monome")
+	else:
+		# the UDEV use is ignored if it is not defined
+		bld.shlib(
+			source=objs,
+			use="lm_inc UDEV",
+
+			target="monome",
+			vnum=bld.env.VERSION)
 
 	if bld.env.LIB_LO:
 		bld.program(
