@@ -97,7 +97,7 @@ def build(bld):
 		# the UDEV use is ignored if it is not defined
 		bld.shlib(
 			source=objs,
-			use="lm_inc UDEV",
+			use="lm_inc UDEV DL",
 
 			target="monome",
 			vnum=bld.env.VERSION)
