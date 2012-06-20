@@ -57,8 +57,6 @@ def build(bld):
 	elif bld.env.DEST_OS == "win32":
 		obj("platform/windows.c")
 
-	print(bld.env)
-
 	#
 	# protocols
 	#
