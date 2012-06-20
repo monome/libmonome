@@ -15,4 +15,4 @@ mrproper:
 	rm -f monomeserial.1
 
 monomeserial.1: monomeserial.in.1
-	sed -e "s/\$Mdocdate\$$/`date +"%B %-d, %Y"`/g" < $< > $@
+	sed -e "s/@MDOCDATE@$/`date +"%B %-d, %Y"`/g" < $< > $@
