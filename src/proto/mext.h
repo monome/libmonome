@@ -87,7 +87,16 @@ typedef enum {
 	/* incoming */
 	CMD_ENCODER_DELTA       = 0x0,
 	CMD_ENCODER_SWITCH_UP   = 0x1,
-	CMD_ENCODER_SWITCH_DOWN = 0x2
+	CMD_ENCODER_SWITCH_DOWN = 0x2,
+
+	/* outgoing */
+	CMD_TILT_STATE_REQ      = 0x0,
+	CMD_TILT_ENABLE         = 0x1,
+	CMD_TILT_DISABLE        = 0x2,
+
+	/* incoming */
+	CMD_TILT_STATES         = 0x0,
+	CMD_TILT                = 0x1
 } mext_cmd_t;
 
 /* message lengths exclude one-byte header */
@@ -128,6 +137,12 @@ static size_t outgoing_payload_lengths[16][16] = {
 		[CMD_LED_RING_ALL]   = 2,
 		[CMD_LED_RING_MAP]   = 33,
 		[CMD_LED_RING_RANGE] = 4
+	},
+
+	[SS_TILT] = {
+		[CMD_TILT_STATE_REQ] = 0,
+		[CMD_TILT_ENABLE]    = 1,
+		[CMD_TILT_DISABLE]   = 1
 	}
 };
 
@@ -152,6 +167,11 @@ static size_t incoming_payload_lengths[16][16] = {
 		[CMD_ENCODER_DELTA]       = 2,
 		[CMD_ENCODER_SWITCH_UP]   = 1,
 		[CMD_ENCODER_SWITCH_DOWN] = 1
+	},
+
+	[SS_TILT] = {
+		[CMD_TILT_STATES] = 1,
+		[CMD_TILT]        = 7
 	}
 };
 
@@ -273,5 +293,20 @@ struct mext_msg {
 			uint8_t number;
 			int8_t delta;
 		} PACKED encoder;
+
+		/**
+		 * tilt
+		 */
+
+		struct {
+			uint8_t number;
+		} PACKED tilt_sys;
+
+		struct {
+			uint8_t number;
+			int16_t x;
+			int16_t y;
+			int16_t z;
+		} PACKED tilt;
 	} PACKED payload;
 } PACKED;

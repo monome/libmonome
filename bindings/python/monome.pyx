@@ -1,10 +1,10 @@
 #
 # Copyright (c) 2010 William Light <wrl@illest.net>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -27,28 +27,43 @@ cdef extern from "monome.h":
 	ctypedef enum monome_event_type_t:
 		MONOME_BUTTON_UP,
 		MONOME_BUTTON_DOWN,
-		MONOME_AUX_INPUT
-	
-	ctypedef enum monome_clear_status_t:
-		MONOME_CLEAR_OFF,
-		MONOME_CLEAR_ON
-	
+		MONOME_ENCODER_DELTA,
+		MONOME_ENCODER_KEY_UP,
+		MONOME_ENCODER_KEY_DOWN,
+		MONOME_TILT
+
 	ctypedef enum monome_mode_t:
 		MONOME_MODE_NORMAL,
 		MONOME_MODE_TEST,
 		MONOME_MODE_SHUTDOWN
-	
+
 	ctypedef enum monome_rotate_t:
 		MONOME_CABLE_LEFT,
 		MONOME_CABLE_BOTTOM,
 		MONOME_CABLE_RIGHT,
 		MONOME_CABLE_TOP
 
+	cdef struct _ev_grid:
+		uint x,
+		uint y
+
+	cdef struct _ev_encoder:
+		uint number,
+		int delta
+
+	cdef struct _ev_tilt:
+		uint sensor,
+		int x,
+		int y,
+		int z
+
 	ctypedef struct monome_event_t:
 		monome_t *monome,
 		monome_event_type_t event_type,
-		uint x,
-		uint y
+
+		_ev_grid grid,
+		_ev_encoder encoder,
+		_ev_tilt tilt
 
 	# const hackery
 	ctypedef monome_event_t const_monome_event_t "const monome_event_t"
@@ -77,25 +92,21 @@ cdef extern from "monome.h":
 	int monome_event_handle_next(monome_t *monome)
 	int monome_get_fd(monome_t *monome)
 
-	int monome_clear(monome_t *monome, monome_clear_status_t status)
-	int monome_intensity(monome_t *monome, uint brightness)
 	int monome_mode(monome_t *monome, monome_mode_t mode)
+
+	int monome_led_intensity(monome_t *monome, uint brightness)
 
 	int monome_led_on(monome_t *monome, uint x, uint y)
 	int monome_led_off(monome_t *monome, uint x, uint y)
-	int monome_led_col(monome_t *monome, uint col, size_t count, uint8_t *data)
-	int monome_led_row(monome_t *monome, uint row, size_t count, uint8_t *data)
-	int monome_led_frame(monome_t *monome, uint quadrant, uint8_t *frame_data)
+	int monome_led_all(monome_t *monome, uint status)
+	int monome_led_row(monome_t *monome, uint x_off, uint y, size_t count, uint8_t *data)
+	int monome_led_col(monome_t *monome, uint x, uint y_off, size_t count, uint8_t *data)
+	int monome_led_map(monome_t *monome, uint x_off, uint y_off, uint8_t *data)
 
 all = [
 	# constants
 	# XXX: should these be members of the class?
 
-	"BUTTON_UP",
-	"BUTTON_DOWN",
-	"AUX_INPUT",
-	"CLEAR_OFF",
-	"CLEAR_ON",
 	"MODE_NORMAL",
 	"MODE_TEST",
 	"MODE_SHUTDOWN",
@@ -107,17 +118,10 @@ all = [
 	# classes
 
 	"MonomeEvent",
-	"MonomeButtonEvent",
+	"MonomeGridEvent",
 
 	"Monome"]
 
-
-BUTTON_UP = 0
-BUTTON_DOWN = 1
-AUX_INPUT = 2
-
-CLEAR_OFF = 0
-CLEAR_ON = 1
 
 MODE_NORMAL = 0
 MODE_TEST = 1
@@ -156,20 +160,21 @@ def _bitmap_data(data):
 
 
 cdef class MonomeEvent(object):
-	pass
-
-
-cdef class MonomeButtonEvent(MonomeEvent):
-	cdef uint x, y
-	cdef bool pressed
 	cdef object monome
 
-	def __cinit__(self, pressed, uint x, uint y, object monome=None):
+	def __cinit__(self, object monome):
 		self.monome = monome
+
+cdef class MonomeGridEvent(MonomeEvent):
+	cdef uint x, y
+	cdef bool pressed
+
+	def __cinit__(self, pressed, uint x, uint y, object monome):
+		MonomeEvent.__cinit__(monome)
 		self.pressed = bool(pressed)
 		self.x = x
 		self.y = y
-	
+
 	def __repr__(self):
 		return "%s(%s, %d, %d)" % \
 				(self.__class__.__name__, self.pressed, self.x, self.y)
@@ -192,7 +197,12 @@ cdef class MonomeButtonEvent(MonomeEvent):
 
 
 cdef MonomeEvent event_from_event_t(const_monome_event_t *e, object monome=None):
-	return MonomeButtonEvent(<uint> e.event_type, e.x, e.y, monome)
+	if   e.event_type == MONOME_BUTTON_DOWN:
+		return MonomeGridEvent(1, e.grid.x, e.grid.y, monome)
+	elif e.event_type == MONOME_BUTTON_UP:
+		return MonomeGridEvent(0, e.grid.x, e.grid.y, monome)
+
+	# XXX: handle other event types
 
 cdef void handler_thunk(const_monome_event_t *event, void *data):
 	ev_wrapper = event_from_event_t(event, (<Monome> data))
@@ -250,7 +260,7 @@ cdef class Monome(object):
 		self.handlers = [None, None, None]
 
 		if clear:
-			self.clear(CLEAR_OFF)
+			self.led_all(0)
 
 	def __dealloc__(self):
 		monome_close(self.monome)
@@ -318,10 +328,10 @@ cdef class Monome(object):
 	def next_event(self):
 		cdef monome_event_t e
 
-		if not monome_event_next(self.monome, &e):
-			return None
-		else:
+		if monome_event_next(self.monome, &e):
 			return event_from_event_t(&e, self)
+
+		return None
 
 	def fileno(self):
 		return self.fd
@@ -329,9 +339,6 @@ cdef class Monome(object):
 	#
 	# led functions
 	#
-
-	def clear(self, uint status=CLEAR_OFF):
-		monome_clear(self.monome, <monome_clear_status_t> status)
 
 	property mode:
 		def __set__(self, mode):
@@ -344,9 +351,9 @@ cdef class Monome(object):
 			else:
 				monome_mode(self.monome, <monome_mode_t> mode)
 
-	property intensity:
+	property led_intensity:
 		def __set__(self, uint intensity):
-			monome_intensity(self.monome, intensity)
+			monome_led_intensity(self.monome, intensity)
 
 	def led_on(self, uint x, uint y):
 		monome_led_on(self.monome, x, y)
@@ -354,21 +361,24 @@ cdef class Monome(object):
 	def led_off(self, uint x, uint y):
 		monome_led_off(self.monome, x, y)
 
-	def led_row(self, idx, data):
-		cdef uint16_t d = _bitmap_data(data)
-		monome_led_row(self.monome, idx, 2, <uint8_t *> &d)
+	def led_all(self, uint status=0):
+		monome_led_all(self.monome, status)
 
-	def led_col(self, idx, data):
+	def led_row(self, x_off, y, data):
 		cdef uint16_t d = _bitmap_data(data)
-		monome_led_col(self.monome, idx, 2, <uint8_t *> &d)
+		monome_led_row(self.monome, x_off, y, 2, <uint8_t *> &d)
 
-	def led_frame(self, uint quadrant, rows):
+	def led_col(self, x, y_off, idx, data):
+		cdef uint16_t d = _bitmap_data(data)
+		monome_led_col(self.monome, x, y_off, 2, <uint8_t *> &d)
+
+	def led_map(self, uint x_off, uint y_off, data):
 		cdef uint8_t r[8]
 		cdef uint16_t d
 		cdef uint i
 
 		# will raise a TypeError if rows is not iterable
-		rowiter = iter(rows)
+		data_iter = iter(data)
 
 		# cython :(
 		r[0] = r[1] = r[2] = r[3] = r[4] =\
@@ -376,9 +386,9 @@ cdef class Monome(object):
 
 		try:
 			for i from 0 <= i < 8:
-				d = _bitmap_data(rowiter.next())
+				d = _bitmap_data(data_iter.next())
 				r[i] = (<uint8_t *> &d)[0]
 		except StopIteration:
-			pass 
+			pass
 
-		monome_led_frame(self.monome, quadrant, r)
+		monome_led_map(self.monome, x_off, y_off, r)

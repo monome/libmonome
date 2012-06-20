@@ -129,7 +129,7 @@ int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
 		goto err_commstate;
 
 	if( m->quirks & QUIRK_57600_BAUD )
-		serparm.BaudRate = CBR_115200;
+		serparm.BaudRate = CBR_57600;
 	else
 		serparm.BaudRate = CBR_115200;
 

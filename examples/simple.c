@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <monome.h>
 
-unsigned int grid[16][16];
+unsigned int grid[16][16] = { [0 ... 15][0 ... 15] = 0 };
 
 #define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
 
@@ -36,29 +36,19 @@ void handle_press(const monome_event_t *e, void *data) {
 	x = e->grid.x;
 	y = e->grid.y;
 
-	if( grid[x][y] )
-		monome_led_off(e->monome, x, y);
-	else
-		monome_led_on(e->monome, x, y);
-
 	/* toggle the button */
 	grid[x][y] = !grid[x][y];
+	monome_led_set(e->monome, x, y, grid[x][y]);
 }
 
 int main(int argc, char *argv[]) {
 	monome_t *monome;
-	unsigned int x, y;
 
 	/* open the monome device */
 	if( !(monome = monome_open(MONOME_DEVICE, "8000")) )
 		return -1;
 
 	monome_led_all(monome, 0);
-
-	/* initialize the grid (all off) */
-	for( x = 0; x < 16; x++ )
-		for( y = 0; y < 16; y++ )
-			grid[x][y] = 0;
 
 	/* register our button press callback */
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
@@ -67,6 +57,5 @@ int main(int argc, char *argv[]) {
 	monome_event_loop(monome);
 
 	monome_close(monome);
-
 	return 0;
 }

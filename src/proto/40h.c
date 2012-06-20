@@ -159,6 +159,31 @@ static monome_led_functions_t proto_40h_led_functions = {
 	.intensity = proto_40h_intensity
 };
 
+/**
+ * tilt functions
+ *
+ * see http://post.monome.org/comments.php?DiscussionID=773#Item_5
+ */
+
+static int proto_40h_tilt_enable(monome_t *monome, uint_t sensor) {
+	uint8_t buf[2] = {PROTO_40h_ADC_ENABLE, (sensor << 4) + 1};
+	return monome_write(monome, buf, sizeof(buf));
+}
+
+static int proto_40h_tilt_disable(monome_t *monome, uint_t sensor) {
+	uint8_t buf[2] = {PROTO_40h_ADC_ENABLE, (sensor << 4) + 0};
+	return monome_write(monome, buf, sizeof(buf));
+}
+
+static monome_tilt_functions_t proto_40h_tilt_functions = {
+	.enable = proto_40h_tilt_enable,
+	.disable = proto_40h_tilt_disable
+};
+
+/**
+ * module interface
+ */
+
 static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 	uint8_t buf[2] = {0, 0};
 
@@ -174,10 +199,27 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 
 		UNROTATE_COORDS(monome, e->grid.x, e->grid.y);
 		return 1;
+		
+	case PROTO_40h_AUX_1:
+	case PROTO_40h_AUX_1 + 1:
+	case PROTO_40h_AUX_1 + 2:
+	case PROTO_40h_AUX_1 + 3:
+		MONOME_40H_T(monome)->tilt.x = (((buf[0] & 0x3) << 8) | buf[1]) / 4;
+		goto tilt_common; /* shut up okay */
 
-	case PROTO_40h_AUX_INPUT:
-		/* soon */
-		return 0;
+	case PROTO_40h_AUX_2:
+	case PROTO_40h_AUX_2 + 1:
+	case PROTO_40h_AUX_2 + 2:
+	case PROTO_40h_AUX_2 + 3:
+		MONOME_40H_T(monome)->tilt.y = (((buf[0] & 0x3) << 8) | buf[1]) / 4;
+
+tilt_common: /* I SAID SHUT UP */
+		e->event_type = MONOME_TILT;
+		e->tilt.sensor = 0;
+		e->tilt.x = MONOME_40H_T(monome)->tilt.x;
+		e->tilt.y = MONOME_40H_T(monome)->tilt.y;
+		e->tilt.z = 0;
+		return 1;
 	}
 
 	return 0;
@@ -220,6 +262,10 @@ monome_t *monome_protocol_new() {
 	monome->led = &proto_40h_led_functions;
 	monome->led_level = NULL;
 	monome->led_ring = NULL;
+	monome->tilt = &proto_40h_tilt_functions;
+
+	MONOME_40H_T(monome)->tilt.x = 0;
+	MONOME_40H_T(monome)->tilt.y = 0;
 
 	return monome;
 }
