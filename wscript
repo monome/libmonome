@@ -43,16 +43,6 @@ def check_poll(conf):
 			errmsg="no (will use select())")
 
 def check_udev(conf):
-	code = """
-		#include <libudev.h>
-
-		int main(int argc, char **argv) {
-		    struct udev *udev = udev_new();
-		    udev_unref(udev);
-
-		    return 0;
-		}"""
-
 	conf.check_cc(
 			define_name="HAVE_LIBUDEV",
 			mandatory=False,
@@ -62,21 +52,11 @@ def check_udev(conf):
 
 			lib="udev",
 			uselib_store="UDEV",
-			fragment=code,
 
 			msg="Checking for libudev",
 			errmsg="no (will use sysfs)")
 
 def check_liblo(conf):
-	code = """
-		#include <lo/lo.h>
-
-		int main(int argc, char **argv) {
-		    lo_address a = lo_address_new(NULL, "42424");
-		    lo_address_free(a);
-		    return 0;
-		}"""
-
 	conf.check_cc(
 			define_name="HAVE_LO",
 			mandatory=True,
@@ -86,7 +66,6 @@ def check_liblo(conf):
 
 			lib="lo",
 			uselib_store="LO",
-			fragment=code,
 
 			msg="Checking for liblo")
 
