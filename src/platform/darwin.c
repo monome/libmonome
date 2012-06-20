@@ -29,11 +29,15 @@ char *monome_platform_get_dev_serial(const char *path) {
 	assert(path);
 
 	/* osx serial paths are of the form
-	   /dev/tty.usbserial-<device serial>
+	   /dev/tty.usbserial-<device serial> or
+	   /dev/tty.usbmodem<device serial> (arduino uno)
 
-	   we'll locate to one past the first hyphen */
+	   we'll locate to one past the first hyphen
+	   or the first occurrence of usbmodem sequence */
 
-	if( !(serial = strchr(path, '-')) )
+	if( (serial = strstr(path, "usbmodem")) )
+		serial += 7;
+	else if( !(serial = strchr(path, '-')) )
 		return NULL;
 
 	return strdup(serial + 1);
