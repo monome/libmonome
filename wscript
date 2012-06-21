@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import time
+
 top = "."
 out = "build"
 
@@ -136,7 +138,12 @@ def configure(conf):
 def build(bld):
 	bld.install_files("${PREFIX}/include", ["public/monome.h"])
 	bld.recurse("src")
-	
+
 	# man page
-	import time
-	bld(features="subst", source="doc/monomeserial.in.1", target="doc/monomeserial.1", install_path="${PREFIX}/share/man/man1", MDOCDATE=time.strftime("%B %-d, %Y"))
+	bld(
+		source="doc/monomeserial.in.1",
+		target="doc/monomeserial.1",
+		install_path="${PREFIX}/share/man/man1",
+
+		features="subst",
+		MDOCDATE=time.strftime("%B %-d, %Y"))
