@@ -74,7 +74,7 @@ def build(bld):
 		bld.shlib(
 			source="proto/osc.c",
 			features="proto_module",
-			use="lm_inc LO",
+			use="lm_inc monome LO",
 
 			target="protocol_osc",
 			install_path="${LIBDIR}/monome")

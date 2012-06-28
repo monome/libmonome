@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import time
+import sys
 
 top = "."
 out = "build"
@@ -88,7 +89,8 @@ def options(opt):
 
 def configure(conf):
 	# just for output prettifying
-	separator = lambda: print("")
+	# print() (as a function) ddoesn't work on python <2.7
+	separator = lambda: sys.stdout.write("\n")
 
 	separator()
 	conf.load("compiler_c")
