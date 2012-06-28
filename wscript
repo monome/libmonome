@@ -148,4 +148,4 @@ def build(bld):
 		install_path="${PREFIX}/share/man/man1",
 
 		features="subst",
-		MDOCDATE=time.strftime("%B %-d, %Y"))
+		MDOCDATE=time.strftime("%B %d, %Y"))
