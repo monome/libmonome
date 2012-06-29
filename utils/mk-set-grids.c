@@ -23,6 +23,7 @@
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
+#include "devices.h"
 
 /*
  * mk-set-grids.c:
@@ -83,7 +84,10 @@ int main(int argc, char **argv) {
 	}
 
 	memset(&mk, '\0', sizeof(monome_t));
-	if( monome_platform_open(&mk, device) )
+
+	/* monome_platform_open() needs a devmap to check if it has any quirks.
+	   &mapping[3] is the device entry for the mk. */
+	if( monome_platform_open(&mk, &mapping[3], device) )
 		exit(EXIT_FAILURE);
 
 	buf[0] = (PROTO_MK_GRIDS << 4) | (grids & 0xF);

@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+def build(bld):
+	utils = [
+		"mk-set-grids"]
+
+	for u in utils:
+		bld.program(
+			source="{0}.c".format(u),
+			use="lm_inc libmonome",
+			
+			target=u,
+			install_path=None)
