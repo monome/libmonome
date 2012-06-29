@@ -141,6 +141,10 @@ def build(bld):
 	bld.install_files("${PREFIX}/include", ["public/monome.h"])
 	bld.recurse("src")
 
+	# win32 doesn't have nanosleep()
+	if bld.env.DEST_OS != "win32":
+		bld.recurse("examples")
+
 	# man page
 	bld(
 		source="doc/monomeserial.in.1",
