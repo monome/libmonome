@@ -94,6 +94,7 @@ def configure(conf):
 
 	separator()
 	conf.load("compiler_c")
+	conf.load("gnu_dirs")
 
 	if conf.check_endianness() == "big":
 		conf.define("LM_BIG_ENDIAN", 1)
