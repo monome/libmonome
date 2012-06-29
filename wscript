@@ -118,6 +118,8 @@ def configure(conf):
 
 	if conf.options.enable_python:
 		conf.load("python")
+		conf.check_python_version(minver=(2,7,0))
+		conf.check_python_headers()
 		conf.load("cython")
 
 		separator()
@@ -153,3 +155,6 @@ def build(bld):
 
 		features="subst",
 		MDOCDATE=time.strftime("%B %d, %Y"))
+
+	if bld.env.CYTHON:
+		bld.recurse("bindings/python")
