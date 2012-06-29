@@ -142,6 +142,7 @@ def configure(conf):
 def build(bld):
 	bld.install_files("${PREFIX}/include", ["public/monome.h"])
 	bld.recurse("src")
+	bld.recurse("utils")
 
 	# win32 doesn't have nanosleep()
 	if bld.env.DEST_OS != "win32":
