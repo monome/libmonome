@@ -11,7 +11,7 @@ def build(bld):
 	for e in examples:
 		bld.program(
 			source="{0}.c".format(e),
-			use="lm_inc monome",
+			use="lm_inc libmonome",
 			
 			target=e,
 			install_path=None)

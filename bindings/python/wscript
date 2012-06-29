@@ -9,4 +9,4 @@ def build(bld):
 
 		target="monome",
 		name="monome_pyext",
-		use="monome")
+		use="libmonome")
