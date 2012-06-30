@@ -86,6 +86,8 @@ def options(opt):
 			default=False, help="disable OSC/liblo support [enabled by default]")
 	lm_opts.add_option("--enable-python", action="store_true",
 			default=False, help="enable python bindings [disabled by default]")
+	lm_opts.add_option("--enable-multilib", action="store_true",
+			default=False, help="on Darwin, build libmonome as a combination 32 and 64 bit library [disabled by default]")
 
 def configure(conf):
 	# just for output prettifying
@@ -128,6 +130,9 @@ def configure(conf):
 	#
 	# setting defines, etc
 	#
+
+	if conf.options.enable_multilib:
+		conf.env.ARCH = ["i386", "x86_64"]
 
 	conf.env.append_unique("CFLAGS", ["-std=c99", "-Wall", "-Werror"])
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
