@@ -241,21 +241,23 @@ cdef class Monome(object):
 		if device[:3] == "osc" and not port:
 			raise TypeError("OSC protocol requires a server port.")
 
+		dbytes = device.encode()
+
 		if port:
-			port = str(port)
+			port = port.encode()
 			portstr = port
 
-			self.monome = monome_open(device, portstr)
+			self.monome = monome_open(dbytes, portstr)
 		else:
-			self.monome = monome_open(device)
+			self.monome = monome_open(dbytes)
 
 		if not self.monome:
 			raise IOError("Could not open Monome")
 
 		ser = monome_get_serial(self.monome)
 
-		self.serial = ser if ser else None
-		self.devpath = monome_get_devpath(self.monome)
+		self.serial = ser.decode() if ser else None
+		self.devpath = (monome_get_devpath(self.monome)).decode()
 		self.fd = monome_get_fd(self.monome)
 		self.handlers = [None, None, None]
 
@@ -263,7 +265,8 @@ cdef class Monome(object):
 			self.led_all(0)
 
 	def __dealloc__(self):
-		monome_close(self.monome)
+		if self.monome:
+			monome_close(self.monome)
 
 	property rotation:
 		def __get__(self):
