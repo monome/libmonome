@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import time
+import sys
+
 top = "."
 out = "build"
 
@@ -43,16 +46,6 @@ def check_poll(conf):
 			errmsg="no (will use select())")
 
 def check_udev(conf):
-	code = """
-		#include <libudev.h>
-
-		int main(int argc, char **argv) {
-		    struct udev *udev = udev_new();
-		    udev_unref(udev);
-
-		    return 0;
-		}"""
-
 	conf.check_cc(
 			define_name="HAVE_LIBUDEV",
 			mandatory=False,
@@ -62,21 +55,11 @@ def check_udev(conf):
 
 			lib="udev",
 			uselib_store="UDEV",
-			fragment=code,
 
 			msg="Checking for libudev",
 			errmsg="no (will use sysfs)")
 
 def check_liblo(conf):
-	code = """
-		#include <lo/lo.h>
-
-		int main(int argc, char **argv) {
-		    lo_address a = lo_address_new(NULL, "42424");
-		    lo_address_free(a);
-		    return 0;
-		}"""
-
 	conf.check_cc(
 			define_name="HAVE_LO",
 			mandatory=True,
@@ -86,7 +69,6 @@ def check_liblo(conf):
 
 			lib="lo",
 			uselib_store="LO",
-			fragment=code,
 
 			msg="Checking for liblo")
 
@@ -104,13 +86,17 @@ def options(opt):
 			default=False, help="disable OSC/liblo support [enabled by default]")
 	lm_opts.add_option("--enable-python", action="store_true",
 			default=False, help="enable python bindings [disabled by default]")
+	lm_opts.add_option("--enable-multilib", action="store_true",
+			default=False, help="on Darwin, build libmonome as a combination 32 and 64 bit library [disabled by default]")
 
 def configure(conf):
 	# just for output prettifying
-	separator = lambda: print("")
+	# print() (as a function) ddoesn't work on python <2.7
+	separator = lambda: sys.stdout.write("\n")
 
 	separator()
 	conf.load("compiler_c")
+	conf.load("gnu_dirs")
 
 	if conf.check_endianness() == "big":
 		conf.define("LM_BIG_ENDIAN", 1)
@@ -135,6 +121,8 @@ def configure(conf):
 
 	if conf.options.enable_python:
 		conf.load("python")
+		conf.check_python_version(minver=(2,7,0))
+		conf.check_python_headers()
 		conf.load("cython")
 
 		separator()
@@ -142,6 +130,9 @@ def configure(conf):
 	#
 	# setting defines, etc
 	#
+
+	if conf.options.enable_multilib:
+		conf.env.ARCH = ["i386", "x86_64"]
 
 	conf.env.append_unique("CFLAGS", ["-std=c99", "-Wall", "-Werror"])
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
@@ -157,7 +148,20 @@ def configure(conf):
 def build(bld):
 	bld.install_files("${PREFIX}/include", ["public/monome.h"])
 	bld.recurse("src")
-	
+	bld.recurse("utils")
+
+	# win32 doesn't have nanosleep()
+	if bld.env.DEST_OS != "win32":
+		bld.recurse("examples")
+
 	# man page
-	import time
-	bld(features="subst", source="doc/monomeserial.in.1", target="doc/monomeserial.1", install_path="${PREFIX}/share/man/man1", MDOCDATE=time.strftime("%B %-d, %Y"))
+	bld(
+		source="doc/monomeserial.in.1",
+		target="doc/monomeserial.1",
+		install_path="${PREFIX}/share/man/man1",
+
+		features="subst",
+		MDOCDATE=time.strftime("%B %d, %Y"))
+
+	if bld.env.CYTHON:
+		bld.recurse("bindings/python")

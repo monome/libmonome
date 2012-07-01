@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+def build(bld):
+	examples = [
+		"simple",
+		"test",
+		"test_arc",
+		"life",
+		"torture"]
+
+	for e in examples:
+		bld.program(
+			source="{0}.c".format(e),
+			use="lm_inc libmonome",
+			
+			target=e,
+			install_path=None)

@@ -65,7 +65,7 @@ def build(bld):
 		bld.shlib(
 			source="proto/{0}.c".format(p),
 			features="proto_module",
-			use="lm_inc monome",
+			use="lm_inc libmonome",
 
 			target="protocol_{0}".format(p),
 			install_path="${LIBDIR}/monome")
@@ -74,7 +74,7 @@ def build(bld):
 		bld.shlib(
 			source="proto/osc.c",
 			features="proto_module",
-			use="lm_inc LO",
+			use="lm_inc libmonome LO",
 
 			target="protocol_osc",
 			install_path="${LIBDIR}/monome")
@@ -92,6 +92,7 @@ def build(bld):
 			features="force_lib_prefix",
 			use="lm_inc",
 
+			name="libmonome",
 			target="monome")
 	else:
 		# the UDEV use is ignored if it is not defined
@@ -99,12 +100,13 @@ def build(bld):
 			source=objs,
 			use="lm_inc UDEV DL",
 
+			name="libmonome",
 			target="monome",
 			vnum=bld.env.VERSION)
 
 	if bld.env.LIB_LO:
 		bld.program(
 			source="monomeserial.c",
-			use="lm_inc monome LO",
+			use="lm_inc libmonome LO",
 
 			target="monomeserial")
