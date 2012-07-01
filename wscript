@@ -165,3 +165,14 @@ def build(bld):
 
 	if bld.env.CYTHON:
 		bld.recurse("bindings/python")
+
+def dist(dst):
+	pats = [".git*", "**/.git*"]
+	with open(".gitignore") as gitignore:
+	    for l in gitignore.readlines():
+	        if l[0] == "#":
+	            continue
+
+	        pats.append(l.rstrip("\n"))
+
+	dst.excl = " ".join(pats)
