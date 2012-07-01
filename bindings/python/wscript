@@ -3,6 +3,9 @@
 from waflib.TaskGen import before_method, after_method, feature
 
 def build(bld):
+	# this fixes building with cython 0.15.1 on ubuntu
+	bld.env.CFLAGS.remove('-Werror')
+	
 	bld(
 		source="monome.pyx",
 		features="c cshlib pyext",
