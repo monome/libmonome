@@ -2,10 +2,22 @@
 
 from waflib.TaskGen import before_method, after_method, feature
 
+@feature("no_werror")
+@before_method('propagate_uselib_vars', 'apply_link')
+@after_method('apply_bundle')
+def no_werror(self):
+	"""
+	build without -Werror
+	"""
+
+	self.env.CFLAGS.remove("-Werror")
+
 def build(bld):
+	# this fixes building with cython 0.15.1 on ubuntu
+
 	bld(
 		source="monome.pyx",
-		features="c cshlib pyext",
+		features="c cshlib pyext no_werror",
 
 		target="monome",
 		name="monome_pyext",
