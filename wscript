@@ -167,7 +167,7 @@ def build(bld):
 		bld.recurse("bindings/python")
 
 def dist(dst):
-	pats = [".git*", "**/.git*"]
+	pats = [".git*", "**/.git*", ".travis.yml"]
 	with open(".gitignore") as gitignore:
 	    for l in gitignore.readlines():
 	        if l[0] == "#":

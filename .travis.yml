@@ -1,0 +1,5 @@
+language: c
+compiler:
+	- gcc
+
+script: ./waf configure --disable-osc && ./waf
