@@ -2,4 +2,8 @@ language: c
 compiler:
   - gcc
 
-script: ./waf configure --disable-osc && ./waf
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install liblo-dev
+
+script: ./waf configure && ./waf
