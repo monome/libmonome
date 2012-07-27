@@ -130,14 +130,6 @@ void test_led_map(monome_t *monome) {
 	}
 }
 
-void test_mode(monome_t *monome) {
-	monome_mode(monome, MONOME_MODE_SHUTDOWN);
-	chill(2);
-	monome_mode(monome, MONOME_MODE_TEST);
-	chill(2); monome_mode(monome, MONOME_MODE_NORMAL);
-	chill(1);
-}
-
 void fade_out(monome_t *monome) {
 	unsigned int i = 0x10;
 
@@ -185,7 +177,6 @@ int main(int argc, char **argv) {
 	test_led_map(monome);
 
 	chill(4);
-	test_mode(monome);
 
 	fade_out(monome);
 

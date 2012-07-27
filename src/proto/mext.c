@@ -133,11 +133,6 @@ static ssize_t mext_led_level_row_col(monome_t *monome, mext_cmd_t cmd, int rev,
  * led functions
  */
 
-static int mext_mode_noop(monome_t *monome, monome_mode_t mode) {
-	/* unimplemented */
-	return 0;
-}
-
 static int mext_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	mext_msg_t msg = {
 		.addr = SS_LED_GRID,
@@ -611,8 +606,6 @@ monome_t *monome_protocol_new() {
 
 	monome->next_event = mext_next_event;
 
-	monome->mode = mext_mode_noop;
-	
 	monome->led = &mext_led_functions;
 	monome->led_level = &mext_led_level_functions;
 	monome->led_ring = &mext_led_ring_functions;

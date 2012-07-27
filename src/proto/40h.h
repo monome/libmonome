@@ -44,11 +44,9 @@ typedef struct monome_40h monome_40h_t;
 
 struct monome_40h {
 	monome_t parent;
-	monome_mode_t mode;
 	
 	struct {
 		int x;
 		int y;
 	} tilt;
 };
-

@@ -97,13 +97,6 @@ OSC_HANDLER_FUNC(proto_osc_enc_key_handler) {
  * led functions
  */
 
-static int proto_osc_mode(monome_t *monome, monome_mode_t mode) {
-	SELF_FROM(monome);
-
-	/* sys message?  why? */
-	return lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, "/sys/mode", "i", mode);
-}
-
 static int proto_osc_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	SELF_FROM(monome);
 	return LO_SEND_MSG(led_set, "iii", x, y, !!on);
@@ -312,8 +305,6 @@ monome_t *monome_protocol_new() {
 
 	monome->next_event = proto_osc_next_event;
 
-	monome->mode       = proto_osc_mode;
-	
 	monome->led = &proto_osc_led_functions;
 	monome->led_level = NULL;
 	monome->led_ring = &proto_osc_led_ring_functions;

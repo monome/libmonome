@@ -195,22 +195,6 @@ static void unregister_osc_methods(char *prefix) {
 	m_free(cmd_buf);
 }
 
-static int sys_mode_handler(const char *path, const char *types,
-							 lo_arg **argv, int argc,
-							 lo_message data, void *user_data) {
-	monome_t *monome = user_data;
-
-	return monome_mode(monome, argv[0]->i);
-}
-
-static void register_sys_methods(monome_t *monome) {
-	lo_server_thread srv = state.server;
-
-	lo_server_add_method(srv, "/sys/mode", "i", sys_mode_handler, monome);
-
-	return;
-}
-
 static void monome_handle_press(const monome_event_t *e, void *data) {
 	char *cmd;
 	char *prefix = data;
@@ -407,12 +391,10 @@ int main(int argc, char *argv[]) {
 	monome_register_handler(state.monome, MONOME_BUTTON_UP,
 							monome_handle_press, state.lo_prefix);
 
-	register_sys_methods(state.monome);
 	register_osc_methods(state.lo_prefix, state.monome);
 
 	monome_set_rotation(state.monome, rotate);
 	monome_led_all(state.monome, 0);
-	monome_mode(state.monome, MONOME_MODE_NORMAL);
 
 	printf("monomeserial version %s, yay!\n\n", VERSION);
 	printf("initialized device %s at %s, which is %dx%d\n",

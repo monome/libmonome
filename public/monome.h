@@ -26,6 +26,8 @@ extern "C" {
 
 #include <sys/types.h>
 
+/* event types */
+
 typedef enum {
 	MONOME_BUTTON_UP        = 0x00,
 	MONOME_BUTTON_DOWN      = 0x01,
@@ -37,14 +39,6 @@ typedef enum {
 	/* update this if you add event types */
 	MONOME_EVENT_MAX        = 0x06
 } monome_event_type_t;
-
-/* modes (argument to monome_mode) */
-
-typedef enum {
-	MONOME_MODE_NORMAL   = 0x00,
-	MONOME_MODE_TEST     = 0x01,
-	MONOME_MODE_SHUTDOWN = 0x02
-} monome_mode_t;
 
 /* grid rotation */
 
@@ -106,8 +100,6 @@ int monome_event_next(monome_t *monome, monome_event_t *event_buf);
 int monome_event_handle_next(monome_t *monome);
 void monome_event_loop(monome_t *monome);
 int monome_get_fd(monome_t *monome);
-
-int monome_mode(monome_t *monome, monome_mode_t mode);
 
 /**
  * led grid commands

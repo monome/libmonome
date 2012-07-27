@@ -93,16 +93,6 @@ static int proto_40h_intensity(monome_t *monome, uint_t brightness) {
 	return monome_write(monome, buf, sizeof(buf));
 }
 
-static int proto_40h_mode(monome_t *monome, monome_mode_t mode) {
-	/* the 40h splits this into two commands and will need an extra variable
-	 * in the monome_t structure to keep track. */
-
-	/* uint8_t buf[2] = PROTO_40h_MODE | ( (mode & PROTO_40h_MODE_TEST) | (mode & PROTO_40h_MODE_SHUTDOWN) );
-	   return monome_write(monome, buf, sizeof(buf)); */
-
-	return 0;
-}
-
 static int proto_40h_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	uint8_t buf[2];
 
@@ -256,8 +246,6 @@ monome_t *monome_protocol_new() {
 	monome->free = proto_40h_free;
 
 	monome->next_event = proto_40h_next_event;
-
-	monome->mode = proto_40h_mode;
 
 	monome->led = &proto_40h_led_functions;
 	monome->led_level = NULL;

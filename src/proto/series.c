@@ -167,11 +167,6 @@ static int proto_series_led_intensity(monome_t *monome, uint_t brightness) {
 	return monome_write(monome, &buf, sizeof(buf));
 }
 
-static int proto_series_mode(monome_t *monome, monome_mode_t mode) {
-	uint8_t buf = PROTO_SERIES_MODE | ((mode & PROTO_SERIES_MODE_TEST) | (mode & PROTO_SERIES_MODE_SHUTDOWN));
-	return monome_write(monome, &buf, sizeof(buf));
-}
-
 static int proto_series_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	uint8_t buf[2];
 
@@ -359,8 +354,6 @@ monome_t *monome_protocol_new() {
 	monome->close = proto_series_close;
 	monome->free = proto_series_free;
 	monome->next_event = proto_series_next_event;
-
-	monome->mode = proto_series_mode;
 
 	monome->led = &proto_series_led_functions;
 	monome->led_level = NULL;

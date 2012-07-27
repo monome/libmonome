@@ -209,11 +209,7 @@ int monome_get_fd(monome_t *monome) {
 	return monome->fd;
 }
 
-int monome_mode(monome_t *monome, monome_mode_t mode) {
-	return monome->mode(monome, mode);
-}
-
-#define REQUIRE(capability) if( !monome->capability ) return -1
+#define REQUIRE(capability) if (!monome->capability) return -1
 
 int monome_led_set(monome_t *monome, uint_t x, uint_t y, uint_t on) {
 	REQUIRE(led);
