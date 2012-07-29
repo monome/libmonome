@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -123,15 +124,7 @@ static int proto_40h_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	int ret = 0;
 	uint_t i;
 
-	/* by treating data as a bigger integer, we can copy it in
-	   one or two operations (instead of 8) */
-#ifdef __LP64__
-	*((uint64_t *) &buf[0]) = *((uint64_t *) data);
-#else
-	*((uint32_t *) &buf[0]) = *((uint32_t *) data);
-	*((uint32_t *) &buf[4]) = *(((uint32_t *) data) + 1);
-#endif
-
+	memcpy(buf, data, 8);
 	ROTSPEC(monome).map_cb(monome, buf);
 
 	for( i = 0; i < 8; i++ )
@@ -189,7 +182,7 @@ static int proto_40h_next_event(monome_t *monome, monome_event_t *e) {
 
 		UNROTATE_COORDS(monome, e->grid.x, e->grid.y);
 		return 1;
-		
+
 	case PROTO_40h_AUX_1:
 	case PROTO_40h_AUX_1 + 1:
 	case PROTO_40h_AUX_1 + 2:

@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -233,15 +234,7 @@ static int proto_series_led_map(monome_t *monome, uint_t x_off, uint_t y_off,
 	uint8_t buf[9];
 	uint_t quadrant;
 
-	/* by treating data as a bigger integer, we can copy it in
-	   one or two operations (instead of 8) */
-#ifdef __LP64__
-	*((uint64_t *) &buf[1]) = *((uint64_t *) data);
-#else
-	*((uint32_t *) &buf[1]) = *((uint32_t *) data);
-	*((uint32_t *) &buf[5]) = *(((uint32_t *) data) + 1);
-#endif
-
+	memcpy(&buf[1], data, 8);
 	ROTSPEC(monome).map_cb(monome, &buf[1]);
 
 	ROTATE_COORDS(monome, x_off, y_off);

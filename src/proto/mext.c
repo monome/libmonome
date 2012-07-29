@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -15,8 +15,8 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
-#include <stdio.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -534,7 +534,7 @@ static int mext_handler_tilt(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 
 static mext_handler_t subsystem_event_handlers[16] = {
 	[0 ... 15] = &mext_handler_noop,
-	
+
 	[SS_SYSTEM]   = mext_handler_system,
 	[SS_KEY_GRID] = mext_handler_key_grid,
 	[SS_ENCODER]  = mext_handler_encoder,
