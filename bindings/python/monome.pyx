@@ -32,11 +32,6 @@ cdef extern from "monome.h":
 		MONOME_ENCODER_KEY_DOWN,
 		MONOME_TILT
 
-	ctypedef enum monome_mode_t:
-		MONOME_MODE_NORMAL,
-		MONOME_MODE_TEST,
-		MONOME_MODE_SHUTDOWN
-
 	ctypedef enum monome_rotate_t:
 		MONOME_CABLE_LEFT,
 		MONOME_CABLE_BOTTOM,
@@ -91,8 +86,6 @@ cdef extern from "monome.h":
 	int monome_event_next(monome_t *monome, monome_event_t *event_buf)
 	int monome_event_handle_next(monome_t *monome)
 	int monome_get_fd(monome_t *monome)
-
-	int monome_mode(monome_t *monome, monome_mode_t mode)
 
 	int monome_led_intensity(monome_t *monome, uint brightness)
 
@@ -229,11 +222,6 @@ cdef class Monome(object):
 		180: ROTATE_180,
 		270: ROTATE_270}
 
-	rev_mode_map = {
-		"normal": MODE_NORMAL,
-		"shutdown": MODE_SHUTDOWN,
-		"test": MODE_TEST}
-
 	def __init__(self, device, port=None, clear=True):
 		cdef char *portstr
 		cdef const_char_p ser
@@ -342,17 +330,6 @@ cdef class Monome(object):
 	#
 	# led functions
 	#
-
-	property mode:
-		def __set__(self, mode):
-			if isinstance(mode, str):
-				try:
-					monome_mode(self.monome,
-						<monome_mode_t> Monome.rev_mode_map[mode])
-				except KeyError:
-					raise TypeError("'%s' is not a valid mode." % mode)
-			else:
-				monome_mode(self.monome, <monome_mode_t> mode)
 
 	property led_intensity:
 		def __set__(self, uint intensity):
