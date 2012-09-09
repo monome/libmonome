@@ -134,6 +134,10 @@ def configure(conf):
 	if conf.options.enable_multilib:
 		conf.env.ARCH = ["i386", "x86_64"]
 
+	if conf.env.DEST_OS == "darwin":
+		conf.env.append_unique("CFLAGS", ["-mmacosx-version-min=10.5"])
+		conf.env.append_unique("LINKFLAGS", ["-mmacosx-version-min=10.5"])
+
 	conf.env.append_unique("CFLAGS", ["-std=c99", "-Wall", "-Werror"])
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
 
