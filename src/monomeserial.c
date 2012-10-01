@@ -126,36 +126,41 @@ static int osc_intensity_handler(const char *path, const char *types,
 	return monome_led_intensity(monome, intensity);
 }
 
+#define ASPRINTF_OR_BAIL(...) do { \
+	if (asprintf(__VA_ARGS__) < 0) \
+		return;                    \
+	} while (0);
+
 static void register_osc_methods(char *prefix, monome_t *monome) {
 	lo_server_thread srv = state.server;
 	char *cmd_buf;
 
-	asprintf(&cmd_buf, "/%s/led", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/led", prefix);
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_handler, monome);
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/clear", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/clear", prefix);
 	lo_server_add_method(srv, cmd_buf, "", osc_led_all_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "i", osc_led_all_handler, monome);
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/frame", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/frame", prefix);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiii", osc_led_map_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iiiiiiiiii",
 						 osc_led_map_handler, monome);
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/led_row", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/led_row", prefix);
 	lo_server_add_method(srv, cmd_buf, "ii", osc_led_col_row_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_col_row_handler, monome);
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/led_col", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/led_col", prefix);
 	lo_server_add_method(srv, cmd_buf, "ii", osc_led_col_row_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "iii", osc_led_col_row_handler, monome);
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/intensity", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/intensity", prefix);
 	lo_server_add_method(srv, cmd_buf, "", osc_intensity_handler, monome);
 	lo_server_add_method(srv, cmd_buf, "i", osc_intensity_handler, monome);
 	m_free(cmd_buf);
@@ -165,45 +170,48 @@ static void unregister_osc_methods(char *prefix) {
 	lo_server_thread srv = state.server;
 	char *cmd_buf;
 
-	asprintf(&cmd_buf, "/%s/clear", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/clear", prefix);
 	lo_server_del_method(srv, cmd_buf, "");
 	lo_server_del_method(srv, cmd_buf, "i");
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/intensity", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/intensity", prefix);
 	lo_server_del_method(srv, cmd_buf, "");
 	lo_server_del_method(srv, cmd_buf, "i");
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/led", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/led", prefix);
 	lo_server_del_method(srv, cmd_buf, "iii");
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/led_row", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/led_row", prefix);
 	lo_server_del_method(srv, cmd_buf, "ii");
 	lo_server_del_method(srv, cmd_buf, "iii");
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/led_col", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/led_col", prefix);
 	lo_server_del_method(srv, cmd_buf, "ii");
 	lo_server_del_method(srv, cmd_buf, "iii");
 	m_free(cmd_buf);
 
-	asprintf(&cmd_buf, "/%s/frame", prefix);
+	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/frame", prefix);
 	lo_server_del_method(srv, cmd_buf, "iiiiiiii");
 	lo_server_del_method(srv, cmd_buf, "iiiiiiiiii");
 	m_free(cmd_buf);
+
 }
 
 static void monome_handle_press(const monome_event_t *e, void *data) {
 	char *cmd;
 	char *prefix = data;
 
-	asprintf(&cmd, "/%s/press", prefix);
+	ASPRINTF_OR_BAIL(&cmd, "/%s/press", prefix);
 	lo_send_from(state.outgoing, state.server, LO_TT_IMMEDIATE, cmd, "iii",
 				 e->grid.x, e->grid.y, e->event_type);
 	m_free(cmd);
 }
+
+#undef ASPRINTF_OR_BAIL
 
 static void usage(const char *app) {
 	printf(

@@ -231,31 +231,37 @@ static int proto_osc_open(monome_t *monome, const char *dev,
 		return 1;
 	}
 
-	asprintf(&buf, "%s/grid/key", self->prefix);
+#define ASPRINTF_OR_BAIL(...) do { \
+	if (asprintf(__VA_ARGS__) < 0) \
+		return -1;                 \
+	} while (0);
+
+	ASPRINTF_OR_BAIL(&buf, "%s/grid/key", self->prefix);
 	lo_server_add_method(self->server, buf, "iii", proto_osc_press_handler, self);
 	m_free(buf);
 
-	asprintf(&buf, "%s/enc/delta", self->prefix);
+	ASPRINTF_OR_BAIL(&buf, "%s/enc/delta", self->prefix);
 	lo_server_add_method(self->server, buf, "ii", proto_osc_delta_handler, self);
 	m_free(buf);
 
-	asprintf(&buf, "%s/enc/key", self->prefix);
+	ASPRINTF_OR_BAIL(&buf, "%s/enc/key", self->prefix);
 	lo_server_add_method(self->server, buf, "ii", proto_osc_enc_key_handler, self);
 	m_free(buf);
 
-#define cache_osc_path(base, path) asprintf(&self->base##_str, "%s/" path, self->prefix)
-	cache_osc_path(led_set, "grid/led/set");
-	cache_osc_path(led_all, "grid/led/all");
-	cache_osc_path(led_map, "grid/led/map");
-	cache_osc_path(led_col, "grid/led/col");
-	cache_osc_path(led_row, "grid/led/row");
-	cache_osc_path(led_intensity, "grid/led/intensity");
+#define CACHE_OSC_PATH(base, path) ASPRINTF_OR_BAIL(&self->base##_str, "%s/" path, self->prefix)
+	CACHE_OSC_PATH(led_set, "grid/led/set");
+	CACHE_OSC_PATH(led_all, "grid/led/all");
+	CACHE_OSC_PATH(led_map, "grid/led/map");
+	CACHE_OSC_PATH(led_col, "grid/led/col");
+	CACHE_OSC_PATH(led_row, "grid/led/row");
+	CACHE_OSC_PATH(led_intensity, "grid/led/intensity");
 
-	cache_osc_path(ring_set, "ring/set");
-	cache_osc_path(ring_all, "ring/all");
-	cache_osc_path(ring_map, "ring/map");
-	cache_osc_path(ring_range, "ring/range");
-#undef cache_osc_path
+	CACHE_OSC_PATH(ring_set, "ring/set");
+	CACHE_OSC_PATH(ring_all, "ring/all");
+	CACHE_OSC_PATH(ring_map, "ring/map");
+	CACHE_OSC_PATH(ring_range, "ring/range");
+#undef CACHE_OSC_PATH
+#undef ASPRINTF_OR_BAIL
 
 	return 0;
 }
