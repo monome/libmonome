@@ -25,6 +25,7 @@
 
 #include "mext.h"
 
+#define ARRAY_LENGTH(x) (sizeof(x) / sizeof(*x))
 #define SELF_FROM(monome) mext_t *self = MEXT_T(monome)
 
 /**
@@ -558,7 +559,13 @@ static int mext_next_event(monome_t *monome, monome_event_t *e) {
 
 static int mext_open(monome_t *monome, const char *dev, const char *serial,
                      const monome_devmap_t *m, va_list args) {
+	int i;
 	monome_event_t e;
+	mext_cmd_t startup_cmds[] = {
+		CMD_SYSTEM_QUERY,
+		CMD_SYSTEM_GET_ID,
+		CMD_SYSTEM_GET_GRIDSZ
+	};
 
 	if( monome_platform_open(monome, m, dev) )
 		return 1;
@@ -570,9 +577,11 @@ static int mext_open(monome_t *monome, const char *dev, const char *serial,
 	mext_simple_cmd(monome, CMD_SYSTEM_GET_ID);
 	mext_simple_cmd(monome, CMD_SYSTEM_GET_GRIDSZ);
 
-	do {
+	for( i = 0; i < ARRAY_LENGTH(startup_cmds); i++ ) {
+		mext_simple_cmd(monome, startup_cmds[i]);
 		monome_platform_wait_for_input(monome, 250);
-	} while( mext_next_event(monome, &e) );
+		mext_next_event(monome, &e);
+	}
 
 	return 0;
 }
