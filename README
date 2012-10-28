@@ -1,4 +1,4 @@
-libmonome v1.1:
+libmonome v1.2:
 
 	libmonome is a library for easy interaction with monome devices. It
 	currently runs on Linux (on which it is primarily developed), OpenBSD, and
