@@ -115,6 +115,8 @@ all = [
 
 	"Monome"]
 
+BUTTON_UP, BUTTON_DOWN, ENCODER_DELTA, ENCODER_KEY_UP, ENCODER_KEY_DOWN, TILT = range(6)
+CABLE_LEFT, CABLE_BOTTOM, CABLE_RIGHT, CABLE_TOP = range(4)
 
 MODE_NORMAL = 0
 MODE_TEST = 1
@@ -155,15 +157,12 @@ def _bitmap_data(data):
 cdef class MonomeEvent(object):
 	cdef object monome
 
-	def __cinit__(self, object monome):
-		self.monome = monome
-
 cdef class MonomeGridEvent(MonomeEvent):
 	cdef uint x, y
 	cdef bool pressed
 
 	def __cinit__(self, pressed, uint x, uint y, object monome):
-		MonomeEvent.__cinit__(monome)
+		self.monome = monome
 		self.pressed = bool(pressed)
 		self.x = x
 		self.y = y
