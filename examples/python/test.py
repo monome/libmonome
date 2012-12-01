@@ -98,7 +98,7 @@ class CommandTest(monome.Monome):
             time.sleep(0.05)
 
     def __call__(self):
-        self.clear()
+        self.led_all(0)
 
         for i in xrange(0, 2):
             self.test_width_8(1, self.led_row)
@@ -118,7 +118,7 @@ class CommandTest(monome.Monome):
         self.test_mode()
         self.fade_out()
 
-        self.clear()
+        self.led_all(0)
         self.intensity = 0xF
 
 if __name__ == "__main__":
