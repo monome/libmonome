@@ -131,6 +131,8 @@ def configure(conf):
 	# setting defines, etc
 	#
 
+	conf.env.append_unique("CFLAGS", ["-std=c99", "-Wall", "-Werror"])
+
 	if conf.options.enable_multilib:
 		conf.env.ARCH = ["i386", "x86_64"]
 
@@ -138,7 +140,9 @@ def configure(conf):
 		conf.env.append_unique("CFLAGS", ["-mmacosx-version-min=10.5"])
 		conf.env.append_unique("LINKFLAGS", ["-mmacosx-version-min=10.5"])
 
-	conf.env.append_unique("CFLAGS", ["-std=c99", "-Wall", "-Werror"])
+	if conf.env.CC[0] == "clang":
+		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides"])
+
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
 
 	conf.define("LIBDIR", conf.env.LIBDIR)
