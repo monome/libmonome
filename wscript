@@ -88,6 +88,8 @@ def options(opt):
 			default=False, help="enable python bindings [disabled by default]")
 	lm_opts.add_option("--enable-multilib", action="store_true",
 			default=False, help="on Darwin, build libmonome as a combination 32 and 64 bit library [disabled by default]")
+	lm_opts.add_option('--enable-debug', action='store_true',
+			default=False, help="Build debuggable binaries")
 
 def configure(conf):
 	# just for output prettifying
@@ -135,6 +137,10 @@ def configure(conf):
 
 	if conf.options.enable_multilib:
 		conf.env.ARCH = ["i386", "x86_64"]
+
+	if conf.options.enable_debug:
+		conf.env.append_unique('CFLAGS', "-g")
+		conf.env.append_unique('LINKFLAGS', "-g")
 
 	if conf.env.DEST_OS == "darwin":
 		conf.env.append_unique("CFLAGS", ["-mmacosx-version-min=10.5"])
