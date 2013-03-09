@@ -1,5 +1,4 @@
 /**
- * Copyright (c) 2010 William Light <wrl@illest.net>
  * Copyright (c) 2013 Nedko Arnaudov <nedko@arnaudov.name>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -15,12 +14,38 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "internal.h"
-#if defined(EMBED_PROTOS)
-monome_t *monome_protocol_40h_new(void);
-monome_t *monome_protocol_series_new(void);
-monome_t *monome_protocol_mext_new(void);
-monome_t *monome_protocol_osc_new(void);
-#else
-monome_t *monome_protocol_new(void);
+#include <monome.h>
+#include "protocol.h"
+#include "platform.h"
+
+#include <string.h>
+
+struct monome_proto
+{
+	const char *proto;
+	monome_proto_new_func_t new;
+};
+
+static struct monome_proto g_protos[] = {
+	{ "40h",    monome_protocol_40h_new },
+	{ "series", monome_protocol_series_new },
+	{ "mext",   monome_protocol_mext_new },
+#if defined(BUILD_OSC_PROTO)
+	{ "osc",    monome_protocol_osc_new },
 #endif
+	{ NULL }
+};
+
+monome_t *monome_platform_load_protocol(const char *proto) {
+	struct monome_proto *proto_ptr;
+
+	for( proto_ptr = g_protos; proto_ptr->proto != NULL; proto_ptr++ )
+		if (strcmp(proto_ptr->proto, proto) == 0)
+			return proto_ptr->new();
+
+	return NULL;
+}
+
+void monome_platform_free(monome_t *monome) {
+	monome->free(monome);
+}

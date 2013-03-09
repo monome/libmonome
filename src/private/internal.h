@@ -49,6 +49,8 @@ typedef void (*monome_map_cb_t)(monome_t *, uint8_t *data);
 typedef void (*monome_level_map_cb_t)(monome_t *, uint8_t *dest,
                                       const uint8_t *src);
 
+typedef monome_t *(*monome_proto_new_func_t)(void);
+
 struct monome_callback {
 	monome_event_callback_t cb;
 	void *data;
@@ -118,8 +120,10 @@ struct monome_tilt_functions {
 };
 
 struct monome {
+#if !defined(EMBED_PROTOS)
 	/* handle for the loaded protocol module */
 	void *dl_handle;
+#endif
 
 	const char *serial;
 	const char *friendly;
