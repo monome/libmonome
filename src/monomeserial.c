@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
+ * Copyright (c) 2013 Nedko Arnaudov <nedko@arnaudov.name>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -405,9 +406,11 @@ int main(int argc, char *argv[]) {
 	monome_led_all(state.monome, 0);
 
 	printf("monomeserial version %s, yay!\n\n", VERSION);
-	printf("initialized device %s at %s, which is %dx%d\n",
-		   monome_get_serial(state.monome), monome_get_devpath(state.monome),
-		   monome_get_rows(state.monome), monome_get_cols(state.monome));
+	printf("initialized device %s (%s) at %s, which is %dx%d using proto %s\n",
+		   monome_get_serial(state.monome), monome_get_friendly_name(state.monome),
+		   monome_get_devpath(state.monome),
+		   monome_get_rows(state.monome), monome_get_cols(state.monome),
+		   monome_get_proto(state.monome));
 	printf("running with prefix /%s\n\n", state.lo_prefix);
 
 	/* main_loop() returns 1 if the monome was disconnected */

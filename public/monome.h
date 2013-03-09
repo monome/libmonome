@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
+ * Copyright (c) 2013 Nedko Arnaudov <nedko@arnaudov.name>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -89,6 +90,7 @@ monome_rotate_t monome_get_rotation(monome_t *monome);
 const char *monome_get_serial(monome_t *monome);
 const char *monome_get_devpath(monome_t *monome);
 const char *monome_get_friendly_name(monome_t *monome);
+const char *monome_get_proto(monome_t *monome);
 int monome_get_rows(monome_t *monome);
 int monome_get_cols(monome_t *monome);
 
