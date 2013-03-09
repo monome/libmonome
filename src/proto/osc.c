@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
+ * Copyright (c) 2013 Nedko Arnaudov <nedko@arnaudov.name>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -298,7 +299,11 @@ static void proto_osc_free(monome_t *monome) {
 	m_free(self);
 }
 
-monome_t *monome_protocol_new() {
+#if defined(EMBED_PROTOS)
+monome_t *monome_protocol_osc_new(void) {
+#else
+monome_t *monome_protocol_new(void) {
+#endif
 	monome_osc_t *self = m_calloc(1, sizeof(monome_osc_t));
 	monome_t *monome = (monome_t *) self;
 	

@@ -33,6 +33,7 @@
 #define MONOME_BAUD_RATE B115200
 #define READ_TIMEOUT 25
 
+#if !defined(EMBED_PROTOS)
 /* stops gcc from complaining when compiled with -pedantic */
 typedef union {
 	void *vptr;
@@ -90,6 +91,7 @@ void monome_platform_free(monome_t *monome) {
 	monome->free(monome);
 	dlclose(dl_handle);
 }
+#endif
 
 int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
                          const char *dev) {

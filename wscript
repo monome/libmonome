@@ -90,6 +90,8 @@ def options(opt):
 			default=False, help="on Darwin, build libmonome as a combination 32 and 64 bit library [disabled by default]")
 	lm_opts.add_option('--enable-debug', action='store_true',
 			default=False, help="Build debuggable binaries")
+	lm_opts.add_option('--enable-embedded-protos', action='store_true',
+			default=False, help="Embed protos in the library")
 
 def configure(conf):
 	# just for output prettifying
@@ -150,9 +152,16 @@ def configure(conf):
 		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides"])
 
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
+	if conf.env.LIB_LO:
+		conf.env.PROTOCOLS.append("osc")
+		conf.define("BUILD_OSC_PROTO", 1)
 
 	conf.define("LIBDIR", conf.env.LIBDIR)
 	conf.define("LIBSUFFIX", "." + conf.env.cshlib_PATTERN.rsplit(".", 1)[-1])
+
+	if conf.options.enable_embedded_protos:
+		conf.define("EMBED_PROTOS", 1)
+	conf.env.EMBED_PROTOS = conf.options.enable_embedded_protos
 
 	conf.env.VERSION = VERSION
 	conf.define("VERSION", VERSION)
