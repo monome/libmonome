@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
+ * Copyright (c) 2013 Nedko Arnaudov <nedko@arnaudov.name>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -123,6 +124,7 @@ struct monome {
 	const char *serial;
 	const char *friendly;
 	const char *device;
+	const char *proto;
 	int rows, cols;
 
 	int fd;
