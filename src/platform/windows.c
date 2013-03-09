@@ -56,8 +56,7 @@ static char *m_asprintf(const char *fmt, ...) {
 }
 
 monome_t *monome_platform_load_protocol(const char *proto) {
-	typedef monome_t *(*proto_init_t)();
-	proto_init_t protocol_new;
+	monome_proto_new_func_t protocol_new;
 
 	monome_t *monome;
 	HMODULE proto_mod;
@@ -72,7 +71,7 @@ monome_t *monome_platform_load_protocol(const char *proto) {
 	if( !proto_mod )
 		goto err_loadlibrary;
 
-	protocol_new = (proto_init_t) GetProcAddress(proto_mod, "monome_protocol_new");
+	protocol_new = (monome_proto_new_func_t) GetProcAddress(proto_mod, "monome_protocol_new");
 
 	if( !protocol_new )
 		goto err_protocol_new;

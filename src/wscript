@@ -57,27 +57,29 @@ def build(bld):
 	elif bld.env.DEST_OS == "win32":
 		obj("platform/windows.c")
 
+	if bld.env.EMBED_PROTOS:
+		obj("platform/embed.c")
 	#
 	# protocols
 	#
 
+	build_osc_proto = False
 	for p in bld.env.PROTOCOLS:
-		bld.shlib(
-			source="proto/{0}.c".format(p),
-			features="proto_module",
-			use="lm_inc libmonome",
+		use = "lm_inc libmonome"
+		if p == "osc":
+			use = use + " LO"
+			build_osc_proto = True
+		source="proto/{0}.c".format(p)
+		if bld.env.EMBED_PROTOS:
+			obj(source)
+		else:
+			bld.shlib(
+				source=source,
+				features="proto_module",
+				use=use,
 
-			target="protocol_{0}".format(p),
-			install_path="${LIBDIR}/monome")
-
-	if bld.env.LIB_LO:
-		bld.shlib(
-			source="proto/osc.c",
-			features="proto_module",
-			use="lm_inc libmonome LO",
-
-			target="protocol_osc",
-			install_path="${LIBDIR}/monome")
+				target="protocol_{0}".format(p),
+				install_path="${LIBDIR}/monome")
 
 	#
 	# common
@@ -96,9 +98,12 @@ def build(bld):
 			target="monome")
 	else:
 		# the UDEV use is ignored if it is not defined
+		use = "lm_inc UDEV DL"
+		if build_osc_proto and bld.env.EMBED_PROTOS:
+			use += " LO"
 		bld.shlib(
 			source=objs,
-			use="lm_inc UDEV DL",
+			use=use,
 
 			name="libmonome",
 			target="monome",
