@@ -113,7 +113,8 @@ def configure(conf):
 
 	if conf.env.DEST_OS != "win32":
 		check_poll(conf)
-		conf.check_cc(lib='dl', uselib_store='DL', mandatory=True)
+		if not conf.options.enable_embedded_protos:
+			conf.check_cc(lib='dl', uselib_store='DL', mandatory=True)
 
 	if conf.env.DEST_OS == "linux":
 		check_udev(conf)
