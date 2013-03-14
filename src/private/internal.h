@@ -149,4 +149,6 @@ struct monome {
 	monome_tilt_functions_t *tilt;
 };
 
+void monome_debug(const char * format, ...);
+
 #endif /* defined MONOME_INTERNAL_H */
