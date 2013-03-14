@@ -4,6 +4,7 @@ def build(bld):
 	examples = [
 		"simple",
 		"test",
+		"running",
 		"test_arc",
 		"life",
 		"torture"]
