@@ -76,6 +76,32 @@ void monome_debug(const char * format, ...)
 	printf("\n");
 }
 
+void monome_error_init(monome_error_t * error)
+{
+	*error = malloc(MONOME_MAX_ERROR_STRING_SIZE);
+}
+
+void monome_error_set(monome_error_t error, const char * format, ...)
+{
+	va_list ap;
+
+	if (error == NULL) return;
+
+	va_start(ap, format);
+	vsnprintf((char *)error, MONOME_MAX_ERROR_STRING_SIZE, format, ap);
+	va_end(ap);
+}
+
+const char * monome_error_get(monome_error_t error)
+{
+	return (const char *)error;
+}
+
+void monome_error_uninit(monome_error_t error)
+{
+	free(error);
+}
+
 /**
  * public
  */
