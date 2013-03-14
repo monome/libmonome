@@ -149,4 +149,15 @@ struct monome {
 	monome_tilt_functions_t *tilt;
 };
 
+void monome_debug(const char * format, ...);
+
+typedef struct { int unused; } * monome_error_t;
+
+#define MONOME_MAX_ERROR_STRING_SIZE 1024
+
+void monome_error_init(monome_error_t * error);
+void monome_error_set(monome_error_t error, const char * format, ...);
+const char * monome_error_get(monome_error_t error);
+void monome_error_uninit(monome_error_t error);
+
 #endif /* defined MONOME_INTERNAL_H */

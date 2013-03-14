@@ -97,7 +97,7 @@ def build(bld):
 			name="libmonome",
 			target="monome")
 	else:
-		# the UDEV use is ignored if it is not defined
+		# the UDEV and DL uses are ignored if it is not defined
 		use = "lm_inc UDEV DL"
 		if build_osc_proto and bld.env.EMBED_PROTOS:
 			use += " LO"
