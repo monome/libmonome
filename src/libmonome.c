@@ -102,7 +102,7 @@ monome_t *monome_open(const char *dev, ...) {
 	if( error )
 		goto err_init;
 
-	monome->proto = m->proto;
+	monome->proto = proto;
 
 	if( !(monome->device = m_strdup(dev)) )
 		goto err_nomem;
