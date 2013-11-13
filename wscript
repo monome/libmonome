@@ -149,7 +149,7 @@ def configure(conf):
 		conf.env.append_unique("LINKFLAGS", ["-mmacosx-version-min=10.5"])
 
 	if conf.env.CC[0] == "clang":
-		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides"])
+		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides", "-Qunused-arguments"])
 
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
 	if conf.env.LIB_LO:
