@@ -168,16 +168,18 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, size_t nbyte
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 	ssize_t bytes, ret = 0;
 
-	goto party;
+	goto start;
 
 	for( ; nbyte; nbyte -= bytes ) {
 		if( monome_platform_wait_for_input(monome, READ_TIMEOUT) )
 			return ret;
 
-party:
+start:
 		if ((bytes = read(monome->fd, buf, nbyte)) < 0) {
-			if (errno == EAGAIN)
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
 				return 0;
+			if (errno == EINTR)
+				goto start;
 			return bytes;
 		}
 
