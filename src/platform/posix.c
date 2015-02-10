@@ -25,6 +25,7 @@
 #include <dlfcn.h>
 #include <sys/select.h>
 #include <termios.h>
+#include <errno.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -174,8 +175,11 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 			return ret;
 
 party:
-		if( (bytes = read(monome->fd, buf, nbyte)) < 0 )
+		if ((bytes = read(monome->fd, buf, nbyte)) < 0) {
+			if (errno == EAGAIN)
+				return 0;
 			return bytes;
+		}
 
 		ret += bytes;
 		buf += bytes;

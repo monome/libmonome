@@ -44,9 +44,10 @@ static ssize_t mext_write_msg(monome_t *monome, mext_msg_t *msg) {
 
 static ssize_t mext_read_msg(monome_t *monome, mext_msg_t *msg) {
 	size_t payload_length;
+	ssize_t read;
 
-	if( monome_platform_read(monome, &msg->header, 1) != 1 )
-		return 0;
+	if ((read = monome_platform_read(monome, &msg->header, 1)) <= 0)
+		return read;
 
 	msg->addr = msg->header >> 4;
 	msg->cmd  = msg->header & 0xF;
@@ -58,7 +59,7 @@ static ssize_t mext_read_msg(monome_t *monome, mext_msg_t *msg) {
 
 	if( monome_platform_read(monome, (uint8_t *) &msg->payload, payload_length)
 		!= payload_length )
-		return 0;
+		return -1;
 
 	return 1 + payload_length;
 }
@@ -544,18 +545,19 @@ static mext_handler_t subsystem_event_handlers[16] = {
 static int mext_next_event(monome_t *monome, monome_event_t *e) {
 	SELF_FROM(monome);
 	mext_msg_t msg = {0, 0};
+	ssize_t status;
 
-	while( mext_read_msg(monome, &msg) ) {
-		if( msg.addr == SS_SYSTEM ) {
+	while ((status = mext_read_msg(monome, &msg)) > 0) {
+		if (msg.addr == SS_SYSTEM) {
 			subsystem_event_handlers[0](self, &msg, e);
 			continue;
 		}
 
-		if( subsystem_event_handlers[msg.addr](self, &msg, e) )
+		if (subsystem_event_handlers[msg.addr](self, &msg, e))
 			return 1;
 	}
 
-	return 0;
+	return status;
 }
 
 static int mext_open(monome_t *monome, const char *dev, const char *serial,

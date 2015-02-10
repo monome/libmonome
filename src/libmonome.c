@@ -191,17 +191,17 @@ int monome_unregister_handler(monome_t *monome,
 int monome_event_next(monome_t *monome, monome_event_t *e) {
 	e->monome = monome;
 
-	if( !monome->next_event(monome, e) )
-		return 0;
-	return 1;
+	return monome->next_event(monome, e);
 }
 
 int monome_event_handle_next(monome_t *monome) {
 	monome_callback_t *handler;
 	monome_event_t e;
+	int status;
 
-	if( !monome_event_next(monome, &e) )
-		return 0;
+	status = monome_event_next(monome, &e);
+	if (status <= 0)
+		return status;
 
 	handler = &monome->handlers[e.event_type];
 
