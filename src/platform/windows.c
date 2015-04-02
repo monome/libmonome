@@ -29,7 +29,7 @@
 
 /* THIS WAY LIES MADNESS */
 #include <windows.h>
-#include <Winreg.h>
+#include <winreg.h>
 #include <io.h>
 
 #include <monome.h>

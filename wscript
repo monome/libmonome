@@ -77,6 +77,21 @@ def check_liblo(conf):
 # waf stuff
 #
 
+def override_find_program(prefix):
+	from waflib.Configure import find_program as orig_find
+	from waflib.Configure import conf
+
+	if prefix[-1] != '-':
+		prefix += '-'
+
+	@conf
+	def find_program(self, filename, **kw):
+		if type(filename) == str:
+			return orig_find(self, prefix + filename, **kw)
+		else:
+			return orig_find(self, [prefix + x for x in filename], **kw)
+		return orig_find(self, filename, **kw)
+
 def options(opt):
 	opt.load("compiler_c")
 	opt.load("cython")
@@ -98,6 +113,10 @@ def configure(conf):
 	# just for output prettifying
 	# print() (as a function) ddoesn't work on python <2.7
 	separator = lambda: sys.stdout.write("\n")
+
+	xcomp_prefix = conf.environ.get('CROSS_COMPILE', None)
+	if xcomp_prefix:
+		override_find_program(xcomp_prefix)
 
 	separator()
 	conf.load("compiler_c")
