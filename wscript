@@ -131,7 +131,9 @@ def configure(conf):
 
 	separator()
 
-	if conf.env.DEST_OS != "win32":
+	if conf.env.DEST_OS == "win32":
+		conf.env.append_unique('LINKFLAGS', ['-static', '-static-libgcc'])
+	else:
 		check_poll(conf)
 		conf.check_cc(lib='dl', uselib_store='DL', mandatory=True)
 
