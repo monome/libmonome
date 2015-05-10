@@ -55,6 +55,53 @@ static monome_devmap_t *map_serial_to_device(const char *serial) {
 	return NULL;
 }
 
+void monome_debug(const char * format, ...)
+{
+	static int g_verbose = -1;
+	va_list ap;
+
+	if (g_verbose < 0) {
+		g_verbose = getenv("MONOME_VERBOSE") != NULL;
+	}
+
+	if (!g_verbose)
+		return;
+
+	printf("DEBUG: ");
+
+	va_start(ap, format);
+	vprintf(format, ap);
+	va_end(ap);
+
+	printf("\n");
+}
+
+void monome_error_init(monome_error_t * error)
+{
+	*error = malloc(MONOME_MAX_ERROR_STRING_SIZE);
+}
+
+void monome_error_set(monome_error_t error, const char * format, ...)
+{
+	va_list ap;
+
+	if (error == NULL) return;
+
+	va_start(ap, format);
+	vsnprintf((char *)error, MONOME_MAX_ERROR_STRING_SIZE, format, ap);
+	va_end(ap);
+}
+
+const char * monome_error_get(monome_error_t error)
+{
+	return (const char *)error;
+}
+
+void monome_error_uninit(monome_error_t error)
+{
+	free(error);
+}
+
 /**
  * public
  */

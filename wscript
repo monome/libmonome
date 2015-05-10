@@ -60,6 +60,19 @@ def check_udev(conf):
 			msg="Checking for libudev",
 			errmsg="no (will use sysfs)")
 
+	conf.check_cc(
+			define_name="HAVE_UDEV_DEVICE_NEW_FROM_DEVICE_ID",
+			mandatory=False,
+			quote=0,
+
+			execute=True,
+
+			function_name='udev_device_new_from_device_id',
+			header_name="libudev.h",
+			uselib="UDEV",
+
+			msg="Checking for function udev_device_new_from_device_id() in libudev")
+
 def check_liblo(conf):
 	conf.check_cc(
 			define_name="HAVE_LO",
