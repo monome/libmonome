@@ -442,6 +442,7 @@ static int mext_handler_noop(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_SYSTEM_QUERY_RESPONSE:
+		self->need_responses &= ~MEXT_NEED_QUERY;
 		break;
 
 	case CMD_SYSTEM_ID:
@@ -449,6 +450,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 		self->id[32] = '\0'; /* just in case */
 
 		MONOME_T(self)->friendly = self->id;
+
+		self->need_responses &= ~MEXT_NEED_ID;
 		break;
 
 	case CMD_SYSTEM_GRID_OFFSET:
@@ -457,6 +460,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 	case CMD_SYSTEM_GRIDSZ:
 		MONOME_T(self)->cols = msg->payload.gridsz.x;
 		MONOME_T(self)->rows = msg->payload.gridsz.y;
+
+		self->need_responses &= ~MEXT_NEED_GRID_SIZE;
 		break;
 
 	case CMD_SYSTEM_ADDR:
@@ -554,7 +559,7 @@ static int mext_next_event(monome_t *monome, monome_event_t *e) {
 		}
 
 		if (subsystem_event_handlers[msg.addr](self, &msg, e))
-			return 1;
+			return -1;
 	}
 
 	return status;
@@ -562,29 +567,32 @@ static int mext_next_event(monome_t *monome, monome_event_t *e) {
 
 static int mext_open(monome_t *monome, const char *dev, const char *serial,
                      const monome_devmap_t *m, va_list args) {
-	int i;
+	SELF_FROM(monome);
 	monome_event_t e;
-	mext_cmd_t startup_cmds[] = {
-		CMD_SYSTEM_QUERY,
-		CMD_SYSTEM_GET_ID,
-		CMD_SYSTEM_GET_GRIDSZ
-	};
 
 	if( monome_platform_open(monome, m, dev) )
-		return 1;
+		return -1;
 
 	monome->serial = serial;
 	monome->friendly = m->friendly;
 
-	mext_simple_cmd(monome, CMD_SYSTEM_QUERY);
-	mext_simple_cmd(monome, CMD_SYSTEM_GET_ID);
-	mext_simple_cmd(monome, CMD_SYSTEM_GET_GRIDSZ);
+#define QUERY_IF_NEEDED(resp, cmd)											\
+	do {																	\
+		if( self->need_responses & resp )									\
+			mext_simple_cmd(monome, cmd);									\
+	} while( 0 )
 
-	for( i = 0; i < ARRAY_LENGTH(startup_cmds); i++ ) {
-		mext_simple_cmd(monome, startup_cmds[i]);
-		monome_platform_wait_for_input(monome, 250);
-		mext_next_event(monome, &e);
-	}
+	do {
+		QUERY_IF_NEEDED(MEXT_NEED_QUERY, CMD_SYSTEM_QUERY);
+		QUERY_IF_NEEDED(MEXT_NEED_ID, CMD_SYSTEM_GET_ID);
+		QUERY_IF_NEEDED(MEXT_NEED_GRID_SIZE, CMD_SYSTEM_GET_GRIDSZ);
+
+		if (monome_platform_wait_for_input(monome, 250) < 0
+				|| mext_next_event(monome, &e) < 0)
+			return -1;
+	} while( self->need_responses );
+
+#undef QUERY_IF_NEEDED
 
 	return 0;
 }
@@ -620,6 +628,9 @@ monome_t *monome_protocol_new(void) {
 	monome->led_level = &mext_led_level_functions;
 	monome->led_ring = &mext_led_ring_functions;
 	monome->tilt = &mext_tilt_functions;
+
+	self->need_responses =
+		MEXT_NEED_QUERY | MEXT_NEED_ID | MEXT_NEED_GRID_SIZE;
 
 	return monome;
 }

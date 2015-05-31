@@ -186,9 +186,18 @@ typedef struct mext_point mext_point_t;
 
 typedef int (*mext_handler_t)(mext_t *, mext_msg_t *, monome_event_t *);
 
+typedef enum {
+	MEXT_HAVE_ALL       = 0,
+
+	MEXT_NEED_QUERY     = 1 << 0,
+	MEXT_NEED_ID        = 1 << 1,
+	MEXT_NEED_GRID_SIZE = 1 << 2
+} mext_need_responses_t;
+
 struct mext {
 	monome_t monome;
 
+	mext_need_responses_t need_responses;
 	char id[33];
 };
 
