@@ -96,6 +96,9 @@ def options(opt):
 	opt.load("compiler_c")
 	opt.load("cython")
 
+	xcomp_opts = opt.add_option_group('cross-compilation')
+	xcomp_opts.add_option('--host', action='store', default=False)
+
 	lm_opts = opt.add_option_group("libmonome options")
 
 	lm_opts.add_option("--disable-osc", action="store_true",
@@ -114,9 +117,8 @@ def configure(conf):
 	# print() (as a function) ddoesn't work on python <2.7
 	separator = lambda: sys.stdout.write("\n")
 
-	xcomp_prefix = conf.environ.get('CROSS_COMPILE', None)
-	if xcomp_prefix:
-		override_find_program(xcomp_prefix)
+	if conf.options.host:
+		override_find_program(conf.options.host)
 
 	separator()
 	conf.load("compiler_c")
@@ -157,7 +159,9 @@ def configure(conf):
 	# setting defines, etc
 	#
 
-	conf.env.append_unique("CFLAGS", ["-std=c99", "-Wall", "-Werror"])
+	conf.env.append_unique("CFLAGS", [
+		"-std=c99", "-Wall", "-Werror",
+		"-Wno-initializer-overrides"])
 
 	if conf.options.enable_multilib:
 		conf.env.ARCH = ["i386", "x86_64"]
