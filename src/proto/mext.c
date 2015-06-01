@@ -435,11 +435,13 @@ static monome_tilt_functions_t mext_tilt_functions = {
  * event handlers
  */
 
-static int mext_handler_noop(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_noop(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	return 0;
 }
 
-static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_system(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_SYSTEM_QUERY_RESPONSE:
 		self->need_responses &= ~MEXT_NEED_QUERY;
@@ -477,7 +479,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 	return 0;
 }
 
-static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_key_grid(struct mext *self,
+		const struct mext_msg *msg, monome_event_t *e) {
 	e->event_type = ( msg->cmd == CMD_KEY_DOWN ) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
 	e->grid.x = msg->payload.key.x;
 	e->grid.y = msg->payload.key.y;
@@ -486,7 +489,8 @@ static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *
 	return 1;
 }
 
-static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_encoder(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_ENCODER_DELTA:
 		e->event_type = MONOME_ENCODER_DELTA;
@@ -513,7 +517,8 @@ static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e
 	return 0;
 }
 
-static int mext_handler_tilt(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_tilt(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_TILT_STATES:
 		break;
@@ -558,8 +563,8 @@ static int mext_next_event(monome_t *monome, monome_event_t *e) {
 			continue;
 		}
 
-		if (subsystem_event_handlers[msg.addr](self, &msg, e))
-			return -1;
+		if(subsystem_event_handlers[msg.addr](self, &msg, e))
+			return 1;
 	}
 
 	return status;
