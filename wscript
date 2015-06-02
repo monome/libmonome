@@ -111,6 +111,8 @@ def options(opt):
 			default=False, help="Build debuggable binaries")
 	lm_opts.add_option('--enable-embedded-protos', action='store_true',
 			default=False, help="Embed protos in the library")
+	lm_opts.add_option('--enable-mac-bundle', action='store_true',
+			default=False, help="look for protocol libraries in a Mac bundle's Frameworks directory")
 
 def configure(conf):
 	# just for output prettifying
@@ -182,7 +184,13 @@ def configure(conf):
 		conf.env.PROTOCOLS.append("osc")
 		conf.define("BUILD_OSC_PROTO", 1)
 
-	conf.define("LIBDIR", conf.env.LIBDIR)
+	if conf.options.enable_mac_bundle:
+		conf.env.LD_LIBDIR = '@executable_path/../Frameworks'
+		conf.env.ENABLE_MAC_BUNDLE = True
+	else:
+		conf.env.LD_LIBDIR = conf.env.LIBDIR
+
+	conf.define('LIBDIR', conf.env.LD_LIBDIR)
 	conf.define("LIBSUFFIX", "." + conf.env.cshlib_PATTERN.rsplit(".", 1)[-1])
 
 	if conf.options.enable_embedded_protos:
