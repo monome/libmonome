@@ -13,7 +13,7 @@ def fake_install_path(self):
 	fake_path = self.env.fake_install_path
 	self.install_path = None
 
-	if not fake_path:
+	if not fake_path or self.env.DEST_OS != 'darwin':
 		return
 
 	p = Utils.subst_vars(fake_path, self.env)
