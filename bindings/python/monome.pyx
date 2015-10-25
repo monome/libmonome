@@ -204,8 +204,8 @@ cdef void handler_thunk(const_monome_event_t *event, void *data):
 cdef class Monome(object):
 	cdef monome_t *monome
 
-	cdef str serial
-	cdef str devpath
+	cdef unicode serial
+	cdef unicode devpath
 	cdef int fd
 	cdef list handlers
 
