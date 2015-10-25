@@ -96,6 +96,16 @@ cdef extern from "monome.h":
 	int monome_led_col(monome_t *monome, uint x, uint y_off, size_t count, uint8_t *data)
 	int monome_led_map(monome_t *monome, uint x_off, uint y_off, uint8_t *data)
 
+	int monome_led_ring_set(monome_t *monome, unsigned int ring, unsigned int led,
+							unsigned int level)
+	int monome_led_ring_all(monome_t *monome, unsigned int ring,
+							unsigned int level)
+	int monome_led_ring_map(monome_t *monome, unsigned int ring,
+							const uint8_t *levels)
+	int monome_led_ring_range(monome_t *monome, unsigned int ring,
+							  unsigned int start, unsigned int end,
+							  unsigned int level)
+
 all = [
 	# constants
 	# XXX: should these be members of the class?
@@ -200,6 +210,14 @@ cdef void handler_thunk(const_monome_event_t *event, void *data):
 	ev_wrapper = event_from_event_t(event, (<Monome> data))
 	(<Monome> data).handlers[event.event_type](ev_wrapper)
 
+cdef enum:
+	ARC_RING_SIZE = 64
+
+def check_level(level):
+	if level < 0 or level > 15:
+		raise ValueError('Ring LED level {} is out of bounds, must be [0, 15]'.format(level))
+
+	return level
 
 cdef class Monome(object):
 	cdef monome_t *monome
@@ -368,6 +386,30 @@ cdef class Monome(object):
 				d = _bitmap_data(data_iter.next())
 				r[i] = (<uint8_t *> &d)[0]
 		except StopIteration:
-			pass
+			raise ValueError('data map contained insuffient number of cols')
 
 		monome_led_map(self.monome, x_off, y_off, r)
+
+	def led_ring_set(self, ring, led, level):
+		level = check_level(level)
+		monome_led_ring_set(self.monome, ring, led, level)
+
+	def led_ring_all(self, ring, level):
+		level = check_level(level)
+		monome_led_ring_all(self.monome, ring, level)
+
+	def led_ring_map(self, ring, levels):
+		cdef uint8_t levels_arr[ARC_RING_SIZE]
+
+		levels_iter = iter(levels)
+
+		for idx in xrange(ARC_RING_SIZE):
+			level = next(levels_iter)
+			level = check_level(level)
+			levels_arr[idx] = level
+		
+		monome_led_ring_map(self.monome, ring, levels_arr)
+
+	def led_ring_range(self, ring, start, end, level):
+		level = check_level(level)
+		monome_led_ring_range(self.monome, ring, start, end, level)
