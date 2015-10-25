@@ -197,12 +197,69 @@ cdef class MonomeGridEvent(MonomeEvent):
 		def __get__(self):
 			return self.y
 
+cdef class MonomeEncoderKeyEvent(MonomeEvent):
+	cdef bool pressed
+	cdef uint number
+
+	def __cinit__(self, pressed, number, object monome):
+		self.monome = monome
+		self.pressed = bool(pressed)
+		self.number = number
+
+	def __repr__(self):
+		return "%s(%s, %d, %d)" % \
+				(self.__class__.__name__, self.pressed, self.number)
+
+	property monome:
+		def __get__(self):
+			return self.monome
+
+	property pressed:
+		def __get__(self):
+			return self.pressed
+
+	property number:
+		def __get__(self):
+			return self.number
+
+cdef class MonomeEncoderEvent(MonomeEvent):
+	cdef uint number
+	cdef int delta
+
+	def __cinit__(self, number, delta, object monome):
+		self.monome = monome
+		self.number = number
+		self.delta = delta
+
+	def __repr__(self):
+		return "%s(%s, %d)" % \
+				(self.__class__.__name__, self.number, self.delta)
+
+	property monome:
+		def __get__(self):
+			return self.monome
+
+	property number:
+		def __get__(self):
+			return self.number
+
+	property delta:
+		def __get__(self):
+			return self.delta
 
 cdef MonomeEvent event_from_event_t(const_monome_event_t *e, object monome=None):
 	if   e.event_type == MONOME_BUTTON_DOWN:
 		return MonomeGridEvent(1, e.grid.x, e.grid.y, monome)
 	elif e.event_type == MONOME_BUTTON_UP:
 		return MonomeGridEvent(0, e.grid.x, e.grid.y, monome)
+	elif e.event_type == MONOME_ENCODER_DELTA:
+		return MonomeEncoderEvent(e.encoder.number, e.encoder.delta, monome)
+	elif e.event_type == MONOME_ENCODER_KEY_DOWN:
+		return MonomeEncoderKeyEvent(1, e.encoder.number, monome)
+	elif e.event_type == MONOME_ENCODER_KEY_UP:
+		return MonomeEncoderKeyEvent(0, e.encoder.number, monome)
+	else:
+		raise RuntimeError('Unknown or unimplemented event_type {}'.format(e.event_type))
 
 	# XXX: handle other event types
 
