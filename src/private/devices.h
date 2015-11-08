@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2011 William Light <wrl@illest.net>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -24,7 +24,12 @@ static monome_devmap_t mapping[] = {
 	{"mk%d",    "series", {16, 16},  "monome kit", NO_QUIRKS},
 
 	{"m40h%d",  "40h",    {8, 8},   "monome 40h", NO_QUIRKS},
-	{"a40h-%d", "40h",    {8, 8},   "arduinome" , QUIRK_57600_BAUD},
+
+	/* OSX 10.11 compatibility fix;
+	 *
+	 * matches a40h-xxx and a40h_xxx
+	 */
+	{"a40h%*1[-_]%d", "40h",    {8, 8},   "arduinome" , QUIRK_57600_BAUD},
 
 	/* determine device dimensions in initialization */
 	{"m%d",     "mext",   {0, 0},   "monome i2c", NO_QUIRKS},
