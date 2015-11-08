@@ -24,10 +24,12 @@ static monome_devmap_t mapping[] = {
     {"mk%d",    "series", {16, 16},  "monome kit", NO_QUIRKS},
 
     {"m40h%d",  "40h",    {8, 8},   "monome 40h", NO_QUIRKS},
-    {"a40h-%d", "40h",    {8, 8},   "arduinome" , QUIRK_57600_BAUD},
 
-    /* OSX 10.11 compatibility fix */
-    {"a40h_%d", "40h",    {8, 8},   "arduinome" , QUIRK_57600_BAUD},
+    /* OSX 10.11 compatibility fix;
+     *
+     * matches a40h-xxx and a40h_xxx
+     */
+    {"a40h%*1[-_]%d", "40h",    {8, 8},   "arduinome" , QUIRK_57600_BAUD},
 
     /* determine device dimensions in initialization */
     {"m%d",     "mext",   {0, 0},   "monome i2c", NO_QUIRKS},
