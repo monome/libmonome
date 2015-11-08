@@ -105,6 +105,12 @@ def options(opt):
 			default=False, help="disable OSC/liblo support [enabled by default]")
 	lm_opts.add_option("--enable-python", action="store_true",
 			default=False, help="enable python bindings [disabled by default]")
+	lm_opts.add_option("--python",
+			default=None, help="python to build against")
+	lm_opts.add_option("--pythondir",
+			default=None, help="python to build against")
+	lm_opts.add_option("--pythonarchdir",
+			default=None, help="python to build against")
 	lm_opts.add_option("--enable-multilib", action="store_true",
 			default=False, help="on Darwin, build libmonome as a combination 32 and 64 bit library [disabled by default]")
 	lm_opts.add_option('--enable-debug', action='store_true',

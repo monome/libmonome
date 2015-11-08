@@ -96,6 +96,16 @@ cdef extern from "monome.h":
 	int monome_led_col(monome_t *monome, uint x, uint y_off, size_t count, uint8_t *data)
 	int monome_led_map(monome_t *monome, uint x_off, uint y_off, uint8_t *data)
 
+	int monome_led_ring_set(monome_t *monome, unsigned int ring, unsigned int led,
+							unsigned int level)
+	int monome_led_ring_all(monome_t *monome, unsigned int ring,
+							unsigned int level)
+	int monome_led_ring_map(monome_t *monome, unsigned int ring,
+							const uint8_t *levels)
+	int monome_led_ring_range(monome_t *monome, unsigned int ring,
+							  unsigned int start, unsigned int end,
+							  unsigned int level)
+
 all = [
 	# constants
 	# XXX: should these be members of the class?
@@ -187,12 +197,69 @@ cdef class MonomeGridEvent(MonomeEvent):
 		def __get__(self):
 			return self.y
 
+cdef class MonomeEncoderKeyEvent(MonomeEvent):
+	cdef bool pressed
+	cdef uint number
+
+	def __cinit__(self, pressed, number, object monome):
+		self.monome = monome
+		self.pressed = bool(pressed)
+		self.number = number
+
+	def __repr__(self):
+		return "%s(%s, %d, %d)" % \
+				(self.__class__.__name__, self.pressed, self.number)
+
+	property monome:
+		def __get__(self):
+			return self.monome
+
+	property pressed:
+		def __get__(self):
+			return self.pressed
+
+	property number:
+		def __get__(self):
+			return self.number
+
+cdef class MonomeEncoderEvent(MonomeEvent):
+	cdef uint number
+	cdef int delta
+
+	def __cinit__(self, number, delta, object monome):
+		self.monome = monome
+		self.number = number
+		self.delta = delta
+
+	def __repr__(self):
+		return "%s(%s, %d)" % \
+				(self.__class__.__name__, self.number, self.delta)
+
+	property monome:
+		def __get__(self):
+			return self.monome
+
+	property number:
+		def __get__(self):
+			return self.number
+
+	property delta:
+		def __get__(self):
+			return self.delta
 
 cdef MonomeEvent event_from_event_t(const_monome_event_t *e, object monome=None):
 	if   e.event_type == MONOME_BUTTON_DOWN:
 		return MonomeGridEvent(1, e.grid.x, e.grid.y, monome)
 	elif e.event_type == MONOME_BUTTON_UP:
 		return MonomeGridEvent(0, e.grid.x, e.grid.y, monome)
+	elif e.event_type == MONOME_ENCODER_DELTA:
+		return MonomeEncoderEvent(e.encoder.number, e.encoder.delta, monome)
+	elif e.event_type == MONOME_ENCODER_KEY_DOWN:
+		return MonomeEncoderKeyEvent(1, e.encoder.number, monome)
+	elif e.event_type == MONOME_ENCODER_KEY_UP:
+		return MonomeEncoderKeyEvent(0, e.encoder.number, monome)
+	else:
+		raise RuntimeError('Unknown or unimplemented event_type {}'.format(e.event_type))
 
 	# XXX: handle other event types
 
@@ -200,12 +267,20 @@ cdef void handler_thunk(const_monome_event_t *event, void *data):
 	ev_wrapper = event_from_event_t(event, (<Monome> data))
 	(<Monome> data).handlers[event.event_type](ev_wrapper)
 
+cdef enum:
+	ARC_RING_SIZE = 64
+
+def check_level(level):
+	if level < 0 or level > 15:
+		raise ValueError('Ring LED level {} is out of bounds, must be [0, 15]'.format(level))
+
+	return level
 
 cdef class Monome(object):
 	cdef monome_t *monome
 
-	cdef str serial
-	cdef str devpath
+	cdef unicode serial
+	cdef unicode devpath
 	cdef int fd
 	cdef list handlers
 
@@ -368,6 +443,30 @@ cdef class Monome(object):
 				d = _bitmap_data(data_iter.next())
 				r[i] = (<uint8_t *> &d)[0]
 		except StopIteration:
-			pass
+			raise ValueError('data map contained insuffient number of cols')
 
 		monome_led_map(self.monome, x_off, y_off, r)
+
+	def led_ring_set(self, ring, led, level):
+		level = check_level(level)
+		monome_led_ring_set(self.monome, ring, led, level)
+
+	def led_ring_all(self, ring, level):
+		level = check_level(level)
+		monome_led_ring_all(self.monome, ring, level)
+
+	def led_ring_map(self, ring, levels):
+		cdef uint8_t levels_arr[ARC_RING_SIZE]
+
+		levels_iter = iter(levels)
+
+		for idx in xrange(ARC_RING_SIZE):
+			level = next(levels_iter)
+			level = check_level(level)
+			levels_arr[idx] = level
+		
+		monome_led_ring_map(self.monome, ring, levels_arr)
+
+	def led_ring_range(self, ring, start, end, level):
+		level = check_level(level)
+		monome_led_ring_range(self.monome, ring, start, end, level)
