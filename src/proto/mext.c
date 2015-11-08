@@ -44,9 +44,10 @@ static ssize_t mext_write_msg(monome_t *monome, mext_msg_t *msg) {
 
 static ssize_t mext_read_msg(monome_t *monome, mext_msg_t *msg) {
 	size_t payload_length;
+	ssize_t read;
 
-	if( monome_platform_read(monome, &msg->header, 1) != 1 )
-		return 0;
+	if ((read = monome_platform_read(monome, &msg->header, 1)) <= 0)
+		return read;
 
 	msg->addr = msg->header >> 4;
 	msg->cmd  = msg->header & 0xF;
@@ -58,7 +59,7 @@ static ssize_t mext_read_msg(monome_t *monome, mext_msg_t *msg) {
 
 	if( monome_platform_read(monome, (uint8_t *) &msg->payload, payload_length)
 		!= payload_length )
-		return 0;
+		return -1;
 
 	return 1 + payload_length;
 }
@@ -434,13 +435,16 @@ static monome_tilt_functions_t mext_tilt_functions = {
  * event handlers
  */
 
-static int mext_handler_noop(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_noop(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	return 0;
 }
 
-static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_system(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_SYSTEM_QUERY_RESPONSE:
+		self->need_responses &= ~MEXT_NEED_QUERY;
 		break;
 
 	case CMD_SYSTEM_ID:
@@ -448,6 +452,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 		self->id[32] = '\0'; /* just in case */
 
 		MONOME_T(self)->friendly = self->id;
+
+		self->need_responses &= ~MEXT_NEED_ID;
 		break;
 
 	case CMD_SYSTEM_GRID_OFFSET:
@@ -456,6 +462,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 	case CMD_SYSTEM_GRIDSZ:
 		MONOME_T(self)->cols = msg->payload.gridsz.x;
 		MONOME_T(self)->rows = msg->payload.gridsz.y;
+
+		self->need_responses &= ~MEXT_NEED_GRID_SIZE;
 		break;
 
 	case CMD_SYSTEM_ADDR:
@@ -471,7 +479,8 @@ static int mext_handler_system(mext_t *self, mext_msg_t *msg, monome_event_t *e)
 	return 0;
 }
 
-static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_key_grid(struct mext *self,
+		const struct mext_msg *msg, monome_event_t *e) {
 	e->event_type = ( msg->cmd == CMD_KEY_DOWN ) ? MONOME_BUTTON_DOWN : MONOME_BUTTON_UP;
 	e->grid.x = msg->payload.key.x;
 	e->grid.y = msg->payload.key.y;
@@ -480,7 +489,8 @@ static int mext_handler_key_grid(mext_t *self, mext_msg_t *msg, monome_event_t *
 	return 1;
 }
 
-static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_encoder(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_ENCODER_DELTA:
 		e->event_type = MONOME_ENCODER_DELTA;
@@ -507,7 +517,8 @@ static int mext_handler_encoder(mext_t *self, mext_msg_t *msg, monome_event_t *e
 	return 0;
 }
 
-static int mext_handler_tilt(mext_t *self, mext_msg_t *msg, monome_event_t *e) {
+static int mext_handler_tilt(struct mext *self, const struct mext_msg *msg,
+		monome_event_t *e) {
 	switch( msg->cmd ) {
 	case CMD_TILT_STATES:
 		break;
@@ -544,45 +555,49 @@ static mext_handler_t subsystem_event_handlers[16] = {
 static int mext_next_event(monome_t *monome, monome_event_t *e) {
 	SELF_FROM(monome);
 	mext_msg_t msg = {0, 0};
+	ssize_t status;
 
-	while( mext_read_msg(monome, &msg) ) {
-		if( msg.addr == SS_SYSTEM ) {
+	while ((status = mext_read_msg(monome, &msg)) > 0) {
+		if (msg.addr == SS_SYSTEM) {
 			subsystem_event_handlers[0](self, &msg, e);
 			continue;
 		}
 
-		if( subsystem_event_handlers[msg.addr](self, &msg, e) )
+		if(subsystem_event_handlers[msg.addr](self, &msg, e))
 			return 1;
 	}
 
-	return 0;
+	return status;
 }
 
 static int mext_open(monome_t *monome, const char *dev, const char *serial,
                      const monome_devmap_t *m, va_list args) {
-	int i;
+	SELF_FROM(monome);
 	monome_event_t e;
-	mext_cmd_t startup_cmds[] = {
-		CMD_SYSTEM_QUERY,
-		CMD_SYSTEM_GET_ID,
-		CMD_SYSTEM_GET_GRIDSZ
-	};
 
 	if( monome_platform_open(monome, m, dev) )
-		return 1;
+		return -1;
 
 	monome->serial = serial;
 	monome->friendly = m->friendly;
 
-	mext_simple_cmd(monome, CMD_SYSTEM_QUERY);
-	mext_simple_cmd(monome, CMD_SYSTEM_GET_ID);
-	mext_simple_cmd(monome, CMD_SYSTEM_GET_GRIDSZ);
+#define QUERY_IF_NEEDED(resp, cmd)											\
+	do {																	\
+		if( self->need_responses & resp )									\
+			mext_simple_cmd(monome, cmd);									\
+	} while( 0 )
 
-	for( i = 0; i < ARRAY_LENGTH(startup_cmds); i++ ) {
-		mext_simple_cmd(monome, startup_cmds[i]);
-		monome_platform_wait_for_input(monome, 250);
-		mext_next_event(monome, &e);
-	}
+	do {
+		QUERY_IF_NEEDED(MEXT_NEED_QUERY, CMD_SYSTEM_QUERY);
+		QUERY_IF_NEEDED(MEXT_NEED_ID, CMD_SYSTEM_GET_ID);
+		QUERY_IF_NEEDED(MEXT_NEED_GRID_SIZE, CMD_SYSTEM_GET_GRIDSZ);
+
+		if (monome_platform_wait_for_input(monome, 250) < 0
+				|| mext_next_event(monome, &e) < 0)
+			return -1;
+	} while( self->need_responses );
+
+#undef QUERY_IF_NEEDED
 
 	return 0;
 }
@@ -618,6 +633,9 @@ monome_t *monome_protocol_new(void) {
 	monome->led_level = &mext_led_level_functions;
 	monome->led_ring = &mext_led_ring_functions;
 	monome->tilt = &mext_tilt_functions;
+
+	self->need_responses =
+		MEXT_NEED_QUERY | MEXT_NEED_ID | MEXT_NEED_GRID_SIZE;
 
 	return monome;
 }

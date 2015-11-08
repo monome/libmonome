@@ -25,6 +25,7 @@
 #include <dlfcn.h>
 #include <sys/select.h>
 #include <termios.h>
+#include <errno.h>
 
 #include <monome.h>
 #include "internal.h"
@@ -46,7 +47,7 @@ monome_t *monome_platform_load_protocol(const char *proto) {
 	monome_t *monome;
 	char *buf;
 
-	if( asprintf(&buf, "%s/monome/protocol_%s%s", LIBDIR, proto, LIBSUFFIX) < 0 )
+	if( asprintf(&buf, LIBDIR "/monome/protocol_%s" LIBSUFFIX, proto) < 0 )
 		return NULL;
 
 	dl_handle = dlopen(buf, RTLD_LAZY);
@@ -166,16 +167,26 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, size_t nbyte
 
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 	ssize_t bytes, ret = 0;
+	int err;
 
-	goto party;
+	goto start;
 
 	for( ; nbyte; nbyte -= bytes ) {
-		if( monome_platform_wait_for_input(monome, READ_TIMEOUT) )
+		err = monome_platform_wait_for_input(monome, READ_TIMEOUT);
+		if( err > 0 )
 			return ret;
+		if( err < 0 )
+			return -1;
 
-party:
-		if( (bytes = read(monome->fd, buf, nbyte)) < 0 )
+start:
+		if ((bytes = read(monome->fd, buf, nbyte)) < 0) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				return 0;
+			if (errno == EINTR)
+				goto start;
+
 			return bytes;
+		}
 
 		ret += bytes;
 		buf += bytes;

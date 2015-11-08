@@ -46,6 +46,7 @@ char *monome_platform_get_dev_serial(const char *path) {
 int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
 	struct timeval timeout[1];
 	fd_set rfds[1];
+	fd_set efds[1];
 	int fd;
 
 	fd = monome_get_fd(monome);
@@ -55,9 +56,14 @@ int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
 
 	FD_ZERO(rfds);
 	FD_SET(fd, rfds);
+	FD_ZERO(efds);
+	FD_SET(fd, efds);
 
-	if( !select(fd + 1, rfds, NULL, NULL, timeout) )
+	if( !select(fd + 1, rfds, NULL, efds, timeout) )
 		return 1;
+
+	if( FD_ISSET(fd, efds) )
+		return -1;
 
 	return 0;
 }

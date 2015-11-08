@@ -23,13 +23,16 @@ int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
 	struct pollfd fds[1];
 
 	if( !msec )
-		return 1;
+		return 0;
 
 	fds->fd = monome_get_fd(monome);
 	fds->events = POLLIN;
 
 	if( !poll(fds, 1, msec) )
 		return 1;
+
+	if (fds->revents & POLLERR)
+		return -1;
 
 	return 0;
 }

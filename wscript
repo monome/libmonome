@@ -2,6 +2,7 @@
 
 import time
 import sys
+import os
 
 top = "."
 out = "build"
@@ -9,7 +10,7 @@ out = "build"
 # change this stuff
 
 APPNAME = "libmonome"
-VERSION = "1.3"
+VERSION = "1.4.0"
 
 #
 # dep checking functions
@@ -76,9 +77,27 @@ def check_liblo(conf):
 # waf stuff
 #
 
+def override_find_program(prefix):
+	from waflib.Configure import find_program as orig_find
+	from waflib.Configure import conf
+
+	if prefix[-1] != '-':
+		prefix += '-'
+
+	@conf
+	def find_program(self, filename, **kw):
+		if type(filename) == str:
+			return orig_find(self, prefix + filename, **kw)
+		else:
+			return orig_find(self, [prefix + x for x in filename], **kw)
+		return orig_find(self, filename, **kw)
+
 def options(opt):
 	opt.load("compiler_c")
 	opt.load("cython")
+
+	xcomp_opts = opt.add_option_group('cross-compilation')
+	xcomp_opts.add_option('--host', action='store', default=False)
 
 	lm_opts = opt.add_option_group("libmonome options")
 
@@ -92,11 +111,16 @@ def options(opt):
 			default=False, help="Build debuggable binaries")
 	lm_opts.add_option('--enable-embedded-protos', action='store_true',
 			default=False, help="Embed protos in the library")
+	lm_opts.add_option('--enable-mac-bundle', action='store_true',
+			default=False, help="look for protocol libraries in a Mac bundle's Frameworks directory")
 
 def configure(conf):
 	# just for output prettifying
 	# print() (as a function) ddoesn't work on python <2.7
 	separator = lambda: sys.stdout.write("\n")
+
+	if conf.options.host:
+		override_find_program(conf.options.host)
 
 	separator()
 	conf.load("compiler_c")
@@ -111,7 +135,9 @@ def configure(conf):
 
 	separator()
 
-	if conf.env.DEST_OS != "win32":
+	if conf.env.DEST_OS == "win32":
+		conf.env.append_unique('LINKFLAGS', ['-static', '-static-libgcc'])
+	else:
 		check_poll(conf)
 		conf.check_cc(lib='dl', uselib_store='DL', mandatory=True)
 
@@ -135,7 +161,9 @@ def configure(conf):
 	# setting defines, etc
 	#
 
-	conf.env.append_unique("CFLAGS", ["-std=c99", "-Wall", "-Werror"])
+	conf.env.append_unique("CFLAGS", [
+		"-std=c99", "-Wall", "-Werror",
+		"-Wno-initializer-overrides"])
 
 	if conf.options.enable_multilib:
 		conf.env.ARCH = ["i386", "x86_64"]
@@ -148,7 +176,7 @@ def configure(conf):
 		conf.env.append_unique("CFLAGS", ["-mmacosx-version-min=10.5"])
 		conf.env.append_unique("LINKFLAGS", ["-mmacosx-version-min=10.5"])
 
-	if conf.env.CC[0] == "clang":
+	if os.path.basename(conf.env.CC[0]) == "clang":
 		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides"])
 
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
@@ -156,7 +184,13 @@ def configure(conf):
 		conf.env.PROTOCOLS.append("osc")
 		conf.define("BUILD_OSC_PROTO", 1)
 
-	conf.define("LIBDIR", conf.env.LIBDIR)
+	if conf.options.enable_mac_bundle:
+		conf.env.LD_LIBDIR = '@executable_path/../Frameworks'
+		conf.env.ENABLE_MAC_BUNDLE = True
+	else:
+		conf.env.LD_LIBDIR = conf.env.LIBDIR
+
+	conf.define('LIBDIR', conf.env.LD_LIBDIR)
 	conf.define("LIBSUFFIX", "." + conf.env.cshlib_PATTERN.rsplit(".", 1)[-1])
 
 	if conf.options.enable_embedded_protos:
