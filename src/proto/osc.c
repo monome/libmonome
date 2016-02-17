@@ -232,6 +232,7 @@ static int proto_osc_open(monome_t *monome, const char *dev,
 		return 1;
 	}
 
+	lo_send_from(self->outgoing, self->server, LO_TT_IMMEDIATE, "/sys/port","i",atoi(port));
 #define ASPRINTF_OR_BAIL(...) do { \
 	if (asprintf(__VA_ARGS__) < 0) \
 		return -1;                 \
