@@ -270,10 +270,10 @@ static int proto_series_led_level_all(monome_t *monome, uint_t level) {
 
 static uint8_t reduce_levels_to_bitmask(const uint8_t *levels) {
 	/* levels is expected to be uint8_t[8] */
-	uint_t i, byte;
-	byte = 0;
+	uint_t i;
+	uint8_t byte = 0;
 	for (i = 0; i < 8; i++) {
-		byte |= ((levels[i] > 0) & 0x01) << (7 - i);
+		byte |= ((levels[i] > 7) & 0x01) << i;
 	}
 	return byte;
 };
