@@ -187,11 +187,11 @@ monome_button_callback_t button_press_callback;
 monome_button_callback_t button_release_callback;
 
 void handle_button_press(const monome_event_t *e, void *data) {
-	button_press_callback(e->grid.x, e->grid.y);
+	button_press_callback(e, e->grid.x, e->grid.y);
 }
 
 void handle_button_release(const monome_event_t *e, void *data) {
-	button_release_callback(e->grid.x, e->grid.y);
+	button_release_callback(e, e->grid.x, e->grid.y);
 }
 
 int monome_register_button_press(monome_t *monome, monome_button_callback_t cb) {

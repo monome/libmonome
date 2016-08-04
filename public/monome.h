@@ -56,7 +56,7 @@ typedef struct monome_event monome_event_t;
 typedef void (*monome_event_callback_t)
 	(const monome_event_t *event, void *data);
 typedef void (*monome_button_callback_t)
-        (unsigned int x, unsigned int y);
+	(const monome_event_t *event, unsigned int x, unsigned int y);
 
 struct monome_event {
 	monome_t *monome;
