@@ -24,7 +24,8 @@
 
 unsigned int grid[16][16] = { [0 ... 15][0 ... 15] = 0 };
 
-#define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
+/* #define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome" */
+#define MONOME_DEVICE "/dev/ttyUSB0"
 
 /**
  * this function gets registered with monome_register_handler
