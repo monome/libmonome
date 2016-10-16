@@ -588,13 +588,13 @@ static int mext_open(monome_t *monome, const char *dev, const char *serial,
 	} while( 0 )
 
 	do {
-		QUERY_IF_NEEDED(MEXT_NEED_QUERY, CMD_SYSTEM_QUERY);
-		QUERY_IF_NEEDED(MEXT_NEED_ID, CMD_SYSTEM_GET_ID);
-		QUERY_IF_NEEDED(MEXT_NEED_GRID_SIZE, CMD_SYSTEM_GET_GRIDSZ);
-
 		if (monome_platform_wait_for_input(monome, 250) < 0
 				|| mext_next_event(monome, &e) < 0)
 			return -1;
+
+		QUERY_IF_NEEDED(MEXT_NEED_QUERY, CMD_SYSTEM_QUERY);
+		QUERY_IF_NEEDED(MEXT_NEED_ID, CMD_SYSTEM_GET_ID);
+		QUERY_IF_NEEDED(MEXT_NEED_GRID_SIZE, CMD_SYSTEM_GET_GRIDSZ);
 	} while( self->need_responses );
 
 #undef QUERY_IF_NEEDED
