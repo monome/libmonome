@@ -212,7 +212,7 @@ void monome_event_loop(monome_t *monome) {
 			break;
 		}
 
-		if( !monome->next_event(monome, &e) )
+		if( monome->next_event(monome, &e) < 1 )
 			continue;
 
 		handler = &monome->handlers[e.event_type];
