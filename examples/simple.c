@@ -24,7 +24,8 @@
 
 unsigned int grid[16][16] = { [0 ... 15][0 ... 15] = 0 };
 
-#define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome"
+/* #define MONOME_DEVICE "osc.udp://127.0.0.1:8080/monome" */
+#define MONOME_DEVICE "/dev/ttyUSB0"
 
 /**
  * this function gets registered with monome_register_handler
@@ -35,7 +36,10 @@ void handle_press(const monome_event_t *e, void *data) {
 
 	x = e->grid.x;
 	y = e->grid.y;
-
+	grid[x][y] = !grid[x][y];
+	monome_led_set(e->monome, x, y, grid[x][y]);
+}
+void handle_press2(const monome_event_t *e, unsigned int x, unsigned int y) {
 	/* toggle the button */
 	grid[x][y] = !grid[x][y];
 	monome_led_set(e->monome, x, y, grid[x][y]);
@@ -51,8 +55,8 @@ int main(int argc, char *argv[]) {
 	monome_led_all(monome, 0);
 
 	/* register our button press callback */
+	/* monome_register_button_press(monome, handle_press2); */
 	monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
-
 	/* wait for presses! */
 	monome_event_loop(monome);
 

@@ -183,6 +183,47 @@ int monome_register_handler(monome_t *monome, monome_event_type_t event_type,
 	return 0;
 }
 
+monome_button_callback_t button_press_callback;
+monome_button_callback_t button_release_callback;
+
+void handle_button_press(const monome_event_t *e, void *data) {
+	button_press_callback(e, e->grid.x, e->grid.y);
+}
+
+void handle_button_release(const monome_event_t *e, void *data) {
+	button_release_callback(e, e->grid.x, e->grid.y);
+}
+
+int monome_register_button_press(monome_t *monome, monome_button_callback_t cb) {
+	button_press_callback = cb;
+	monome_callback_t *handler;
+
+	handler	= &monome->handlers[MONOME_BUTTON_DOWN];
+	handler->cb	= handle_button_press;
+
+	return 0;
+}
+
+int unregister_button_press (monome_t *monome) {
+	button_press_callback = NULL;
+	return monome_unregister_handler(monome, MONOME_BUTTON_DOWN);
+}
+
+int monome_register_button_release(monome_t *monome, monome_button_callback_t cb) {
+	button_release_callback = cb;
+	monome_callback_t *handler;
+
+	handler	= &monome->handlers[MONOME_BUTTON_UP];
+	handler->cb	= handle_button_release;
+
+	return 0;
+}
+
+int unregister_button_release (monome_t *monome) {
+	button_release_callback = NULL;
+	return monome_unregister_handler(monome, MONOME_BUTTON_UP);
+}
+
 int monome_unregister_handler(monome_t *monome,
                               monome_event_type_t event_type) {
 	return monome_register_handler(monome, event_type, NULL, NULL);

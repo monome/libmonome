@@ -55,6 +55,8 @@ typedef struct monome_event monome_event_t;
 
 typedef void (*monome_event_callback_t)
 	(const monome_event_t *event, void *data);
+typedef void (*monome_button_callback_t)
+	(const monome_event_t *event, unsigned int x, unsigned int y);
 
 struct monome_event {
 	monome_t *monome;
@@ -98,6 +100,12 @@ int monome_register_handler(monome_t *monome, monome_event_type_t event_type,
                             monome_event_callback_t, void *user_data);
 int monome_unregister_handler(monome_t *monome,
                               monome_event_type_t event_type);
+
+int monome_register_button_press(monome_t *monome, monome_button_callback_t);
+int unregister_button_press (monome_t *monome);
+int monome_register_button_release(monome_t *monome, monome_button_callback_t);
+int unregister_button_release (monome_t *monome);
+
 int monome_event_next(monome_t *monome, monome_event_t *event_buf);
 int monome_event_handle_next(monome_t *monome);
 void monome_event_loop(monome_t *monome);
