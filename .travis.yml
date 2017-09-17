@@ -6,5 +6,6 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install liblo-dev
   - sudo apt-get install libudev-dev
+  - sudo apt-get install cython
 
 script: ./waf configure && ./waf
