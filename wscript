@@ -209,8 +209,6 @@ def configure(conf):
 	conf.write_config_header("config.h")
 
 def build(bld):
-	bld.add_post_fun(post)
-
 	bld.install_files("${PREFIX}/include", ["public/monome.h"])
 	bld.recurse("src")
 	bld.recurse("utils")
@@ -230,11 +228,6 @@ def build(bld):
 
 	if bld.env.CYTHON:
 		bld.recurse("bindings/python")
-
-def post(pst):
-	if pst.cmd == "install" and \
-			pst.env.DEST_OS not in ["win32", "darwin"]:
-		pst.exec_command("ldconfig")
 
 def dist(dst):
 	pats = [".git*", "**/.git*", ".travis.yml"]
