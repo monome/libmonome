@@ -8,4 +8,6 @@ before_install:
   - sudo apt-get install libudev-dev
   - sudo apt-get install cython
 
-script: ./waf configure && ./waf
+script:
+  - ./waf configure
+  - ./waf
