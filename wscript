@@ -190,6 +190,9 @@ def configure(conf):
 		conf.env.PROTOCOLS.append("osc")
 		conf.define("BUILD_OSC_PROTO", 1)
 
+	if conf.options.libdir:
+		conf.env.LIBDIR = conf.options.libdir
+
 	if conf.options.enable_mac_bundle:
 		conf.env.LD_LIBDIR = '@executable_path/../Frameworks'
 		conf.env.ENABLE_MAC_BUNDLE = True
