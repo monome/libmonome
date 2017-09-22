@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
 
 	cell_t *c;
 
-	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/life", "8000")) )
+	if( !(monome = monome_open("osc.udp://127.0.0.1:8080/monome", "8000")) )
 		return EXIT_FAILURE;
 
 	signal(SIGINT, exit_on_signal);
