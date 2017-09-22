@@ -128,6 +128,9 @@ int monome_led_level_row(monome_t *monome, unsigned int x_off,
                          unsigned int y, size_t count, const uint8_t *data);
 int monome_led_level_col(monome_t *monome, unsigned int x, unsigned int y_off,
                          size_t count, const uint8_t *data);
+int monome_event_get_grid(const monome_event_t *e,
+			  unsigned int *out_x, unsigned int *out_y,
+			  monome_t **monome);
 
 /**
  * led ring commands

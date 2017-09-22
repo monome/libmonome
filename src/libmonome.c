@@ -289,6 +289,13 @@ int monome_led_level_col(monome_t *monome, uint_t x, uint_t y_off,
 	return monome->led_level->col(monome, x, y_off, count, data);
 }
 
+int monome_event_get_grid(const monome_event_t *e, unsigned int *out_x, unsigned int *out_y, monome_t **monome) {
+	*out_x = e->grid.x;
+	*out_y = e->grid.y;
+	*monome = e->monome;
+	return 0;
+}
+
 int monome_led_ring_set(monome_t *monome, uint_t ring, uint_t led,
                         uint_t level) {
 	REQUIRE(led_ring);
