@@ -11,3 +11,5 @@ before_install:
 script:
   - ./waf configure
   - ./waf
+  - ./waf configure --enable-python
+  - ./waf
