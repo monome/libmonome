@@ -1,10 +1,10 @@
 /**
  * Copyright (c) 2010 William Light <wrl@illest.net>
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -68,7 +68,8 @@ char *monome_platform_get_dev_serial(const char *path) {
 
 	path = strchr(path, '/') + 1;
 
-	asprintf(&buf, FTDI_PATH "/*/%s", path);
+	if (asprintf(&buf, FTDI_PATH "/*/%s", path) < 0)
+		goto err_asprintf;
 	glob(buf, 0, NULL, &gb);
 	free(buf);
 
@@ -87,7 +88,8 @@ char *monome_platform_get_dev_serial(const char *path) {
 	return buf;
 
 err_baddev:
-		globfree(&gb);
+	globfree(&gb);
+err_asprintf:
 err_nodevs:
 	return NULL;
 }
