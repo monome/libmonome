@@ -103,6 +103,8 @@ def options(opt):
 
 	lm_opts.add_option("--disable-osc", action="store_true",
 			default=False, help="disable OSC/liblo support [enabled by default]")
+	lm_opts.add_option("--disable-udev", action="store_true",
+			default=False, help="disable udev support [enabled by default]")
 	lm_opts.add_option("--enable-python", action="store_true",
 			default=False, help="enable python bindings [disabled by default]")
 	lm_opts.add_option("--python",
@@ -147,7 +149,7 @@ def configure(conf):
 		check_poll(conf)
 		conf.check_cc(lib='dl', uselib_store='DL', mandatory=True)
 
-	if conf.env.DEST_OS == "linux":
+	if conf.env.DEST_OS == "linux" and not conf.options.disable_udev:
 		check_udev(conf)
 
 	if not conf.options.disable_osc:
