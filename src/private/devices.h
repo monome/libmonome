@@ -17,9 +17,13 @@
 #include "internal.h"
 
 static monome_devmap_t mapping[] = {
-	{"m64-%d",  "series", {8, 8},   "monome 64" , NO_QUIRKS},
-	{"m128-%d", "series", {16, 8},  "monome 128", NO_QUIRKS},
-	{"m256-%d", "series", {16, 16}, "monome 256", NO_QUIRKS},
+	/* OSX 10.13 compatibility fix;
+	 *
+	 * matches m64-xxx and m64_xxx
+	 */
+	{"m64%*1[-_]%d",  "series", {8, 8},   "monome 64" , NO_QUIRKS},
+	{"m128%*1[-_]%d", "series", {16, 8},  "monome 128", NO_QUIRKS},
+	{"m256%*1[-_]%d", "series", {16, 16}, "monome 256", NO_QUIRKS},
 
 	{"mk%d",    "series", {16, 16},  "monome kit", NO_QUIRKS},
 
