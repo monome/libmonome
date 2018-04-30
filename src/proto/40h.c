@@ -23,6 +23,7 @@
 #include "internal.h"
 #include "platform.h"
 #include "rotation.h"
+#include "monobright.h"
 
 #include "40h.h"
 
@@ -144,6 +145,71 @@ static monome_led_functions_t proto_40h_led_functions = {
 };
 
 /**
+ * led level functions
+ */
+static int proto_40h_led_level_set(monome_t *monome, uint_t x, uint_t y,
+                                      uint_t level) {
+	return proto_40h_led_set(monome, x, y, reduce_level_to_bit(level));
+}
+
+static int proto_40h_led_level_all(monome_t *monome, uint_t level) {
+	return proto_40h_led_all(monome, reduce_level_to_bit(level));
+}
+
+static int proto_40h_led_level_map(monome_t *monome, uint_t x_off,
+		uint_t y_off, const uint8_t *data) {
+	uint8_t levels[64];
+	uint8_t masks[8];
+	uint_t i;
+
+	/* don't rotate coords here like you would in mext, since rotate happens
+	 * in the call to the normal led_map function
+	 */
+	ROTSPEC(monome).level_map_cb(monome, levels, data);
+
+	/* reduce the level data into a bitmask */
+	for (i = 0; i < 8; ++i) {
+		masks[i] = reduce_levels_to_bitmask(&levels[i * 8]);
+	};
+	return proto_40h_led_map(monome, x_off, y_off, masks);
+}
+
+
+static int proto_40h_led_level_row(monome_t *monome, uint_t x_off,
+		uint_t row, size_t count, const uint8_t *data) {
+	uint_t i, chunks;
+	uint8_t masks[2];
+
+	chunks = count / 8;
+	for (i = 0; i < chunks; ++i) {
+		masks[i] = reduce_levels_to_bitmask(&data[i*8]);
+	}
+
+	return proto_40h_led_row(monome, x_off, row, chunks, masks);
+}
+
+static int proto_40h_led_level_col(monome_t *monome, uint_t col,
+		uint_t y_off, size_t count, const uint8_t *data) {
+	uint_t i, chunks;
+	uint8_t masks[2];
+
+	chunks = count / 8;
+	for (i = 0; i < chunks; ++i) {
+		masks[i] = reduce_levels_to_bitmask(&data[i*8]);
+	}
+
+	return proto_40h_led_col(monome, col, y_off, chunks, masks);
+}
+
+static monome_led_level_functions_t proto_40h_led_level_functions = {
+	.set = proto_40h_led_level_set,
+	.all = proto_40h_led_level_all,
+	.map = proto_40h_led_level_map,
+	.row = proto_40h_led_level_row,
+	.col = proto_40h_led_level_col
+};
+
+/**
  * tilt functions
  *
  * see http://post.monome.org/comments.php?DiscussionID=773#Item_5
@@ -248,7 +314,7 @@ monome_t *monome_protocol_new(void) {
 	monome->next_event = proto_40h_next_event;
 
 	monome->led = &proto_40h_led_functions;
-	monome->led_level = NULL;
+	monome->led_level = &proto_40h_led_level_functions;
 	monome->led_ring = NULL;
 	monome->tilt = &proto_40h_tilt_functions;
 

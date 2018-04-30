@@ -23,6 +23,7 @@
 #include "internal.h"
 #include "platform.h"
 #include "rotation.h"
+#include "monobright.h"
 
 #include "series.h"
 
@@ -261,29 +262,19 @@ static monome_led_functions_t proto_series_led_functions = {
 
 static int proto_series_led_level_set(monome_t *monome, uint_t x, uint_t y,
                                       uint_t level) {
-	return proto_series_led_set(monome, x, y, (level > 7));
+	return proto_series_led_set(monome, x, y, reduce_level_to_bit(level));
 }
 
 static int proto_series_led_level_all(monome_t *monome, uint_t level) {
-	return proto_series_led_all(monome, (level > 7));
+	return proto_series_led_all(monome, reduce_level_to_bit(level));
 }
-
-static uint8_t reduce_levels_to_bitmask(const uint8_t *levels) {
-	/* levels is expected to be uint8_t[8] */
-	uint_t i;
-	uint8_t byte = 0;
-	for (i = 0; i < 8; i++) {
-		byte |= ((levels[i] > 7) & 0x01) << i;
-	}
-	return byte;
-};
 
 static int proto_series_led_level_map(monome_t *monome, uint_t x_off,
 		uint_t y_off, const uint8_t *data) {
 	uint8_t levels[64];
 	uint8_t masks[8];
 	uint_t i;
-	
+
 	/* don't rotate coords here like you would in mext, since rotate happens
 	 * in the call to the normal led_map function
 	 */
