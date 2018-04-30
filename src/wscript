@@ -103,6 +103,7 @@ def build(bld):
 	#
 
 	obj("rotation.c")
+	obj("monobright.c")
 	obj("libmonome.c")
 
 	if bld.env.DEST_OS == "win32":
