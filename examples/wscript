@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 def build(bld):
 	examples = [
@@ -12,6 +12,6 @@ def build(bld):
 		bld.program(
 			source="{0}.c".format(e),
 			use="lm_inc libmonome",
-			
+
 			target=e,
 			install_path=None)
