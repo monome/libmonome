@@ -2,7 +2,6 @@
 
 import time
 import sys
-import os
 
 top = "."
 out = "build"
@@ -177,15 +176,19 @@ def configure(conf):
 		conf.env.ARCH = ["i386", "x86_64"]
 
 	if conf.options.enable_debug:
-		conf.env.append_unique('CFLAGS', "-g")
+		conf.env.append_unique('CFLAGS', ["-g", "-Og"])
 		conf.env.append_unique('LINKFLAGS', "-g")
 
 	if conf.env.DEST_OS == "darwin":
 		conf.env.append_unique("CFLAGS", ["-mmacosx-version-min=10.5"])
 		conf.env.append_unique("LINKFLAGS", ["-mmacosx-version-min=10.5"])
 
-	if os.path.basename(conf.env.CC[0]) == "clang":
+	if conf.env.CC_NAME == "clang":
 		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides"])
+
+	if conf.env.CC_NAME == "gcc":
+		# FIXME: a poor solution perhaps, it will do for now
+		conf.env.append_unique("CFLAGS", ["-Wno-incompatible-pointer-types"])
 
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
 	if conf.env.LIB_LO:

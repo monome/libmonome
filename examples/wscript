@@ -3,6 +3,7 @@
 def build(bld):
 	examples = [
 		"simple",
+		"simple-serial",
 		"test",
 		"test_arc",
 		"life",
