@@ -94,7 +94,7 @@ def override_find_program(prefix):
 
 def options(opt):
 	opt.load("compiler_c")
-	opt.load("cython")
+	opt.load("cython", tooldir='.waf')
 
 	xcomp_opts = opt.add_option_group('cross-compilation')
 	xcomp_opts.add_option('--host', action='store', default=False)
