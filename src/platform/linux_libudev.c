@@ -64,3 +64,32 @@ err_no_device:
 err_stat:
 	return NULL;
 }
+
+char
+monome_platform_is_dev_grid(const char *device)
+{
+	struct udev_device *dev;
+	struct stat statbuf;
+	struct udev *udev;
+	
+	if (stat(device, &statbuf) < 0 || !S_ISCHR(statbuf.st_mode))
+		goto err_stat;
+
+	udev = udev_new();
+
+	if (!(dev = udev_device_new_from_devnum(udev, 'c', statbuf.st_rdev)))
+		goto err_no_device;
+
+	const char *vendor = udev_device_get_property_value(udev, "ID_VENDOR");
+	const char *model = udev_device_get_property_value(udev, "ID_MODEL");
+	char res = (strcmp(vendor,"monome")==0) && (strcmp(model,"grid")==0);
+	
+	udev_device_unref(dev);
+	udev_unref(udev);
+	return res;
+
+err_no_device:
+	udev_unref(udev);
+err_stat:
+	return 0;
+}

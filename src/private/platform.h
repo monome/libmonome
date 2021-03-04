@@ -14,7 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 #include "internal.h"
+
+
+
+
+char monome_platform_is_dev_grid(const char *device);
 
 char *monome_platform_get_dev_serial(const char *device);
 
