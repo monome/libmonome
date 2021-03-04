@@ -31,6 +31,7 @@
 #include "platform.h"
 #include "rotation.h"
 #include "devices.h"
+#include "grid.h"
 
 #ifndef LIBSUFFIX
 #define LIBSUFFIX ".so"
@@ -61,7 +62,7 @@ static monome_devmap_t *map_serial_to_device(const char *serial) {
 
 monome_t *monome_open(const char *dev, ...) {
 	monome_t *monome;
-	monome_devmap_t *m;
+	const monome_devmap_t *m;
 
 	va_list arguments;
 	char *serial, *proto;
@@ -77,14 +78,18 @@ monome_t *monome_open(const char *dev, ...) {
 	if( !strstr(dev, "://") ) {
 		/* assume that the device is a tty...let's probe and see what device
 		   we're dealing with */
-
 		if( !(serial = monome_platform_get_dev_serial(dev)) )
 			return NULL;
 
-		if( (m = map_serial_to_device(serial)) )
+		if (monome_platform_is_dev_grid(dev)) { 
+			m = &monome_grid_map;
 			proto = m->proto;
-		else
-			return NULL;
+		} else {
+			if( (m = map_serial_to_device(serial)) )
+				proto = m->proto;
+			else
+				return NULL;
+		}
 	} else
 		/* otherwise, we'll assume that what we have is an OSC URL.
 

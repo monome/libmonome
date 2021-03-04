@@ -82,8 +82,15 @@ monome_platform_is_dev_grid(const char *device)
 
 	const char *vendor = udev_device_get_property_value(udev, "ID_VENDOR");
 	const char *model = udev_device_get_property_value(udev, "ID_MODEL");
-	char res = (strcmp(vendor,"monome")==0) && (strcmp(model,"grid")==0);
-	
+
+	char res = 0;
+	if (vendor != NULL || model != NULL) { 
+		res = (strcmp(vendor,"monome")==0) && (strcmp(model,"grid")==0);
+	} else {
+		// whuh oh
+		abort();
+	}
+
 	udev_device_unref(dev);
 	udev_unref(udev);
 	return res;
