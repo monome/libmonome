@@ -26,23 +26,13 @@
 
 #include "platform.h"
 
-static char *
-get_monome_information(struct udev_device *d)
-{
-	const char *serial;
-
-	serial = udev_device_get_property_value(d, "ID_SERIAL_SHORT");
-
-	return (serial) ? strdup(serial) : NULL;
-}
-
 char *
 monome_platform_get_dev_serial(const char *device)
 {
 	struct udev_device *dev;
 	struct stat statbuf;
 	struct udev *udev;
-	char *serial;
+	const char *serial;
 
 	if (stat(device, &statbuf) < 0 || !S_ISCHR(statbuf.st_mode))
 		goto err_stat;
@@ -52,12 +42,12 @@ monome_platform_get_dev_serial(const char *device)
 	if (!(dev = udev_device_new_from_devnum(udev, 'c', statbuf.st_rdev)))
 		goto err_no_device;
 
-	serial = get_monome_information(dev);
+	serial = udev_device_get_property_value(dev, "ID_SERIAL_SHORT");
 
 	udev_device_unref(dev);
 	udev_unref(udev);
 
-	return serial;
+	return serial ? strdup(serial) : NULL;
 
 err_no_device:
 	udev_unref(udev);
@@ -71,6 +61,7 @@ monome_platform_is_dev_grid(const char *device)
 	struct udev_device *dev;
 	struct stat statbuf;
 	struct udev *udev;
+	const char *vendor, *model;
 	
 	if (stat(device, &statbuf) < 0 || !S_ISCHR(statbuf.st_mode))
 		goto err_stat;
@@ -80,15 +71,17 @@ monome_platform_is_dev_grid(const char *device)
 	if (!(dev = udev_device_new_from_devnum(udev, 'c', statbuf.st_rdev)))
 		goto err_no_device;
 
-	const char *vendor = udev_device_get_property_value(udev, "ID_VENDOR");
-	const char *model = udev_device_get_property_value(udev, "ID_MODEL");
+	vendor = udev_device_get_property_value(dev, "ID_VENDOR");
+	model = udev_device_get_property_value(dev, "ID_MODEL");
+
+	printf("vendor: %s; model: %s\n\n", vendor, model);
 
 	char res = 0;
-	if (vendor != NULL || model != NULL) { 
+	if (vendor != NULL && model != NULL) { 
 		res = (strcmp(vendor,"monome")==0) && (strcmp(model,"grid")==0);
 	} else {
 		// whuh oh
-		abort();
+		assert(0);
 	}
 
 	udev_device_unref(dev);
