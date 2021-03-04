@@ -31,7 +31,6 @@
 #include "platform.h"
 #include "rotation.h"
 #include "devices.h"
-#include "grid.h"
 
 #ifndef LIBSUFFIX
 #define LIBSUFFIX ".so"
