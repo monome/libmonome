@@ -39,3 +39,8 @@ ssize_t monome_platform_write(monome_t *monome, const uint8_t *buf, ssize_t bufs
 ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, ssize_t count) {
 	return 0;
 }
+
+
+char monome_platform_is_dev_grid(const char *device) {
+    return 0;
+}

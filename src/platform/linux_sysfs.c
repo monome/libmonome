@@ -93,3 +93,9 @@ err_asprintf:
 err_nodevs:
 	return NULL;
 }
+
+
+char monome_platform_is_dev_grid(const char *device) {
+    // TODO
+    return 0;
+}

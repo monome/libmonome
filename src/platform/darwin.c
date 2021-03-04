@@ -67,3 +67,9 @@ int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
 
 	return 0;
 }
+
+
+char monome_platform_is_dev_grid(const char *device) {
+    // TODO
+    return 0;
+}

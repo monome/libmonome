@@ -293,6 +293,8 @@ done:
 	return ( serial ) ? strdup(serial) : NULL;
 }
 
+
+
 int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
 	Sleep(msec); /* fuck it */
 	return 1;
@@ -321,4 +323,10 @@ void m_free(void *ptr) {
 
 void m_sleep(uint_t msec) {
 	Sleep(msec);
+}
+
+
+char monome_platform_is_dev_grid(const char *device) {
+    // TODO
+    return 0;
 }
