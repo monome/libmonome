@@ -1,25 +1,60 @@
-libmonome v1.2:
+# libmonome
 
-    libmonome is a library for easy interaction with monome devices. It
-    currently runs on Linux (on which it is primarily developed), OpenBSD, and
-    Darwin/OS X.
+**v1.4.2**
 
-    It was developed to make monome devices easy to use with programming
-    languages like C and Python, and adding wrappers for use in your favorite
-    language with a suitable FFI is straightforward.
+---------------------
 
-    libmonome has support for 40h and series devices through a unified API,
-    and by default includes a third backend which wraps around the OSC
-    protocol and presents the same API as a physical device. This means that a
-    program written using libmonome can, at runtime, decide whether to
-    communicate with a running monomeserial instance over OSC or whether to
-    access the physical device directly.
+libmonome is a library for easy interaction with monome serial devices. It
+currently runs on Linux (on which it is primarily developed), OpenBSD, 
+Windows, Windows Linux System, and Darwin/macOS.
 
-    build like:
+The core library provides C and Python/Cython bindings to manage serial devices directly.  
 
-        $ ./waf configure
-        $ ./waf
-        $ sudo ./waf install
+In addition, an OSC wrapper called `monomeserial` allows remote device interaction 
+from high-level software environments like Max/MSP.
 
-    libmonome was written by william light (visinin on the monome forums).
-    You can contact him at <wrl@illest.net>.
+## build requirements
+
+at minimum:
+- a C compiler, either `gcc` or `clang`
+- `python` (version 2.7 or higher)
+
+additionally by default (but can be disabled at configuration time):
+- `liblo` for OSC support
+- `udev` on linux/WSL for device management (falls back on direct interaction with the sysfs)
+
+## building
+
+the basic procedure is typical of WAF projects:
+
+`./waf configure` to set up the build
+`./waf` or `waf build targets=...` to perform a build
+`sudo ./waf install` to install artefacts (primarily `libmonome.so` and its aliases.)
+
+additionally, the following configuration options are accepted (also viewable with `./waf --help`):
+
+```
+    --disable-osc       disable OSC/liblo support [enabled by default]
+    --disable-udev      disable udev support [enabled by default]
+    --enable-python     enable python bindings [disabled by default]
+    --python=PYTHON     python to build against
+    --pythondir=PYTHONDIR
+                        python to build against
+    --pythonarchdir=PYTHONARCHDIR
+                        python to build against
+    --enable-multilib   on Darwin, build libmonome as a combination 32 and 64 bit library [disabled by
+                        default]
+    --enable-debug      Build debuggable binaries
+    --enable-embedded-protos
+                        Embed protos in the library
+    --enable-mac-bundle
+                        look for protocol libraries in a Mac bundle's Frameworks directory
+```
+
+## credits
+
+libmonome was designed and authored by william light <wrl@illest.net>.
+additional contributions by: 
+@artfwo, @nedko, @simonvanderveldt, 
+@MylesBorins, @alexklaeser, @boqs and @catfact.
+this README largely rewritten by @catfact in 2021; they accept all blame for errors.
