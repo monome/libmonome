@@ -186,10 +186,6 @@ def configure(conf):
 	if conf.env.CC_NAME == "clang":
 		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides"])
 
-	if conf.env.CC_NAME == "gcc":
-		# FIXME: a poor solution perhaps, it will do for now
-		conf.env.append_unique("CFLAGS", ["-Wno-incompatible-pointer-types"])
-
 	conf.env.PROTOCOLS = ["40h", "series", "mext"]
 	if conf.env.LIB_LO:
 		conf.env.PROTOCOLS.append("osc")
@@ -224,15 +220,6 @@ def build(bld):
 	# win32 doesn't have nanosleep()
 	if bld.env.DEST_OS != "win32":
 		bld.recurse("examples")
-
-	# man page
-	bld(
-		source="doc/monomeserial.in.1",
-		target="doc/monomeserial.1",
-		install_path="${PREFIX}/share/man/man1",
-
-		features="subst",
-		MDOCDATE=time.strftime("%B %d, %Y"))
 
 	if bld.env.CYTHON:
 		bld.recurse("bindings/python")
