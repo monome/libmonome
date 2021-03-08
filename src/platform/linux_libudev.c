@@ -32,7 +32,8 @@ monome_platform_get_dev_serial(const char *device)
 	struct udev_device *dev;
 	struct stat statbuf;
 	struct udev *udev;
-	const char *serial;
+	const char *serial; 
+	char *ret = NULL;
 
 	if (stat(device, &statbuf) < 0 || !S_ISCHR(statbuf.st_mode))
 		goto err_stat;
@@ -43,11 +44,12 @@ monome_platform_get_dev_serial(const char *device)
 		goto err_no_device;
 
 	serial = udev_device_get_property_value(dev, "ID_SERIAL_SHORT");
-
+	if (serial) { ret = strdup(serial); }
+		
 	udev_device_unref(dev);
 	udev_unref(udev);
-
-	return serial ? strdup(serial) : NULL;
+	
+	return ret; 
 
 err_no_device:
 	udev_unref(udev);
