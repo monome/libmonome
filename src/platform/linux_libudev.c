@@ -76,8 +76,6 @@ monome_platform_is_dev_grid(const char *device)
 	vendor = udev_device_get_property_value(dev, "ID_VENDOR");
 	model = udev_device_get_property_value(dev, "ID_MODEL");
 
-	printf("vendor: %s; model: %s\n\n", vendor, model);
-
 	char res = 0;
 	if (vendor != NULL && model != NULL) { 
 		res = (strcmp(vendor,"monome")==0) && (strcmp(model,"grid")==0);
