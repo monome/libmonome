@@ -75,13 +75,13 @@ static char *m_get_serial_from_instance_id(const char *instance_id) {
 	return NULL;
 }
 
-static char *m_get_device_port_name(HDEVINFO devinfoset_handle, SP_DEVINFO_DATA *devinfo_data) {
+static char *m_get_device_port_name(HDEVINFO hdevinfo, SP_DEVINFO_DATA *devinfo) {
 	DWORD port_name_size;
 	unsigned char port_name[MAX_PATH];
 	HKEY hkey;
 	LSTATUS status;
 
-	hkey = SetupDiOpenDevRegKey(devinfoset_handle, devinfo_data, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
+	hkey = SetupDiOpenDevRegKey(hdevinfo, devinfo, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
 	status = RegQueryValueEx(hkey, "PortName", NULL, NULL, port_name, &port_name_size);
 
 	if (status == ERROR_SUCCESS) {
@@ -254,30 +254,32 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
+	HDEVINFO hdevinfo;
+	SP_DEVINFO_DATA devinfo;
 	char *serial;
+	int di;
 
 	serial = NULL;
 
-	HDEVINFO devinfoset_handle = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+	hdevinfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 
-	if (devinfoset_handle == INVALID_HANDLE_VALUE) {
+	if (hdevinfo == INVALID_HANDLE_VALUE) {
 		fprintf(stderr, "libmonome: SetupDiGetClassDevs() failed.\n");
 		return NULL;
 	}
 
-	int devinfo_index = 0;
-	SP_DEVINFO_DATA devinfo_data;
-	devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
+	devinfo.cbSize = sizeof(SP_DEVINFO_DATA);
+	di = 0;
 
-	while (SetupDiEnumDeviceInfo(devinfoset_handle, devinfo_index, &devinfo_data)) {
+	while (SetupDiEnumDeviceInfo(hdevinfo, di, &devinfo)) {
 		char *port_name;
-		port_name = m_get_device_port_name(devinfoset_handle, &devinfo_data);
+		port_name = m_get_device_port_name(hdevinfo, &devinfo);
 
 		if (strcmp(port_name, path) == 0) {
 			char instance_id[MAX_DEVICE_ID_LEN];
 			DWORD instance_id_size = sizeof(instance_id);
 
-			if (!SetupDiGetDeviceInstanceId(devinfoset_handle, &devinfo_data, instance_id, instance_id_size, NULL)) {
+			if (!SetupDiGetDeviceInstanceId(hdevinfo, &devinfo, instance_id, instance_id_size, NULL)) {
 				fprintf(stderr, "libmonome: SetupDiGetDeviceInstanceId() failed.\n");
 				continue;
 			};
@@ -285,10 +287,10 @@ char *monome_platform_get_dev_serial(const char *path) {
 			serial = m_get_serial_from_instance_id(instance_id);
 		}
 
-		devinfo_index++;
+		di++;
 	}
 
-	SetupDiDestroyDeviceInfoList(devinfoset_handle);
+	SetupDiDestroyDeviceInfoList(hdevinfo);
 
 	return serial;
 }
