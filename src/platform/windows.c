@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /* THIS WAY LIES MADNESS */
 #include <windows.h>
@@ -75,24 +76,26 @@ static char *m_get_serial_from_instance_id(const char *instance_id) {
 	return NULL;
 }
 
-static char *m_get_device_port_name(HDEVINFO hdevinfo, SP_DEVINFO_DATA *devinfo) {
-	DWORD port_name_size;
-	unsigned char port_name[MAX_PATH];
+static bool m_get_device_port_name(char *dst, size_t dst_size, HDEVINFO hdevinfo, SP_DEVINFO_DATA *devinfo) {
+	DWORD plen, ptype;
 	HKEY hkey;
 	LSTATUS status;
 
+	plen = dst_size;
+	ptype = REG_SZ;
+
 	hkey = SetupDiOpenDevRegKey(hdevinfo, devinfo, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
-	status = RegQueryValueEx(hkey, "PortName", NULL, NULL, port_name, &port_name_size);
+	status = RegQueryValueEx(hkey, "PortName", NULL, &ptype, (unsigned char *) dst, &plen);
 
 	if (status == ERROR_SUCCESS) {
-		port_name[port_name_size] = '\0';
+		dst[plen] = '\0';
 
 		RegCloseKey(hkey);
-		return strdup((char *) port_name);
+		return true;
 	}
 
 	RegCloseKey(hkey);
-	return NULL;
+	return false;
 }
 
 monome_t *monome_platform_load_protocol(const char *proto) {
@@ -256,6 +259,8 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 char *monome_platform_get_dev_serial(const char *path) {
 	HDEVINFO hdevinfo;
 	SP_DEVINFO_DATA devinfo;
+	char port_name[MAX_DEVICE_ID_LEN];
+	char instance_id[MAX_DEVICE_ID_LEN];
 	char *serial;
 	int di;
 
@@ -272,26 +277,24 @@ char *monome_platform_get_dev_serial(const char *path) {
 	di = 0;
 
 	while (SetupDiEnumDeviceInfo(hdevinfo, di, &devinfo)) {
-		char *port_name;
-		port_name = m_get_device_port_name(hdevinfo, &devinfo);
+		if (!m_get_device_port_name(port_name, sizeof(port_name), hdevinfo, &devinfo)) {
+			continue;
+		}
 
 		if (strcmp(port_name, path) == 0) {
-			char instance_id[MAX_DEVICE_ID_LEN];
-			DWORD instance_id_size = sizeof(instance_id);
-
-			if (!SetupDiGetDeviceInstanceId(hdevinfo, &devinfo, instance_id, instance_id_size, NULL)) {
+			if (!SetupDiGetDeviceInstanceId(hdevinfo, &devinfo, instance_id, sizeof(instance_id), NULL)) {
 				fprintf(stderr, "libmonome: SetupDiGetDeviceInstanceId() failed.\n");
 				continue;
 			};
 
 			serial = m_get_serial_from_instance_id(instance_id);
+			break;
 		}
 
 		di++;
 	}
 
 	SetupDiDestroyDeviceInfoList(hdevinfo);
-
 	return serial;
 }
 
