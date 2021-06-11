@@ -26,17 +26,19 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /* THIS WAY LIES MADNESS */
 #include <windows.h>
-#include <winreg.h>
-#include <io.h>
+#include <setupapi.h>
+#include <cfgmgr32.h>
+#include <initguid.h>
 
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
 
-#define FTDI_REG_PATH "SYSTEM\\CurrentControlSet\\Enum\\FTDIBUS"
+DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
 
 static char *m_asprintf(const char *fmt, ...) {
 	va_list args;
@@ -53,6 +55,47 @@ static char *m_asprintf(const char *fmt, ...) {
 	va_end(args);
 
 	return buf;
+}
+
+static char *m_get_serial_from_instance_id(const char *instance_id) {
+	char serial[MAX_PATH];
+
+	if (strncmp(instance_id, "FTDIBUS\\", 8) == 0) {
+		if (sscanf(instance_id, "FTDIBUS\\VID_%*x+PID_%*x+%[a-zA-Z0-9]m", serial) == 1) {
+			/* clear the "A" right after the serial number */
+			serial[strlen(serial) - 1] = '\0';
+			return strdup(serial);
+		}
+	} else if (strncmp(instance_id, "USB\\", 4) == 0) {
+		if (sscanf(instance_id,"USB\\VID_%*x&PID_%*x\\%[a-zA-Z0-9]m", serial) == 1) {
+			return strdup(serial);
+		}
+	}
+
+	fprintf(stderr, "libmonome: failed to parse device instance id: %s\n", instance_id);
+	return NULL;
+}
+
+static bool m_get_device_port_name(char *dst, size_t dst_size, HDEVINFO hdevinfo, SP_DEVINFO_DATA *devinfo) {
+	DWORD plen, ptype;
+	HKEY hkey;
+	LSTATUS status;
+
+	plen = dst_size;
+	ptype = REG_SZ;
+
+	hkey = SetupDiOpenDevRegKey(hdevinfo, devinfo, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
+	status = RegQueryValueEx(hkey, "PortName", NULL, &ptype, (unsigned char *) dst, &plen);
+
+	if (status == ERROR_SUCCESS) {
+		dst[plen] = '\0';
+
+		RegCloseKey(hkey);
+		return true;
+	}
+
+	RegCloseKey(hkey);
+	return false;
 }
 
 monome_t *monome_platform_load_protocol(const char *proto) {
@@ -214,83 +257,45 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
-	HKEY key, subkey;
-	char subkey_name[MAX_PATH], *subkey_path, *serial;
-	unsigned char port_name[64];
-	DWORD klen, plen, ptype;
-	int i = 0;
+	HDEVINFO hdevinfo;
+	SP_DEVINFO_DATA devinfo;
+	char port_name[MAX_DEVICE_ID_LEN];
+	char instance_id[MAX_DEVICE_ID_LEN];
+	char *serial;
+	int di;
 
 	serial = NULL;
 
-	switch( RegOpenKeyEx(
-			HKEY_LOCAL_MACHINE, FTDI_REG_PATH,
-			0, KEY_READ, &key) ) {
-	case ERROR_SUCCESS:
-		/* ERROR: request was (unexpectedly) successful */
-		break;
+	hdevinfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 
-	case ERROR_FILE_NOT_FOUND:
-		/* print message about needing the FTDI driver maybe? */
-		/* fall through also */
-	default:
+	if (hdevinfo == INVALID_HANDLE_VALUE) {
+		fprintf(stderr, "libmonome: SetupDiGetClassDevs() failed.\n");
 		return NULL;
 	}
 
-	do {
-		klen = sizeof(subkey_name) / sizeof(char);
-		switch( RegEnumKeyEx(key, i++, subkey_name, &klen,
-							 NULL, NULL, NULL, NULL) ) {
-		case ERROR_MORE_DATA:
-		case ERROR_SUCCESS:
-			break;
+	devinfo.cbSize = sizeof(SP_DEVINFO_DATA);
+	di = 0;
 
-		default:
-			goto done;
-		}
-
-		subkey_path = m_asprintf("%s\\%s\\0000\\Device Parameters",
-								 FTDI_REG_PATH, subkey_name);
-
-		switch( RegOpenKeyEx(
-				HKEY_LOCAL_MACHINE, subkey_path,
-				0, KEY_READ, &subkey) ) {
-		case ERROR_SUCCESS:
-			break;
-
-		default:
+	while (SetupDiEnumDeviceInfo(hdevinfo, di, &devinfo)) {
+		if (!m_get_device_port_name(port_name, sizeof(port_name), hdevinfo, &devinfo)) {
 			continue;
 		}
 
-		free(subkey_path);
+		if (strcmp(port_name, path) == 0) {
+			if (!SetupDiGetDeviceInstanceId(hdevinfo, &devinfo, instance_id, sizeof(instance_id), NULL)) {
+				fprintf(stderr, "libmonome: SetupDiGetDeviceInstanceId() failed.\n");
+				continue;
+			};
 
-		plen = sizeof(port_name) / sizeof(char);
-		ptype = REG_SZ;
-		switch( RegQueryValueEx(subkey, "PortName", 0, &ptype,
-								port_name, &plen) ) {
-		case ERROR_SUCCESS:
-			port_name[plen] = '\0';
-			break;
-
-		default:
-			goto nomatch;
-		}
-
-		if( !strcmp((char *) port_name, path) ) {
-			/* there's a fucking "A" right after the serial number */
-			subkey_name[klen - 1] = '\0';
-			serial = strrchr(subkey_name, '+') + 1;
-
-			RegCloseKey(subkey);
+			serial = m_get_serial_from_instance_id(instance_id);
 			break;
 		}
 
-nomatch:
-		RegCloseKey(subkey);
-	} while( 1 );
+		di++;
+	}
 
-done:
-	RegCloseKey(key);
-	return ( serial ) ? strdup(serial) : NULL;
+	SetupDiDestroyDeviceInfoList(hdevinfo);
+	return serial;
 }
 
 int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {

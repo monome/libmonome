@@ -38,5 +38,11 @@ static monome_devmap_t mapping[] = {
 	/* determine device dimensions in initialization */
 	{"m%d",     "mext",   {0, 0},   "monome i2c", NO_QUIRKS},
 
+	/* windows setupapi compatibility fix;
+	 *
+	 * matches Mxxx
+	 */
+	{"M%d",     "mext",   {0, 0},   "monome i2c", NO_QUIRKS},
+
 	{NULL}
 };
