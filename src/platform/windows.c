@@ -31,12 +31,13 @@
 #include <windows.h>
 #include <setupapi.h>
 #include <cfgmgr32.h>
+#include <initguid.h>
 
 #include <monome.h>
 #include "internal.h"
 #include "platform.h"
 
-#define FTDI_REG_PATH "SYSTEM\\CurrentControlSet\\Enum\\FTDIBUS"
+DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
 
 static char *m_asprintf(const char *fmt, ...) {
 	va_list args;
@@ -254,65 +255,40 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 
 char *monome_platform_get_dev_serial(const char *path) {
 	char *serial;
-	GUID *guids;
-	DWORD num_guids = 0;
-	int i;
 
 	serial = NULL;
 
-	SetupDiClassGuidsFromName("Ports", NULL, 0, &num_guids);
+	HDEVINFO devinfoset_handle = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 
-	if (num_guids == 0) {
-		fprintf(stderr, "libmonome: SetupDiClassGuidsFromName() failed.\n");
+	if (devinfoset_handle == INVALID_HANDLE_VALUE) {
+		fprintf(stderr, "libmonome: SetupDiGetClassDevs() failed.\n");
 		return NULL;
 	}
 
-	guids = m_calloc(num_guids, sizeof(GUID));
+	int devinfo_index = 0;
+	SP_DEVINFO_DATA devinfo_data;
+	devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
 
-	if (!guids) {
-		fprintf(stderr, "libmonome: failed to allocate guids.\n");
-		return NULL;
-	}
+	while (SetupDiEnumDeviceInfo(devinfoset_handle, devinfo_index, &devinfo_data)) {
+		char *port_name;
+		port_name = m_get_device_port_name(devinfoset_handle, &devinfo_data);
 
-	if (!SetupDiClassGuidsFromName("Ports", guids, num_guids, &num_guids)) {
-		fprintf(stderr, "libmonome: SetupDiClassGuidsFromName() failed.\n");
-		return NULL;
-	}
+		if (strcmp(port_name, path) == 0) {
+			char instance_id[MAX_DEVICE_ID_LEN];
+			DWORD instance_id_size = sizeof(instance_id);
 
-	for (i = 0; i < num_guids; i++) {
-		HDEVINFO devinfoset_handle = SetupDiGetClassDevs(&guids[i], NULL, NULL, DIGCF_PRESENT);
+			if (!SetupDiGetDeviceInstanceId(devinfoset_handle, &devinfo_data, instance_id, instance_id_size, NULL)) {
+				fprintf(stderr, "libmonome: SetupDiGetDeviceInstanceId() failed.\n");
+				continue;
+			};
 
-		if (devinfoset_handle == INVALID_HANDLE_VALUE) {
-			fprintf(stderr, "libmonome: SetupDiGetClassDevs() failed.\n");
-			continue;
+			serial = m_get_serial_from_instance_id(instance_id);
 		}
 
-		int devinfo_index = 0;
-		SP_DEVINFO_DATA devinfo_data;
-		devinfo_data.cbSize = sizeof(SP_DEVINFO_DATA);
-
-		while (SetupDiEnumDeviceInfo(devinfoset_handle, devinfo_index, &devinfo_data)) {
-			char *port_name;
-			port_name = m_get_device_port_name(devinfoset_handle, &devinfo_data);
-
-			if (strcmp(port_name, path) == 0) {
-				char instance_id[MAX_DEVICE_ID_LEN];
-				DWORD instance_id_size = sizeof(instance_id);
-
-				if (!SetupDiGetDeviceInstanceId(devinfoset_handle, &devinfo_data, instance_id, instance_id_size, NULL)) {
-					fprintf(stderr, "libmonome: SetupDiGetDeviceInstanceId() failed.\n");
-					goto err_devinfo;
-				};
-
-				serial = m_get_serial_from_instance_id(instance_id);
-			}
-
-			devinfo_index++;
-		}
-
-err_devinfo:
-		SetupDiDestroyDeviceInfoList(devinfoset_handle);
+		devinfo_index++;
 	}
+
+	SetupDiDestroyDeviceInfoList(devinfoset_handle);
 
 	return serial;
 }
