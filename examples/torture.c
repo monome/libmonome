@@ -28,10 +28,10 @@
 #include <monome.h>
 
 #define MONOME_OSC "osc.udp://127.0.0.1:8080/monome"
-#define MONOME_SERIAL "/dev/ttyUSB0"
+#define MONOME_SERIAL "/dev/ttyACM0"
 
 #define WIDTH  16
-#define HEIGHT 16
+#define HEIGHT 8
 
 void random_chill() {
 	struct timespec rem, req;
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 	unsigned int w, h, y, s;
 	uint16_t buf;
 
-	if( !(monome = monome_open(MONOME_OSC, "8000")) ) {
+	if( !(monome = monome_open(MONOME_SERIAL, "8000")) ) {
 		fprintf(stderr, "couldn't open monome\n");
 		exit(EXIT_FAILURE);
 	}

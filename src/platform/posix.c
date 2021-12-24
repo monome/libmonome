@@ -99,7 +99,7 @@ int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
 	struct termios nt, ot;
 	int fd;
 
-	if( (fd = open(dev, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0 ) {
+	if( (fd = open(dev, O_RDWR | O_NOCTTY)) < 0 ) {
 		perror("libmonome: could not open monome device");
 		return 1;
 	}
@@ -131,7 +131,7 @@ int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
 	nt.c_oflag &= ~(OCRNL | ONLCR | ONLRET | ONOCR |
 	                OFILL | OPOST);
 
-	nt.c_cc[VMIN]  = 1;
+	nt.c_cc[VMIN]  = 0;
 	nt.c_cc[VTIME] = 0;
 
 	if( tcsetattr(fd, TCSANOW, &nt) < 0 )
