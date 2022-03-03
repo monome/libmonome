@@ -121,6 +121,8 @@ def options(opt):
 			default=False, help="Embed protos in the library")
 	lm_opts.add_option('--enable-mac-bundle', action='store_true',
 			default=False, help="look for protocol libraries in a Mac bundle's Frameworks directory")
+	lm_opts.add_option('--mac-version-min', type=str,
+			default=False, help="specify minimum macOS ABI version [optional]")
 
 def configure(conf):
 	# just for output prettifying
@@ -181,9 +183,10 @@ def configure(conf):
 		conf.env.append_unique('CFLAGS', "-g")
 		conf.env.append_unique('LINKFLAGS', "-g")
 
-	if conf.env.DEST_OS == "darwin":
-		conf.env.append_unique("CFLAGS", ["-mmacosx-version-min=10.5"])
-		conf.env.append_unique("LINKFLAGS", ["-mmacosx-version-min=10.5"])
+	if conf.env.DEST_OS == "darwin" and conf.options.mac_version_min:
+		abi_version = "-mmacosx-version-min=" + conf.options.mac_version_min
+		conf.env.append_unique("CFLAGS", [abi_version])
+		conf.env.append_unique("LINKFLAGS", [abi_version])
 
 	if os.path.basename(conf.env.CC[0]) == "clang":
 		conf.env.append_unique("CFLAGS", ["-Wno-initializer-overrides"])
