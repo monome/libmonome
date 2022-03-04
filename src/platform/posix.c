@@ -99,7 +99,7 @@ int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
 	struct termios nt, ot;
 	int fd;
 
-	if( (fd = open(dev, O_RDWR | O_NOCTTY)) < 0 ) {
+	if( (fd = open(dev, O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0 ) {
 		perror("libmonome: could not open monome device");
 		return 1;
 	}
