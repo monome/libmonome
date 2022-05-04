@@ -133,7 +133,7 @@ static int osc_intensity_handler(const char *path, const char *types,
 	} while (0);
 
 static void register_osc_methods(char *prefix, monome_t *monome) {
-	lo_server_thread srv = state.server;
+	lo_server srv = (lo_server)state.server;
 	char *cmd_buf;
 
 	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/led", prefix);
@@ -168,7 +168,7 @@ static void register_osc_methods(char *prefix, monome_t *monome) {
 }
 
 static void unregister_osc_methods(char *prefix) {
-	lo_server_thread srv = state.server;
+	lo_server srv = (lo_server)state.server;
 	char *cmd_buf;
 
 	ASPRINTF_OR_BAIL(&cmd_buf, "/%s/clear", prefix);
@@ -207,7 +207,7 @@ static void monome_handle_press(const monome_event_t *e, void *data) {
 	char *prefix = data;
 
 	ASPRINTF_OR_BAIL(&cmd, "/%s/press", prefix);
-	lo_send_from(state.outgoing, state.server, LO_TT_IMMEDIATE, cmd, "iii",
+	lo_send_from(state.outgoing, (lo_server)state.server, LO_TT_IMMEDIATE, cmd, "iii",
 				 e->grid.x, e->grid.y, e->event_type);
 	m_free(cmd);
 }
@@ -257,7 +257,7 @@ static int main_loop() {
 	struct pollfd fds[2];
 
 	fds[0].fd = monome_get_fd(state.monome);
-	fds[1].fd = lo_server_get_socket_fd(state.server);
+	fds[1].fd = lo_server_get_socket_fd((lo_server)state.server);
 
 	fds[0].events = fds[1].events = 
 		POLLIN;
@@ -276,7 +276,7 @@ static int main_loop() {
 
 		/* how about from OSC? */
 		if( fds[1].revents & POLLIN )
-			lo_server_recv_noblock(state.server, 0);
+			lo_server_recv_noblock((lo_server)state.server, 0);
 	} while( 1 );
 }
 #else
@@ -285,7 +285,7 @@ static int main_loop() {
 	int maxfd, mfd, lofd;
 
 	mfd  = monome_get_fd(state.monome);
-	lofd = lo_server_get_socket_fd(state.server);
+	lofd = lo_server_get_socket_fd((lo_server)state.server);
 	maxfd = ((lofd > mfd) ? lofd : mfd) + 1;
 
 	do {
@@ -309,7 +309,7 @@ static int main_loop() {
 
 		/* how about from OSC? */
 		if( FD_ISSET(lofd, &rfds) )
-			lo_server_recv_noblock(state.server, 0);
+			lo_server_recv_noblock((lo_server)state.server, 0);
 	} while( 1 );
 }
 #endif
