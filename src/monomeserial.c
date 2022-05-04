@@ -45,8 +45,8 @@
 
 typedef struct {
 	monome_t *monome;
-	lo_address *outgoing;
-	lo_server *server;
+	lo_address outgoing;
+	lo_server server;
 
 	char *lo_prefix;
 } ms_state;
