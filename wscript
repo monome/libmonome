@@ -215,8 +215,6 @@ def configure(conf):
 	conf.env.VERSION = VERSION
 	conf.define("VERSION", VERSION)
 
-	conf.write_config_header("config.h")
-
 def build(bld):
 	bld.install_files("${PREFIX}/include", ["public/monome.h"])
 	bld.recurse("src")
