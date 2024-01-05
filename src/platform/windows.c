@@ -40,6 +40,48 @@
 
 DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
 
+#ifndef EMBED_PROTOS
+monome_t *monome_platform_load_protocol(const char *proto) {
+	monome_proto_new_func_t protocol_new;
+
+	monome_t *monome;
+	HMODULE proto_mod;
+	char *modname;
+
+	if( !(modname = m_asprintf("monome\\protocol_%s.dll", proto)) )
+		goto err_loadlibrary;
+
+	proto_mod = LoadLibrary(modname);
+	m_free(modname);
+
+	if( !proto_mod )
+		goto err_loadlibrary;
+
+	protocol_new = (monome_proto_new_func_t) GetProcAddress(proto_mod, "monome_protocol_new");
+
+	if( !protocol_new )
+		goto err_protocol_new;
+
+	if( !(monome = protocol_new()) )
+		goto err_protocol_new;
+
+	monome->dl_handle = proto_mod;
+	return monome;
+
+err_protocol_new:
+	FreeLibrary(proto_mod);
+err_loadlibrary:
+	return NULL;
+}
+
+void monome_platform_free(monome_t *monome) {
+	void *dl_handle = monome->dl_handle;
+
+	monome->free(monome);
+	FreeLibrary(dl_handle);
+}
+#endif
+
 static char *m_asprintf(const char *fmt, ...) {
 	va_list args;
 	char *buf;
@@ -96,46 +138,6 @@ static bool m_get_device_port_name(char *dst, size_t dst_size, HDEVINFO hdevinfo
 
 	RegCloseKey(hkey);
 	return false;
-}
-
-monome_t *monome_platform_load_protocol(const char *proto) {
-	monome_proto_new_func_t protocol_new;
-
-	monome_t *monome;
-	HMODULE proto_mod;
-	char *modname;
-
-	if( !(modname = m_asprintf("monome\\protocol_%s.dll", proto)) )
-		goto err_loadlibrary;
-
-	proto_mod = LoadLibrary(modname);
-	m_free(modname);
-
-	if( !proto_mod )
-		goto err_loadlibrary;
-
-	protocol_new = (monome_proto_new_func_t) GetProcAddress(proto_mod, "monome_protocol_new");
-
-	if( !protocol_new )
-		goto err_protocol_new;
-
-	if( !(monome = protocol_new()) )
-		goto err_protocol_new;
-
-	monome->dl_handle = proto_mod;
-	return monome;
-
-err_protocol_new:
-	FreeLibrary(proto_mod);
-err_loadlibrary:
-	return NULL;
-}
-
-void monome_platform_free(monome_t *monome) {
-	void *dl_handle = monome->dl_handle;
-
-	monome->free(monome);
-	FreeLibrary(dl_handle);
 }
 
 int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
