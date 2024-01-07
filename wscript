@@ -10,7 +10,7 @@ out = "build"
 # change this stuff
 
 APPNAME = "libmonome"
-VERSION = "1.4.5"
+VERSION = "1.4.7"
 
 #
 # dep checking functions
