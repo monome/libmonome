@@ -25,9 +25,6 @@
 
 #include <monome.h>
 
-/* from waf */
-#include "config.h"
-
 typedef unsigned int uint_t;
 
 typedef enum {
