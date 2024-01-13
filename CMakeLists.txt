@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.27)
 
 project(libmonome VERSION 1.4.7)
 
+set(CMAKE_C_STANDARD 17)
+
 include(GNUInstallDirs)
 
 set(libmonome_sources

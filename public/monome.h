@@ -60,8 +60,7 @@ struct monome_event {
 	monome_t *monome;
 	monome_event_type_t event_type;
 
-	/* __extension__ for anonymous unions in gcc */
-	__extension__ union {
+	union {
 		struct {
 			unsigned int x;
 			unsigned int y;
