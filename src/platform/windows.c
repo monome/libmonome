@@ -38,6 +38,8 @@
 #include "internal.h"
 #include "platform.h"
 
+#define READ_TIMEOUT 25
+
 DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
 
 #ifndef EMBED_PROTOS
@@ -236,26 +238,52 @@ ssize_t monome_platform_read(monome_t *monome, uint8_t *buf, size_t nbyte) {
 	HANDLE hres = (HANDLE) _get_osfhandle(monome->fd);
 	OVERLAPPED ov = {0, 0, {{0, 0}}};
 	DWORD read = 0;
+	DWORD read_total = 0;
+	int err;
 
-	if( !(ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL)) ) {
-		fprintf(stderr,
-				"monome_plaform_read(): could not allocate event (%ld)\n",
-				GetLastError());
+	ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	if (!ov.hEvent) {
+		fprintf(stderr, "monome_plaform_read(): could not allocate event (%ld)\n", GetLastError());
 		return -1;
 	}
 
-	if( !ReadFile(hres, buf, nbyte, &read, &ov) ) {
-		if( GetLastError() != ERROR_IO_PENDING ) {
-			fprintf(stderr, "monome_platform_read(): read failed (%ld)\n",
-					GetLastError());
+	goto start;
+
+	while (read_total < nbyte) {
+		err = monome_platform_wait_for_input(monome, READ_TIMEOUT);
+
+		if (err > 0) {
+			CloseHandle(ov.hEvent);
+			return read_total;
+		}
+
+		if (err < 0) {
+			CloseHandle(ov.hEvent);
 			return -1;
 		}
 
-		GetOverlappedResult(hres, &ov, &read, TRUE);
+start:
+		if (!ReadFile(hres, buf + read_total, nbyte - read_total, &read, &ov)) {
+			if (GetLastError() != ERROR_IO_PENDING) {
+				fprintf(stderr, "monome_platform_read(): ReadFile failed (%ld)\n", GetLastError());
+				CloseHandle(ov.hEvent);
+				return -1;
+			}
+
+			if (!GetOverlappedResult(hres, &ov, &read, TRUE)) {
+				fprintf(stderr, "monome_platform_read(): GetOverlappedResult failed (%ld)\n", GetLastError());
+				CloseHandle(ov.hEvent);
+				return -1;
+			}
+		}
+
+		read_total += read;
 	}
 
 	CloseHandle(ov.hEvent);
-	return read;
+
+	return read_total;
 }
 
 char *monome_platform_get_dev_serial(const char *path) {
@@ -301,8 +329,58 @@ char *monome_platform_get_dev_serial(const char *path) {
 }
 
 int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
-	Sleep(msec); /* fuck it */
-	return 1;
+	HANDLE hres = (HANDLE) _get_osfhandle(monome->fd);
+	OVERLAPPED ov = {0, 0, {{0, 0}}};
+	DWORD event_mask, old_comm_mask;
+	int result = 0;
+
+	if (!GetCommMask(hres, &old_comm_mask)) {
+		fprintf(stderr, "monome_platform_wait_for_input(): failed to get comm mask (%ld)\n", GetLastError());
+		return -1;
+	}
+
+	if (!SetCommMask(hres, EV_RXCHAR)) {
+		fprintf(stderr, "monome_platform_wait_for_input(): failed to set comm mask (%ld)\n", GetLastError());
+		return -1;
+	}
+
+	ov.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	if (!ov.hEvent) {
+		fprintf(stderr, "monome_platform_wait_for_input(): could not allocate event (%ld)\n", GetLastError());
+		return -1;
+	}
+
+	if (!WaitCommEvent(hres, &event_mask, &ov)) {
+		if (GetLastError() == ERROR_IO_PENDING) {
+			switch (WaitForSingleObject(ov.hEvent, msec)) {
+			case WAIT_OBJECT_0:
+				result = 0;
+				break;
+			case WAIT_TIMEOUT:
+				result = 1;
+				break;
+			default:
+				fprintf(stderr, "monome_platform_wait_for_input(): WaitForSingleObject failed (%ld)\n", GetLastError());
+				result = -1;
+				break;
+			}
+		} else {
+			fprintf(stderr, "monome_platform_wait_for_input(): WaitCommEvent failed (%ld)\n", GetLastError());
+			result = -1;
+		}
+	} else {
+		result = 0;
+	}
+
+	CloseHandle(ov.hEvent);
+
+	if (!SetCommMask(hres, old_comm_mask)) {
+		fprintf(stderr, "monome_platform_wait_for_input(): failed to restore comm mask (%ld)\n", GetLastError());
+		result = -1;
+	}
+
+	return result;
 }
 
 void monome_event_loop(monome_t *monome) {
