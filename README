@@ -1,4 +1,4 @@
-libmonome v1.2:
+libmonome:
 
     libmonome is a library for easy interaction with monome devices. It
     currently runs on Linux (on which it is primarily developed), OpenBSD, and
@@ -17,9 +17,9 @@ libmonome v1.2:
 
     build like:
 
-        $ ./waf configure
-        $ ./waf
-        $ sudo ./waf install
+        $ mkdir build; cd build
+        $ cmake ..
+        $ make; sudo make install
 
     libmonome was written by william light (visinin on the monome forums).
     You can contact him at <wrl@illest.net>.
