@@ -48,7 +48,7 @@ target_include_directories(monome_static PUBLIC
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(monome_static PRIVATE ${libmonome_libs})
 if(NOT MSVC)
-    target_compile_options(monome_static PRIVATE -Wall -Werror -Wno-initializer-overrides)
+    target_compile_options(monome_static PRIVATE -Wall -Werror)
 endif()
 
 add_library(monome SHARED ${libmonome_sources})
@@ -59,7 +59,7 @@ target_include_directories(monome PUBLIC
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(monome PRIVATE ${libmonome_libs})
 if(NOT MSVC)
-    target_compile_options(monome PRIVATE -Wall -Werror -Wno-initializer-overrides)
+    target_compile_options(monome PRIVATE -Wall -Werror)
 endif()
 
 install(TARGETS monome_static monome EXPORT libmonomeConfig

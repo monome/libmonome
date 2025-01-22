@@ -291,7 +291,7 @@ static int proto_series_led_level_map(monome_t *monome, uint_t x_off,
 static int proto_series_led_level_row(monome_t *monome, uint_t x_off,
 		uint_t row, size_t count, const uint8_t *data) {
 	uint_t i, chunks;
-	uint8_t masks[2];
+	uint8_t masks[16];
 
 	chunks = count / 8;
 	for (i = 0; i < chunks; ++i) {
@@ -304,7 +304,7 @@ static int proto_series_led_level_row(monome_t *monome, uint_t x_off,
 static int proto_series_led_level_col(monome_t *monome, uint_t col,
 		uint_t y_off, size_t count, const uint8_t *data) {
 	uint_t i, chunks;
-	uint8_t masks[2];
+	uint8_t masks[16];
 
 	chunks = count / 8;
 	for (i = 0; i < chunks; ++i) {
