@@ -149,7 +149,7 @@ int monome_platform_open(monome_t *monome, const monome_devmap_t *m,
 	HANDLE hser;
 	COMMTIMEOUTS timeouts = {
 		.ReadIntervalTimeout         = MAXDWORD,
-		.ReadTotalTimeoutConstant    = 0,
+		.ReadTotalTimeoutConstant    = 25,
 		.ReadTotalTimeoutMultiplier  = 0,
 		.WriteTotalTimeoutConstant   = 0,
 		.WriteTotalTimeoutMultiplier = 0
