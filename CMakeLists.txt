@@ -6,6 +6,14 @@ set(CMAKE_C_STANDARD 17)
 
 include(GNUInstallDirs)
 
+if (MSVC)
+    add_compile_options(/W4)
+elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wall -Werror)
+elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-Wall -Werror -Wno-initializer-overrides)
+endif()
+
 set(libmonome_sources
     src/libmonome.c
     src/monobright.c
@@ -47,9 +55,6 @@ target_include_directories(monome_static PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/public>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(monome_static PRIVATE ${libmonome_libs})
-if(NOT MSVC)
-    target_compile_options(monome_static PRIVATE -Wall -Werror)
-endif()
 
 add_library(monome SHARED ${libmonome_sources})
 target_compile_definitions(monome PRIVATE EMBED_PROTOS)
@@ -58,9 +63,6 @@ target_include_directories(monome PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/public>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(monome PRIVATE ${libmonome_libs})
-if(NOT MSVC)
-    target_compile_options(monome PRIVATE -Wall -Werror)
-endif()
 
 install(TARGETS monome_static monome EXPORT libmonomeConfig
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
