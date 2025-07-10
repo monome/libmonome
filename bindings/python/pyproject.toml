@@ -1,0 +1,18 @@
+[project]
+name = "monome"
+version = "0.1.0"
+description = "A python extension which wraps libmonome."
+readme = "README.md"
+authors = [
+    { name = "William Light", email = "wrl@illest.net" },
+    { name = "Nedko Arnaudov", email = "snedko@arnaudov.name" },
+]
+requires-python = ">=3.13"
+dependencies = []
+
+# [build-system]
+# requires = ["setuptools >= 61", "cython"]
+# build-backend = "setuptools.build_meta"
+
+# [tool.setuptools]
+# include-package-data = false
