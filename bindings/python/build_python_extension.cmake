@@ -25,6 +25,12 @@ target_include_directories(
     public
 )
 
+target_compile_options(
+    pymonome
+    PUBLIC
+    -fPIC
+)
+
 target_link_libraries(
     pymonome
     PUBLIC
