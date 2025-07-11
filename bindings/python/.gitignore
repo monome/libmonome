@@ -1,7 +1,0 @@
-# compiled cython C file
-monome.c
-
-build/
-dist/
-*.egg-info/
-

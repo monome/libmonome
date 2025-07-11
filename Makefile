@@ -1,7 +1,7 @@
 LIBMONOME := build/libmonome.a
 
 
-.phony: all build python-ext python-wheel clean
+.phony: all build python-ext clean reset
 
 
 all: build
@@ -12,19 +12,16 @@ $(LIBMONOME):
 		cmake .. && \
 		cmake --build . --config Release
 
-
 build: $(LIBMONOME)
 
 
 python-ext: $(LIBMONOME)
-	@make -C bindings/python
-
-
-python-wheel: $(LIBMONOME)
-	@make -C bindings/python wheel
+	@uv build
 
 
 clean:
-	@rm -rf build
-	@make -C bindings/python clean
+	@rm -rf build dist
 
+
+reset: clean
+	@rm -rf .venv
