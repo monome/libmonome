@@ -7,7 +7,7 @@ authors = [
     { name = "William Light", email = "wrl@illest.net" },
     { name = "Nedko Arnaudov", email = "snedko@arnaudov.name" },
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.9"
 dependencies = []
 
 [build-system]
@@ -15,6 +15,6 @@ requires = ["scikit-build-core", "cython", "cython-cmake"]
 build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
-
 # A list of args to pass to CMake when configuring the project.
 cmake.args = ["-DBUILD_PYTHON_EXTENSION=ON"]
+

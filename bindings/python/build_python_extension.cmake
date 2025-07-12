@@ -35,6 +35,7 @@ target_link_libraries(
     pymonome
     PUBLIC
     ${CMAKE_BINARY_DIR}/libmonome.a
+    $<$<PLATFORM_ID:Linux>:-ludev>
 )
 
 set_target_properties(pymonome PROPERTIES OUTPUT_NAME "monome")
