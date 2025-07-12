@@ -2,7 +2,7 @@
 name = "monome"
 version = "0.1.0"
 description = "A python extension which wraps libmonome."
-readme = "README.md"
+readme = { file = "README", content-type = "text/plain" }
 authors = [
     { name = "William Light", email = "wrl@illest.net" },
     { name = "Nedko Arnaudov", email = "snedko@arnaudov.name" },
@@ -15,6 +15,5 @@ requires = ["scikit-build-core", "cython", "cython-cmake"]
 build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
-# A list of args to pass to CMake when configuring the project.
 cmake.args = ["-DBUILD_PYTHON_EXTENSION=ON"]
 

@@ -67,7 +67,7 @@ target_include_directories(monome PUBLIC
 target_link_libraries(monome PRIVATE ${libmonome_libs})
 
 if(BUILD_PYTHON_EXTENSION)
-    include(bindings/python/build_python_extension.cmake)
+    add_subdirectory(bindings/python)
 else()
     install(TARGETS monome_static monome EXPORT libmonomeConfig
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

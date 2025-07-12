@@ -8,7 +8,7 @@ include(UseCython)
 cython_transpile(
     ${CMAKE_SOURCE_DIR}/bindings/python/monome.pyx 
     LANGUAGE C
-     OUTPUT_VARIABLE monome_c
+    OUTPUT_VARIABLE monome_c
 )
 
 python_add_library(pymonome MODULE "${monome_c}" WITH_SOABI)
@@ -34,8 +34,8 @@ target_compile_options(
 target_link_libraries(
     pymonome
     PUBLIC
-    ${CMAKE_BINARY_DIR}/libmonome.a
-    $<$<PLATFORM_ID:Linux>:-ludev>
+    monome_static
+    # $<$<PLATFORM_ID:Linux>:-ludev>
 )
 
 set_target_properties(pymonome PROPERTIES OUTPUT_NAME "monome")
