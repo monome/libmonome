@@ -16,4 +16,3 @@ build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
 cmake.args = ["-DBUILD_PYTHON_EXTENSION=ON"]
-

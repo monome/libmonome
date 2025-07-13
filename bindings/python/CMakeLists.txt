@@ -1,9 +1,12 @@
+
 find_package(
     Python
     COMPONENTS Interpreter Development.Module
     REQUIRED)
 
+include(FindCython)
 include(UseCython)
+
 
 cython_transpile(
     ${CMAKE_SOURCE_DIR}/bindings/python/monome.pyx 
@@ -11,13 +14,12 @@ cython_transpile(
     OUTPUT_VARIABLE monome_c
 )
 
-python_add_library(pymonome MODULE "${monome_c}" WITH_SOABI)
-
-# target_include_directories(
-#     pymonome
-#     PRIVATE
-#     src/private
-# )
+python_add_library(
+    pymonome
+    MODULE
+    "${monome_c}"
+    WITH_SOABI
+)
 
 target_include_directories(
     pymonome
@@ -35,7 +37,6 @@ target_link_libraries(
     pymonome
     PUBLIC
     monome_static
-    # $<$<PLATFORM_ID:Linux>:-ludev>
 )
 
 set_target_properties(pymonome PROPERTIES OUTPUT_NAME "monome")

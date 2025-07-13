@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 project(libmonome VERSION 1.4.8)
 
-set(CMAKE_C_STANDARD 17)
+message(STATUS "SKBUILD_PROJECT_NAME: ${SKBUILD_PROJECT_NAME}")
 
 option(BUILD_PYTHON_EXTENSION "build cython-based python extension")
 
@@ -68,7 +68,9 @@ target_link_libraries(monome PRIVATE ${libmonome_libs})
 
 if(BUILD_PYTHON_EXTENSION)
     add_subdirectory(bindings/python)
-else()
+endif()
+
+if(NOT DEFINED SKBUILD)
     install(TARGETS monome_static monome EXPORT libmonomeConfig
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
