@@ -42,22 +42,22 @@ def str_to_frame(str):
 
 class CommandTest(monome.Monome):
     def test_led(self, func):
-        for i in xrange(0, 16):
-            for j in xrange(0, 16):
+        for i in range(0, 16):
+            for j in range(0, 16):
                 func(j, i)
                 time.sleep(0.005)
 
     def test_width_8(self, on, func):
         on = int(not not on)
 
-        for i in xrange(8):
+        for i in range(8):
             func(i, on)
             time.sleep(0.04)
 
             on |= on << 1
             on &= 255
 
-        for i in xrange(8, 16):
+        for i in range(8, 16):
             func(i, on)
             on >>= 1
 
@@ -66,7 +66,7 @@ class CommandTest(monome.Monome):
     def test_width_16(self, on, func):
         on = int(not not on)
 
-        for i in xrange(16):
+        for i in range(16):
             func(i, on)
             time.sleep(0.04)
 
@@ -78,7 +78,7 @@ class CommandTest(monome.Monome):
 
         comp = [str_to_frame(x) or 0 for x in rest]
 
-        for i in xrange(len(rest)):
+        for i in range(len(rest)):
             self.led_frame(i, comp[i])
             time.sleep(0.5)
             self.led_frame(i, invert_frame(comp[i]))
@@ -93,18 +93,18 @@ class CommandTest(monome.Monome):
         time.sleep(0.5)
 
     def fade_out(self):
-        for i in reversed(xrange(16)):
+        for i in reversed(range(16)):
             self.intensity = i
             time.sleep(0.05)
 
     def __call__(self):
         self.led_all(0)
 
-        for i in xrange(0, 2):
+        for i in range(0, 2):
             self.test_width_8(1, self.led_row)
             self.test_width_8(1, self.led_col)
 
-        for i in xrange(0, 2):
+        for i in range(0, 2):
             self.test_width_16(1, self.led_row)
             self.test_width_16(1, self.led_col)
 

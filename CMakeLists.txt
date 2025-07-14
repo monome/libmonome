@@ -70,13 +70,12 @@ if(BUILD_PYTHON_EXTENSION)
     add_subdirectory(bindings/python)
 endif()
 
-if(NOT DEFINED SKBUILD)
-    install(TARGETS monome_static monome EXPORT libmonomeConfig
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-    install(EXPORT libmonomeConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmonome NAMESPACE libmonome::)
-    install(DIRECTORY public/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-endif()
+
+install(TARGETS monome_static monome EXPORT libmonomeConfig
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(EXPORT libmonomeConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmonome NAMESPACE libmonome::)
+install(DIRECTORY public/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 
 

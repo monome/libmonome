@@ -1,7 +1,7 @@
 LIBMONOME := build/libmonome.a
 
 
-.phony: all build python-ext clean reset
+.phony: all build python-ext clean
 
 
 all: build
@@ -16,12 +16,10 @@ build: $(LIBMONOME)
 
 
 python-ext: $(LIBMONOME)
-	@uv build
+	@mkdir -p build && cd build && \
+		cmake .. -DBUILD_PYTHON_EXTENSION=ON && \
+		cmake --build . --config Release
 
 
 clean:
-	@rm -rf build dist
-
-
-reset: clean
-	@rm -rf .venv
+	@rm -rf build

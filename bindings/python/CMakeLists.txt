@@ -1,44 +1,21 @@
+find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 
-find_package(
-    Python
-    COMPONENTS Interpreter Development.Module
-    REQUIRED)
+set(monome_python_c ${CMAKE_CURRENT_BINARY_DIR}/monome_python.c)
 
-include(FindCython)
-include(UseCython)
+add_custom_command(OUTPUT ${monome_python_c}
+    COMMAND ${Python_EXECUTABLE} -m cython -o ${monome_python_c} ${CMAKE_CURRENT_SOURCE_DIR}/monome.pyx 
+    DEPENDS monome.pyx
+        ${CMAKE_SOURCE_DIR}/public/monome.h)
 
+set(monome_python_sources)
+list(APPEND monome_python_sources ${monome_python_c})
+list(APPEND monome_python_sources $<PATH:ABSOLUTE_PATH,NORMALIZE,${libmonome_sources},${CMAKE_SOURCE_DIR}>)
 
-cython_transpile(
-    ${CMAKE_SOURCE_DIR}/bindings/python/monome.pyx 
-    LANGUAGE C
-    OUTPUT_VARIABLE monome_c
-)
+python_add_library(monome_python MODULE ${monome_python_sources})
 
-python_add_library(
-    pymonome
-    MODULE
-    "${monome_c}"
-    WITH_SOABI
-)
+target_compile_definitions(monome_python PRIVATE EMBED_PROTOS)
+target_include_directories(monome_python PRIVATE ${CMAKE_SOURCE_DIR}/src/private)
+target_include_directories(monome_python PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/public>)
+target_link_libraries(monome_python PRIVATE ${libmonome_libs})
 
-target_include_directories(
-    pymonome
-    PUBLIC
-    public
-)
-
-target_compile_options(
-    pymonome
-    PUBLIC
-    -fPIC
-)
-
-target_link_libraries(
-    pymonome
-    PUBLIC
-    monome_static
-)
-
-set_target_properties(pymonome PROPERTIES OUTPUT_NAME "monome")
-
-install(TARGETS pymonome DESTINATION .)
+set_target_properties(monome_python PROPERTIES OUTPUT_NAME "monome")

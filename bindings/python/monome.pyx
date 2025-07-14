@@ -71,9 +71,8 @@ cdef extern from "monome.h":
 	monome_rotate_t monome_get_rotation(monome_t *monome)
 
 	# more const hackery
-	ctypedef char * const_char_p "const char *"
-	const_char_p monome_get_serial(monome_t *monome)
-	const_char_p monome_get_devpath(monome_t *monome)
+	const char * monome_get_serial(monome_t *monome)
+	const char * monome_get_devpath(monome_t *monome)
 	int monome_get_rows(monome_t *monome)
 	int monome_get_cols(monome_t *monome)
 
@@ -279,8 +278,8 @@ def check_level(level):
 cdef class Monome(object):
 	cdef monome_t *monome
 
-	cdef unicode serial
-	cdef unicode devpath
+	cdef str serial
+	cdef str devpath
 	cdef int fd
 	cdef list handlers
 
@@ -296,28 +295,22 @@ cdef class Monome(object):
 		180: ROTATE_180,
 		270: ROTATE_270}
 
-	def __init__(self, device, port=None, clear=True):
-		cdef char *portstr
-		cdef const_char_p ser
-
+	def __init__(self, str device, int port = 0, bint clear = True):
 		if device[:3] == "osc" and not port:
 			raise TypeError("OSC protocol requires a server port.")
 
 		if port:
-			port = str(port)
-			portstr = port
-
-			self.monome = monome_open(device, portstr)
+			self.monome = monome_open(device.encode(), bytes(port))
 		else:
-			self.monome = monome_open(device)
+			self.monome = monome_open(device.encode())
 
 		if not self.monome:
 			raise IOError("Could not open Monome")
 
-		ser = monome_get_serial(self.monome)
+		cdef const char * ser = monome_get_serial(self.monome)
 
-		self.serial = str(ser) if ser else None
-		self.devpath = str(monome_get_devpath(self.monome))
+		self.serial = ser.decode() if ser else None
+		self.devpath = monome_get_devpath(self.monome).decode()
 		self.fd = monome_get_fd(self.monome)
 		self.handlers = [None, None, None]
 
@@ -458,7 +451,7 @@ cdef class Monome(object):
 
 		levels_iter = iter(levels)
 
-		for idx in xrange(ARC_RING_SIZE):
+		for idx in range(ARC_RING_SIZE):
 			level = next(levels_iter)
 			level = check_level(level)
 			levels_arr[idx] = level
