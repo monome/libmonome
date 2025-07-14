@@ -15,9 +15,9 @@ $(LIBMONOME):
 build: $(LIBMONOME)
 
 python-cmake: $(LIBMONOME)
-        @mkdir -p build && cd build && \
-                cmake .. -DBUILD_PYTHON_EXTENSION=ON && \
-                cmake --build . --config Release
+	 @mkdir -p build && cd build && \
+		cmake .. -DBUILD_PYTHON_EXTENSION=ON && \
+		cmake --build . --config Release
 
 python: $(LIBMONOME)
 	@python3 bindings/python/setup.py \

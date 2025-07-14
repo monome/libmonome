@@ -15,7 +15,7 @@ setup(
             include_dirs=[
                 "public",
             ],
-            libraries = ["-ludev"] if PLATFORM=="Linux" else [],
+            libraries = ["udev"] if PLATFORM=="Linux" else [],
             library_dirs=[],
             extra_objects=[
                 "build/libmonome.a"
