@@ -77,6 +77,3 @@ install(TARGETS monome_static monome EXPORT libmonomeConfig
 install(EXPORT libmonomeConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmonome NAMESPACE libmonome::)
 install(DIRECTORY public/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-
-
-
