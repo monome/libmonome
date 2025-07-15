@@ -10,7 +10,3 @@ build/
 # temporary stuff
 *.swp
 *~
-
-# uv-related
-.venv
-uv.lock

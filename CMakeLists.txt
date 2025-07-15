@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.27)
 
 project(libmonome VERSION 1.4.8)
 
-message(STATUS "SKBUILD_PROJECT_NAME: ${SKBUILD_PROJECT_NAME}")
+set(CMAKE_C_STANDARD 17)
 
 option(BUILD_PYTHON_EXTENSION "build cython-based python extension")
 
