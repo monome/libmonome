@@ -4,6 +4,7 @@ project(libmonome VERSION 1.4.8)
 
 set(CMAKE_C_STANDARD 17)
 
+option(BUILD_EXAMPLES "build libmonome c examples" ON)
 option(BUILD_PYTHON_EXTENSION "build cython-based python extension")
 
 include(GNUInstallDirs)
@@ -66,14 +67,16 @@ target_include_directories(monome PUBLIC
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(monome PRIVATE ${libmonome_libs})
 
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
 if(BUILD_PYTHON_EXTENSION)
     add_subdirectory(bindings/python)
 endif()
-
 
 install(TARGETS monome_static monome EXPORT libmonomeConfig
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(EXPORT libmonomeConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libmonome NAMESPACE libmonome::)
 install(DIRECTORY public/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-

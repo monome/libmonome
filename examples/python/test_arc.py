@@ -43,8 +43,8 @@ def clear_rings(m):
 
 def main():
     m = monome.Monome('/dev/ttyUSB0')
-    print m.serial
-    print m.devpath
+    print(m.serial)
+    print(m.devpath)
     clear_rings(m)
     chill(4)
 
