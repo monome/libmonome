@@ -11,7 +11,7 @@ set(monome_python_sources)
 list(APPEND monome_python_sources ${monome_python_c})
 list(APPEND monome_python_sources $<PATH:ABSOLUTE_PATH,NORMALIZE,${libmonome_sources},${CMAKE_SOURCE_DIR}>)
 
-python_add_library(monome_python MODULE ${monome_python_sources})
+python_add_library(monome_python MODULE WITH_SOABI ${monome_python_sources})
 
 target_compile_definitions(monome_python PRIVATE EMBED_PROTOS)
 target_include_directories(monome_python PRIVATE ${CMAKE_SOURCE_DIR}/src/private)

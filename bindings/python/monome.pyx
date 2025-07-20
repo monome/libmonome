@@ -330,7 +330,7 @@ cdef class Monome:
 		self.handlers = [None, None, None]
 
 		if clear:
-			self.clear()
+			self.led_all(0)
 
 	def __dealloc__(self):
 		if self.monome is not NULL:
@@ -473,7 +473,3 @@ cdef class Monome:
 	def led_ring_range(self, uint ring, uint start, uint end, uint level):
 		level = check_level(level)
 		monome_led_ring_range(self.monome, ring, start, end, level)
-
-	def clear(self):
-		self.led_all(0)
-
