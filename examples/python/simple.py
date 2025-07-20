@@ -20,4 +20,4 @@ print("simple.py running, press some buttons!")
 try:
 	m.event_loop()
 except KeyboardInterrupt:
-	m.clear()
+	m.len_all(0)
