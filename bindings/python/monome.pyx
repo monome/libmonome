@@ -22,7 +22,6 @@ cdef extern from "stdint.h":
 	ctypedef char uint8_t
 	ctypedef unsigned short int uint16_t
 
-
 cdef extern from "monome.h":
 	ctypedef struct monome_t
 
@@ -95,6 +94,36 @@ cdef extern from "monome.h":
 	int monome_led_ring_map(monome_t *monome, unsigned int ring, const uint8_t *levels)
 	int monome_led_ring_range(monome_t *monome, unsigned int ring, unsigned int start, unsigned int end, unsigned int level)
 
+__all__ = [
+	# constants
+	# XXX: should these be members of the class?
+
+	"BUTTON_UP",
+	"BUTTON_DOWN",
+	"ENCODER_DELTA",
+	"ENCODER_KEY_UP",
+	"ENCODER_KEY_DOWN",
+	"TILT",
+	"CABLE_LEFT",
+	"CABLE_BOTTOM",
+	"CABLE_RIGHT",
+	"CABLE_TOP",
+	"MODE_NORMAL",
+	"MODE_TEST",
+	"MODE_SHUTDOWN"
+	"ROTATE_0",
+	"ROTATE_90",
+	"ROTATE_180",
+	"ROTATE_270",
+
+	# classes
+
+	"MonomeEvent",
+	"MonomeGridEvent",
+	"MonomeEncoderKeyEvent",
+	"MonomeEncoderEvent",
+	"Monome",
+]
 
 cpdef enum:
 	BUTTON_UP
@@ -137,7 +166,6 @@ cdef uint list_to_bitmap(l) except *:
 
 	return ret
 
-
 def _bitmap_data(list[int] data):
 	try:
 		return list_to_bitmap(data)
@@ -150,7 +178,6 @@ def _bitmap_data(list[int] data):
 
 cdef class MonomeEvent:
 	cdef object monome
-
 
 cdef class MonomeGridEvent(MonomeEvent):
 	cdef uint x, y
@@ -182,7 +209,6 @@ cdef class MonomeGridEvent(MonomeEvent):
 	def y(self) -> uint:
 		return self.y
 
-
 cdef class MonomeEncoderKeyEvent(MonomeEvent):
 	cdef bint pressed
 	cdef uint number
@@ -207,7 +233,6 @@ cdef class MonomeEncoderKeyEvent(MonomeEvent):
 	@property 
 	def number(self) -> int:
 		return self.number
-
 
 cdef class MonomeEncoderEvent(MonomeEvent):
 	cdef uint number
@@ -255,10 +280,8 @@ cdef void handler_thunk(const monome_event_t *event, void *data) noexcept:
 	ev_wrapper = event_from_event_t(event, (<Monome> data))
 	(<Monome> data).handlers[event.event_type](ev_wrapper)
 
-
 cdef enum:
 	ARC_RING_SIZE = 64
-
 
 def check_level(level):
 	if level < 0 or level > 15:
@@ -292,7 +315,7 @@ cdef class Monome:
 		self.monome = NULL
 		self.owner = False
 
-	def __init__(self, str device, int port = 0, bint clear = True):
+	def __init__(self, str device, int port=0, bint clear=True):
 		if device[:3] == "osc" and not port:
 			raise TypeError("OSC protocol requires a server port.")
 
@@ -466,3 +489,4 @@ cdef class Monome:
 
 	def clear(self):
 		self.led_all(0)
+
