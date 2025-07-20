@@ -292,7 +292,6 @@ def check_level(level):
 
 cdef class Monome:
 	cdef monome_t *monome
-	cdef bint owner
 
 	cdef str serial
 	cdef str devpath
@@ -311,10 +310,6 @@ cdef class Monome:
 		180: ROTATE_180,
 		270: ROTATE_270}
 
-	def __cinit__(self):
-		self.monome = NULL
-		self.owner = False
-
 	def __init__(self, str device, int port=0, bint clear=True):
 		if device[:3] == "osc" and not port:
 			raise TypeError("OSC protocol requires a server port.")
@@ -326,7 +321,6 @@ cdef class Monome:
 
 		if self.monome is NULL:
 			raise IOError("Could not open Monome")
-		self.owner = True
 
 		cdef const char * ser = monome_get_serial(self.monome)
 
@@ -339,15 +333,8 @@ cdef class Monome:
 			self.clear()
 
 	def __dealloc__(self):
-		if self.monome is not NULL and self.owner:
+		if self.monome is not NULL:
 			monome_close(self.monome)
-
-	@staticmethod
-	cdef Monome from_ptr(monome_t * ptr, bint owner=False):
-		cdef Monome wrapper = Monome.__new__(Monome)
-		wrapper.monome = ptr
-		wrapper.owner = owner
-		return wrapper
 
 	@property
 	def rotation(self) -> uint:
