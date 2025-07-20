@@ -17,10 +17,3 @@ target_compile_definitions(monome_python PRIVATE EMBED_PROTOS)
 target_include_directories(monome_python PRIVATE ${CMAKE_SOURCE_DIR}/src/private)
 target_include_directories(monome_python PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/public>)
 target_link_libraries(monome_python PRIVATE ${libmonome_libs})
-
-set_target_properties(
-    monome_python
-    PROPERTIES
-    OUTPUT_NAME "monome"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
