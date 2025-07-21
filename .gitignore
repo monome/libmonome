@@ -1,3 +1,5 @@
+.DS_Store
+
 # waf stuff
 .lock-waf*
 .waf*
