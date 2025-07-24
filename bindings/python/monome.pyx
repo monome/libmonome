@@ -311,13 +311,17 @@ cdef class Monome:
 		270: ROTATE_270}
 
 	def __init__(self, str device, int port=0, bint clear=True):
+
+		cdef bytes _device = device.encode()
+		cdef bytes _port = str(port).encode()
+
 		if device[:3] == "osc" and not port:
 			raise TypeError("OSC protocol requires a server port.")
 
 		if port:
-			self.monome = monome_open(device.encode(), str(port).encode())
+			self.monome = monome_open(_device, _port)
 		else:
-			self.monome = monome_open(device.encode())
+			self.monome = monome_open(_device)
 
 		if self.monome is NULL:
 			raise IOError("Could not open Monome")
