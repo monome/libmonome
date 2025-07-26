@@ -13,7 +13,7 @@ if (MSVC)
     add_compile_options(/W4)
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
     add_compile_options(-Wall -Werror)
-elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
     add_compile_options(-Wall -Werror -Wno-initializer-overrides)
 endif()
 
