@@ -315,9 +315,9 @@ static int main_loop() {
 #endif
 
 int main(int argc, char *argv[]) {
-	char c, *device, *sport, *aport, *ahost;
+	char *device, *sport, *aport, *ahost;
 	monome_rotate_t rotate = MONOME_ROTATE_0;
-	int i;
+	int c, i;
 
 	struct option arguments[] = {
 		{"help",             no_argument,       0, 'h'},
