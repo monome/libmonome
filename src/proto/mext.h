@@ -83,6 +83,7 @@ typedef enum {
 	CMD_LED_RING_ALL   = 0x1,
 	CMD_LED_RING_MAP   = 0x2,
 	CMD_LED_RING_RANGE = 0x3,
+	CMD_LED_RING_INTENSITY = 0x4,
 
 	/* incoming */
 	CMD_ENCODER_DELTA       = 0x0,
@@ -136,7 +137,8 @@ static size_t outgoing_payload_lengths[16][16] = {
 		[CMD_LED_RING_SET]   = 3,
 		[CMD_LED_RING_ALL]   = 2,
 		[CMD_LED_RING_MAP]   = 33,
-		[CMD_LED_RING_RANGE] = 4
+		[CMD_LED_RING_RANGE] = 4,
+		[CMD_LED_RING_INTENSITY] = 2
 	},
 
 	[SS_TILT] = {
@@ -294,6 +296,8 @@ struct mext_msg {
 			uint8_t end;
 			uint8_t level;
 		} PACKED led_ring_range;
+
+		uint8_t ring_intensity;
 
 		/**
 		 * encoder

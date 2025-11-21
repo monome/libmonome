@@ -144,6 +144,7 @@ int monome_led_ring_map(monome_t *monome, unsigned int ring,
 int monome_led_ring_range(monome_t *monome, unsigned int ring,
                           unsigned int start, unsigned int end,
                           unsigned int level);
+int monome_led_ring_intensity(monome_t *monome, unsigned int brightness);
 
 /**
  * tilt commands

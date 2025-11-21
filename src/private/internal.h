@@ -109,6 +109,7 @@ struct monome_led_ring_functions {
 	int (*map)(monome_t *monome, uint_t ring, const uint8_t *levels);
 	int (*range)(monome_t *monome, uint_t ring, uint_t start, uint_t end,
 	             uint_t level);
+	int (*intensity)(monome_t *monome, uint_t brightness);
 };
 
 struct monome_tilt_functions {
