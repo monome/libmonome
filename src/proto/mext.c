@@ -391,7 +391,7 @@ static int mext_led_ring_intensity(monome_t *monome, uint_t brightness) {
 		.cmd  = CMD_LED_RING_INTENSITY,
 
 		.payload = {
-			.ring_intensity = brightness
+			.ring_intensity = brightness & 0xF
 		}
 	};
 
