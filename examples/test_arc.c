@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <curses.h>
 
 #include <monome.h>
 
@@ -44,7 +45,7 @@ static void chill(int speed) {
 void test_ring(monome_t *monome, int r) {
 	uint8_t map[64] = {[0 ... 63] = 0};
 	int b, i;
-
+/*
 	for( b = 0; b < 16; b++ ) {
 		monome_led_ring_all(monome, r, b);
 		chill(12);
@@ -60,7 +61,7 @@ void test_ring(monome_t *monome, int r) {
 		chill(40);
 		monome_led_ring_all(monome, r, 0);
 	}
-
+*/
 	for( i = 0; i < 80; i++ ) {
 		for( b = 0; b < 64; b++ )
 			map[b] = (b - i - 1) & 0xF;
@@ -91,9 +92,29 @@ int main(int argc, char **argv) {
 	if( !(monome = monome_open((argc == 2 ) ? argv[1] : DEFAULT_MONOME_DEVICE, "8000")) )
 		return -1;
 
-	clear_rings(monome);
-	chill(4);
-	test_ring(monome, 0);
+	uint8_t map[64];
+	for(int b = 0; b < 64; b++ ) map[b] = (b - 1) & 0xF;
 
+	clear_rings(monome);
+	monome_led_ring_map(monome, 0, map);
+	getchar();
+	printf("intensity...\n");
+	for(int i=15;i>=0;i--) {
+		monome_led_ring_intensity(monome, i);
+		printf("%d\n",i);
+		getchar();
+	}
+	printf("ok\n");
+	getchar();
+	test_ring(monome, 0);
+	getchar();
+	test_ring(monome, 1);
+	//monome_led_ring_map(monome, 1, map);
+	getchar();
+	test_ring(monome, 2);
+	//monome_led_ring_map(monome, 2, map);
+	getchar();
+	test_ring(monome, 3);
+	//monome_led_ring_map(monome, 3, map);
 	return 0;
 }

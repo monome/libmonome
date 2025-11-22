@@ -385,11 +385,25 @@ static int mext_led_ring_range(monome_t *monome, uint_t ring, uint_t start,
 	return mext_write_msg(monome, &msg);
 }
 
+static int mext_led_ring_intensity(monome_t *monome, uint_t brightness) {
+	mext_msg_t msg = {
+		.addr = SS_LED_RING,
+		.cmd  = CMD_LED_RING_INTENSITY,
+
+		.payload = {
+			.ring_intensity = brightness & 0xF
+		}
+	};
+
+	return mext_write_msg(monome, &msg);
+}
+
 static monome_led_ring_functions_t mext_led_ring_functions = {
 	.set   = mext_led_ring_set,
 	.all   = mext_led_ring_all,
 	.map   = mext_led_ring_map,
-	.range = mext_led_ring_range
+	.range = mext_led_ring_range,
+	.intensity = mext_led_ring_intensity
 };
 
 /**
