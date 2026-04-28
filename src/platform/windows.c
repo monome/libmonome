@@ -291,6 +291,8 @@ char *monome_platform_get_dev_serial(const char *path) {
 	SP_DEVINFO_DATA devinfo;
 	char port_name[MAX_DEVICE_ID_LEN];
 	char instance_id[MAX_DEVICE_ID_LEN];
+	char parent_id[MAX_DEVICE_ID_LEN];
+	DEVINST parent_devinst;
 	char *serial;
 	int di;
 
@@ -315,9 +317,15 @@ char *monome_platform_get_dev_serial(const char *path) {
 			if (!SetupDiGetDeviceInstanceId(hdevinfo, &devinfo, instance_id, sizeof(instance_id), NULL)) {
 				fprintf(stderr, "libmonome: SetupDiGetDeviceInstanceId() failed.\n");
 				continue;
-			};
+			}
 
 			serial = m_get_serial_from_instance_id(instance_id);
+
+			if (!serial
+					&& CM_Get_Parent(&parent_devinst, devinfo.DevInst, 0) == CR_SUCCESS
+					&& CM_Get_Device_ID(parent_devinst, parent_id, sizeof(parent_id), 0) == CR_SUCCESS)
+				serial = m_get_serial_from_instance_id(parent_id);
+
 			break;
 		}
 
