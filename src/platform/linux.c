@@ -31,7 +31,7 @@ int monome_platform_wait_for_input(monome_t *monome, uint_t msec) {
 	if( !poll(fds, 1, msec) )
 		return 1;
 
-	if (fds->revents & POLLERR)
+	if (fds->revents & (POLLHUP | POLLERR | POLLNVAL))
 		return -1;
 
 	return 0;
