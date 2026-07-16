@@ -304,26 +304,24 @@ char *monome_platform_get_dev_serial(const char *path) {
 	}
 
 	devinfo.cbSize = sizeof(SP_DEVINFO_DATA);
-	di = 0;
 
-	while (SetupDiEnumDeviceInfo(hdevinfo, di, &devinfo)) {
-		if (!m_get_device_port_name(port_name, sizeof(port_name), hdevinfo, &devinfo)) {
+	for (di = 0; SetupDiEnumDeviceInfo(hdevinfo, di, &devinfo); di++) {
+		if (!m_get_device_port_name(port_name, sizeof(port_name), hdevinfo, &devinfo))
 			continue;
-		}
 
 		if (strcmp(port_name, path) == 0) {
-			if (!SetupDiGetDeviceInstanceId(hdevinfo, &devinfo, instance_id, sizeof(instance_id), NULL)) {
-				fprintf(stderr, "libmonome: SetupDiGetDeviceInstanceId() failed.\n");
-				continue;
-			};
+			do {
+				if (CM_Get_Device_ID(devinfo.DevInst, instance_id, sizeof(instance_id), 0) == CR_SUCCESS) {
+					if ((serial = m_get_serial_from_instance_id(instance_id)))
+						goto done;
+				}
+			} while (CM_Get_Parent(&devinfo.DevInst, devinfo.DevInst, 0) == CR_SUCCESS);
 
-			serial = m_get_serial_from_instance_id(instance_id);
 			break;
 		}
-
-		di++;
 	}
 
+done:
 	SetupDiDestroyDeviceInfoList(hdevinfo);
 	return serial;
 }
