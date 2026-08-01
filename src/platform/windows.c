@@ -116,7 +116,6 @@ static char *m_get_serial_from_instance_id(const char *instance_id) {
 		}
 	}
 
-	fprintf(stderr, "libmonome: failed to parse device instance id: %s\n", instance_id);
 	return NULL;
 }
 
@@ -324,6 +323,10 @@ char *monome_platform_get_dev_serial(const char *path) {
 				if (CM_Get_Parent(&devinst, devinfo.DevInst, 0) == CR_SUCCESS &&
 					CM_Get_Device_ID(devinst, instance_id, sizeof(instance_id), 0) == CR_SUCCESS)
 					serial = m_get_serial_from_instance_id(instance_id);
+			}
+
+			if (!serial) {
+				fprintf(stderr, "libmonome: could not determine device serial number for %s\n", path);
 			}
 
 			break;
