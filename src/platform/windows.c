@@ -291,8 +291,7 @@ char *monome_platform_get_dev_serial(const char *path) {
 	SP_DEVINFO_DATA devinfo;
 	char port_name[MAX_DEVICE_ID_LEN];
 	char instance_id[MAX_DEVICE_ID_LEN];
-	char parent_id[MAX_DEVICE_ID_LEN];
-	DEVINST parent_devinst;
+	DEVINST devinst;
 	char *serial;
 	int di;
 
@@ -321,10 +320,11 @@ char *monome_platform_get_dev_serial(const char *path) {
 
 			serial = m_get_serial_from_instance_id(instance_id);
 
-			if (!serial
-					&& CM_Get_Parent(&parent_devinst, devinfo.DevInst, 0) == CR_SUCCESS
-					&& CM_Get_Device_ID(parent_devinst, parent_id, sizeof(parent_id), 0) == CR_SUCCESS)
-				serial = m_get_serial_from_instance_id(parent_id);
+			if (!serial) {
+				if (CM_Get_Parent(&devinst, devinfo.DevInst, 0) == CR_SUCCESS &&
+					CM_Get_Device_ID(devinst, instance_id, sizeof(instance_id), 0) == CR_SUCCESS)
+					serial = m_get_serial_from_instance_id(instance_id);
+			}
 
 			break;
 		}
