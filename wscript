@@ -20,6 +20,7 @@ def check_poll(conf):
 	# borrowed from glib's poll test
 
 	code = """
+		#include <fcntl.h>
 		#include <stdlib.h>
 		#include <poll.h>
 
